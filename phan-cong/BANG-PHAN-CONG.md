@@ -43,7 +43,7 @@ Ai cũng được sửa file này (`BANG-PHAN-CONG.md`) để cập nhật trạ
 | 14 | Máy chủ phòng chơi, ghép cặp ngẫu nhiên / phòng riêng / chơi với máy, trang /tro-choi, nút nhảy trong game 3D | Claude | Xong | [tro-choi-hop-dong.md](tro-choi-hop-dong.md) |
 | 15 | Hình nhân vật sau đầu thai: người, 12 con giáp, tiên (`src/online/reborn.js`) | Codex | Xong | [codex.md](codex.md) |
 | 16 | Quay ngẫu nhiên kiếp mới khi đầu thai, 3 màn công bố riêng (người / con giáp / tiên), đồng bộ hình cho người khác | Claude | Xong | |
-| 17 | Phòng thờ cảnh mở đầu + 5 quầy đồ ăn tích phước (`src/online/scenes.js`) | Codex | Đang làm | [codex.md](codex.md) |
+| 17 | Phòng thờ cảnh mở đầu + 5 quầy đồ ăn tích phước (`src/online/scenes.js`) | Codex | Xong | [codex.md](codex.md) |
 | 18 | Cảnh mở đầu ngồi bàn thờ → nút "Xuống âm phủ"; đặt 5 quầy ăn trong sân, ăn được cộng công đức | Claude | Xong | |
 | 11 | Máy chủ riêng (server.js) để đưa lên web ngoài Claude, giao diện điện thoại dọc/ngang | Claude | Xong | [../DUA-LEN-WEB.md](../DUA-LEN-WEB.md) |
 
@@ -81,3 +81,4 @@ Ai cũng được sửa file này (`BANG-PHAN-CONG.md`) để cập nhật trạ
 - 2026-11-04 · Claude · Thêm việc 15 (Codex: hình 14 kiếp đầu thai) và việc 16 (Claude: quay kiếp, màn công bố, đồng bộ).
 - 2026-11-04 · Codex · Xong mã Việc 15: tạo `reborn.js`, đủ 14 form × 2 giới tính, mắt hai điểm sáng/má hồng, đặc trưng từng con giáp, người hiện đại, tiên nữ/tiên ông râu bạc với mây/dải lụa/hào quang; có hoạt ảnh, đổi màu độc lập và cache geometry/material giữa nhân vật. Node REPL kiểm tra cú pháp đạt; bộ giả lập geometry theo công thức r128 kiểm đếm 28 biến thể: 13–27 mesh, 1.212–2.484 tam giác; 1.369 kiểm tra cache/đổi màu/hoạt ảnh/fallback đạt. Chưa chạy trên Three.js thật hay kiểm tra trực quan vì không có thư viện cục bộ và tải mạng bị chặn; nhờ Claude chạy `__rebornSelfTest(THREE)` (28 dòng, kiểm thêm chiều cao, đỉnh và ma trận hữu hạn) và xem hình khi ghép. Chỉ sửa `reborn.js` và bảng này, không sửa `avatars-gen.js`.
 - 2026-11-04 · Claude · Ghép `reborn.js` của Codex: self-test trong trình duyệt 28/28 đạt (tối đa 27 mesh, 2.484 tam giác), xem tận mắt cả 14 hình. Xong việc 16 (quay kiếp 45% người / 45% con giáp / 10% tiên, 3 màn công bố) và việc 18 (cảnh bàn thờ, 5 quầy ăn, đang dùng hình tạm chờ `scenes.js`).
+- 2026-11-04 · Claude · Ghép `scenes.js` của Codex (việc 17): self-test trong trình duyệt đạt (phòng 127 mesh, quầy 35–45 mesh), xem tận mắt phòng thờ và quầy ăn. Giảm độ sáng đèn phòng thờ cho màu ấm hơn.

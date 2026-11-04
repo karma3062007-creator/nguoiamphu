@@ -235,7 +235,7 @@
         a(g, 'ball', s < 0 ? '#d85932' : '#e9bf4e', s * 0.52, 1.16, 0.06, 0.29, 0.18, 0.26);
         a(g, 'puff', '#f4da82', s * 0.52, 1.325, 0.06, 0.10, 0.025, 0.09);
       });
-      animations.push(steam(T, k, g, 0, 1.36, 0.05, 3, 0.45));
+      animations.push(steam(T, k, g, -0.52, 1.36, 0.05, 3, 0.45));
     } else if (type === 'banhbao') {
       for (i = 0; i < 3; i++) {
         a(g, 'cyl', '#c3945e', -0.38, 1.18 + i * 0.16, -0.08, 0.42, 0.14, 0.42);
@@ -287,6 +287,12 @@
   root.__scenesSelfTest = function (T) {
     var rows = [], ownedMaterials = new Set();
     function assert(ok, text) { if (!ok) throw new Error('Scenes self-test: ' + text); }
+    function track(model) {
+      model.group.traverse(function (o) {
+        if (o.isMesh && o.name.indexOf('steam-') === 0) ownedMaterials.add(o.material);
+      });
+      return model;
+    }
     function inspect(model, name, limit) {
       var meshes = 0, tris = 0;
       model.group.position.set(3, 0, -2);
@@ -302,13 +308,12 @@
         assert(p && p.array.every(Number.isFinite), name + ' invalid vertices');
         assert(Number.isFinite(o.material.opacity), name + ' invalid opacity');
         tris += (o.geometry.index ? o.geometry.index.count : p.count) / 3;
-        if (o.name.indexOf('steam-') === 0) ownedMaterials.add(o.material);
       });
       assert(meshes <= limit, name + ' mesh budget exceeded: ' + meshes);
       rows.push({ name: name, meshes: meshes, tris: Math.round(tris) });
     }
     try {
-      var room = root.makeAltarRoom(T);
+      var room = track(root.makeAltarRoom(T));
       assert(room.seat.isVector3 && room.cam.pos.isVector3 && room.cam.look.isVector3, 'room vectors missing');
       assert(room.seat.y === 1.60 && Math.abs(room.seat.x) < 1.7 && room.seat.z > -3.5 && room.seat.z < -2.2, 'seat must be on altar');
       var family = [], smoke, lights = 0;
@@ -324,7 +329,7 @@
       assert(smoke.position.y !== sy && family[0].children[2].rotation.x !== bow, 'room animation frozen');
       inspect(room, 'altar-room', 150);
       Object.keys(stallInfo).forEach(function (type) {
-        var stall = root.makeFoodStall(T, type), lamp;
+        var stall = track(root.makeFoodStall(T, type)), lamp;
         stall.group.traverse(function (o) { if (o.name === 'lantern') lamp = o; });
         stall.update(0, 0); var old = lamp.rotation.z; stall.update(0, 1);
         assert(lamp.rotation.z !== old, type + ' lantern frozen');
@@ -332,7 +337,7 @@
         assert(Math.abs(bounds.min.y) < 0.001 && size.x <= 2.5 && size.z <= 1.6 && size.y >= 2.4 && size.y <= 2.7, type + ' dimensions');
         inspect(stall, type, 60);
       });
-      assert(root.makeFoodStall(T, 'unknown').group.name === 'food-stall-xoi', 'fallback');
+      assert(track(root.makeFoodStall(T, 'unknown')).group.name === 'food-stall-xoi', 'fallback');
       return { ok: true, rows: rows };
     } finally {
       // Only dispose private test smoke materials. Shared caches belong to the game.

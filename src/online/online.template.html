@@ -1023,6 +1023,8 @@ function buildAltar() {
   let r = null;
   try { if (window.makeAltarRoom) r = window.makeAltarRoom(THREE); } catch (e) { console.warn("altar", e); }
   if (!r || !r.group || !r.seat || !r.cam) r = fallbackAltar();
+  // the courtyard's own lights also reach the room, so tone the room lights down to keep colours rich
+  r.group.traverse(o => { if (o.isLight) o.intensity *= .55; });
   r.group.position.copy(ALTAR); scene.add(r.group);
   return (altar = r);
 }
