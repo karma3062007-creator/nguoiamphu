@@ -19,12 +19,18 @@ const wrap = body => '<!doctype html><html lang="vi"><head><meta charset="utf-8"
 const tour = read("src/tour/tour.template.html").replace("__DATA__", () => levels);
 fs.writeFileSync(path.join(root, "dist/am-phu-travel.html"), wrap(tour));
 
+// Trang chủ Địa Ngục Online
+const logo = read("src/shared/logo.svg").trim();
+const home = read("src/home/home.template.html").replace("__DATA__", () => levels).replace("<!--__LOGO__-->", () => logo);
+fs.writeFileSync(path.join(root, "dist/index.html"), wrap(home));
+
 // Ưu tiên nhân vật của Antigravity (avatars-gen.js); chưa có thì dùng bản của Codex (avatars.js)
 const avatarFile = fs.existsSync(path.join(root, "src/online/avatars-gen.js")) ? "src/online/avatars-gen.js" : "src/online/avatars.js";
 const avatars = readOpt(avatarFile);
 const extras = readOpt("src/online/extras.js");
 const online = read("src/online/online.template.html")
   .replace("__DATA__", () => levels)
+  .replace("<!--__LOGO__-->", () => logo)
   .replace("/*__AVATARS__*/", () => safe(avatars) || "/* chưa có avatars.js: game dùng hình nhân vật đơn giản */")
   .replace("/*__EXTRAS__*/", () => safe(extras) || "/* chưa có extras.js */");
 fs.writeFileSync(path.join(root, "dist/am-phu-online.html"), wrap(online));
@@ -34,10 +40,10 @@ fs.writeFileSync(path.join(root, "dist/.publish-travel.html"), tour);
 
 // Kiểm tra cú pháp các đoạn script
 let ok = true;
-for (const [name, html] of [["am-phu-travel", tour], ["am-phu-online", online]]) {
+for (const [name, html] of [["index", home], ["am-phu-travel", tour], ["am-phu-online", online]]) {
   const blocks = [...html.matchAll(/<script>([\s\S]*?)<\/script>/g)].map(m => m[1]);
   blocks.forEach((js, i) => { try { new Function(js); } catch (e) { ok = false; console.error(`✗ ${name} script #${i + 1}: ${e.message}`); } });
 }
-console.log(ok ? "✓ Đã ghép xong dist/am-phu-travel.html và dist/am-phu-online.html" : "Có lỗi cú pháp, xem ở trên.");
+console.log(ok ? "✓ Đã ghép xong dist/index.html, dist/am-phu-travel.html và dist/am-phu-online.html" : "Có lỗi cú pháp, xem ở trên.");
 console.log(`  nhân vật: ${avatars ? avatarFile : "chưa có"} · extras.js: ${extras ? "có" : "chưa có"}`);
 process.exit(ok ? 0 : 1);

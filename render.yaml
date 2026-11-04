@@ -1,7 +1,7 @@
 # Cấu hình cho Render.com: New → Blueprint → chọn repository này là tự tạo dịch vụ.
 services:
   - type: web
-    name: am-phu-online
+    name: tour-dia-nguc-nhieu-nguoi-choi
     runtime: node
     plan: free
     buildCommand: node build.js

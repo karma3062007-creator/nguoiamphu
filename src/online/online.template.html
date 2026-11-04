@@ -1,15 +1,15 @@
-<title>Âm Phủ Online</title>
+<title>Địa Ngục Online</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Grenze+Gotisch:wght@700;900&family=Be+Vietnam+Pro:wght@400;500;600;700&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700;800&family=Be+Vietnam+Pro:wght@400;500;600;700&display=swap">
 <style>
 /* Layout: one full-screen 3D world; HUD pinned to the four corners; overlays (server list, character maker, leaderboard) float on the scene. Single deliberate look: lacquer red + joss-paper gold. */
 :root {
   color-scheme: dark;
   --lacquer: #1c0a0a; --panel: rgba(28,10,10,.86); --ink: #f3e3c4; --muted: #b99a7a;
   --gold: #d9a441; --gold-hi: #f2cf6b; --cinnabar: #d2381f; --ash: #3b2320; --line: rgba(217,164,65,.32);
-  --display: "Grenze Gotisch", "Times New Roman", serif; --body: "Be Vietnam Pro", system-ui, sans-serif;
+  --display: "Baloo 2", "Be Vietnam Pro", sans-serif; --body: "Be Vietnam Pro", system-ui, sans-serif;
 }
 * { box-sizing: border-box; }
 html, body { height: 100%; }
@@ -139,13 +139,43 @@ h2 { font-size: 1.8rem; color: var(--gold); }
   .namerow input { padding: 7px 9px; }
   #charf .row2 { position: sticky; bottom: 0; background: var(--panel); padding: 8px 0 12px; margin-top: auto; }
 }
+/* Địa Ngục Online look: cream cards with maroon ink, red pill buttons (matches the home page) */
+.brand { display: flex; align-items: center; gap: 10px; text-decoration: none; }
+.logo-ic { width: 72px; height: auto; flex: none; filter: drop-shadow(0 4px 0 rgba(40,6,6,.4)); }
+.word { font-family: var(--display); font-weight: 800; line-height: .82; display: flex; flex-direction: column; }
+.word .a { font-size: 2.1rem; color: #fdebc8; -webkit-text-stroke: 2px #6a1414; paint-order: stroke fill; text-shadow: 0 3px 0 #3a0c0c; }
+.word .b { font-size: 2.4rem; background: linear-gradient(180deg, #ffdf7e, #ff8a2a 55%, #d63a1f); -webkit-background-clip: text; background-clip: text; color: transparent; filter: drop-shadow(0 2px 0 #3a0c0c); }
+.ov .sheet { background: linear-gradient(180deg, #fff3d6, #f6d49a); color: #2b0a0a; border: 3px solid #e8b765; border-radius: 22px; box-shadow: 0 6px 0 #7c2a12, 0 18px 40px rgba(0,0,0,.45); backdrop-filter: none; }
+.ov .sheet h2 { color: #6a1414; font-weight: 800; font-size: 2rem; }
+.ov .sub, .ov .field > label, .ov .field > .lbl { color: #7a3a2a; }
+.ov .eyebrow { color: #d63a1f; }
+.ov .server { background: #fff7e6; border: 2px solid #e8b765; color: #6a1414; border-radius: 16px; box-shadow: 0 4px 0 #b06a2a; }
+.ov .server:hover, .ov .server.rec { border-color: #d63a1f; }
+.ov .server small { color: #7a3a2a; } .ov .server .tag { color: #d63a1f; }
+.ov .server b { font: 800 1.2rem var(--display); }
+.ov .namerow input, .ov .seg button { background: #fff7e6; color: #6a1414; border: 2px solid #e8b765; border-radius: 12px; }
+.ov .seg button[aria-pressed="true"] { background: #d63a1f; color: #fff6e3; border-color: #8a2a17; }
+.ov .sw button { border-color: #e8b765; }
+.ov .sw button[aria-pressed="true"] { border-color: #d63a1f; box-shadow: 0 0 0 2px #fff3d6, 0 0 0 4px #d63a1f; }
+.ov .btn, .tr .btn { border-radius: 999px; font-family: var(--display); font-weight: 800; }
+.ov .btn { background: linear-gradient(180deg, #e8492a, #b3201c); color: #fff6e3; border: 3px solid #8a2a17; }
+.ov .btn.ghost { background: #fff7e6; color: #6a1414; border-color: #e8b765; }
+.ov .board li { background: #fff7e6; color: #6a1414; border-radius: 12px; border: 2px solid #e8b765; }
+.ov .board li::before { color: #d63a1f; } .ov .board li em { color: #d63a1f; } .ov .board li b { color: #6a1414; }
+.ov .empty { color: #7a3a2a; border-color: #e8b765; }
+.tl.card { background: linear-gradient(180deg, rgba(255,243,214,.95), rgba(246,212,154,.95)); color: #2b0a0a; border: 2px solid #e8b765; border-radius: 16px; }
+.tl .sv b { color: #6a1414; font-weight: 800; } .tl .sv span, .tl .mrow { color: #7a3a2a; } .tl .mrow b { color: #6a1414; } .tl .mrow .fl { color: #d63a1f; font-weight: 800; }
+.tl .bar { background: #fff7e6; border-color: #e8b765; border-radius: 99px; overflow: hidden; }
+.tr .btn.ghost { background: #fff3d6; color: #6a1414; border: 2px solid #e8b765; text-decoration: none; }
+.prompt { border-radius: 999px; }
+@media (max-height: 500px) { #charf .row2 { background: #f6d49a; } .logo-ic { width: 52px; } .word .a { font-size: 1.5rem; } .word .b { font-size: 1.7rem; } }
 .loading { position: absolute; inset: 0; display: grid; place-items: center; z-index: 9; background: var(--lacquer); color: var(--muted); text-align: center; padding: 16px; }
 .loading b { display: block; font-family: var(--display); font-size: 2rem; color: var(--gold); }
 </style>
 
 <div id="app">
-  <canvas id="world" tabindex="0" aria-label="Thế giới 3D Âm Phủ Online"></canvas>
-  <div class="loading" id="loading"><div><b>Âm Phủ Online</b>Đang mở Quỷ Môn Quan…</div></div>
+  <canvas id="world" tabindex="0" aria-label="Thế giới 3D Địa Ngục Online"></canvas>
+  <div class="loading" id="loading"><div><b>Địa Ngục Online</b>Đang mở Quỷ Môn Quan…</div></div>
 
   <!-- HUD -->
   <div class="hud tl card" id="hud" hidden>
@@ -159,6 +189,7 @@ h2 { font-size: 1.8rem; color: var(--gold); }
     <button class="btn ghost" type="button" id="b-board">Bảng công đức</button>
     <button class="btn ghost" type="button" id="b-char">Nhân vật</button>
     <button class="btn ghost" type="button" id="b-mute" aria-pressed="false">Âm thanh: bật</button>
+    <a class="btn ghost" href="/" id="b-home">Trang chủ</a>
   </div>
   <div class="hud chat" id="chat" hidden>
     <ul class="log" id="log" aria-live="polite"></ul>
@@ -174,8 +205,8 @@ h2 { font-size: 1.8rem; color: var(--gold); }
   <!-- server select -->
   <div class="ov" id="ov-sv">
     <div class="sheet">
+      <a class="brand" href="/" aria-label="Về trang chủ Địa Ngục Online"><!--__LOGO__--><span class="word"><span class="a">Địa Ngục</span><span class="b">Online</span></span></a>
       <div class="eyebrow">Tour địa ngục nhiều người chơi</div>
-      <h1>Âm Phủ <em>Online</em></h1>
       <p class="sub">Đi lại trong sân Điện Diêm La cùng các vong hồn khác, gõ mõ, thắp hương, đốt vàng mã, thả đèn trên sông Huyết Hà để tích công đức, giảm án dần từ B18 cho tới lúc được đầu thai.</p>
       <div class="field"><span class="lbl">Bấm để vào cõi</span><div class="servers" id="servers"></div></div>
       <p class="sub" id="sv-note">Số người online cập nhật trực tiếp.</p>
@@ -724,7 +755,7 @@ function clientKey() {
 function makeWsNet() {
   if (!/^https?:$/.test(location.protocol)) return null;
   const url = (location.protocol === "https:" ? "wss://" : "ws://") + location.host + "/ws";
-  let ws = null, myId = null, open = false, retry = 0, lastP = null;
+  let ws = null, myId = null, open = false, retry = 0, lastP = null, full = false;
   let peers = new Map();
   const peerFns = [], boardFns = [], statusFns = [];
   const emitPeers = () => {
@@ -741,8 +772,9 @@ function makeWsNet() {
       else if (m.t === "p") { peers.set(m.id, m.p || {}); emitPeers(); }
       else if (m.t === "leave") { peers.delete(m.id); emitPeers(); }
       else if (m.t === "board" || m.t === "me") boardFns.forEach(f => f(m));
+      else if (m.t === "full") { full = true; location.href = "/?full"; }
     };
-    ws.onclose = () => { open = false; peers = new Map(); emitPeers(); statusFns.forEach(f => f(false)); setTimeout(connect, Math.min(10000, 800 * 2 ** retry++)); };
+    ws.onclose = () => { if (full) return; open = false; peers = new Map(); emitPeers(); statusFns.forEach(f => f(false)); setTimeout(connect, Math.min(10000, 800 * 2 ** retry++)); };
     ws.onerror = () => {};
   }
   connect();

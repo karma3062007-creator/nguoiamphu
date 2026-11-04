@@ -7,8 +7,10 @@ Hai trang web vui về Thập Bát Tầng Địa Ngục:
 
 ## Web chính thức (Render)
 
-- Game Âm Phủ Online: https://nguoiamphu.onrender.com
+- Trang chủ Địa Ngục Online (6 ô chức năng, 18 tầng, bảng công đức): https://nguoiamphu.onrender.com
+- Game 3D nhiều người chơi: https://nguoiamphu.onrender.com/choi
 - Trang tour Âm Phủ Travel: https://nguoiamphu.onrender.com/tour
+- Khi máy chủ đầy (mặc định 60 người, đổi bằng biến MAX_CLIENTS) người mới thấy màn "Địa ngục đang quá tải".
 
 ## Bản trên Claude (người chơi ở đây không thấy người chơi trên web chính thức)
 
@@ -22,6 +24,8 @@ Xem [phan-cong/BANG-PHAN-CONG.md](phan-cong/BANG-PHAN-CONG.md).
 ## Cấu trúc
 
 ```
+src/home/home.template.html       trang chủ + màn quá tải (Claude)
+src/shared/logo.svg               logo Địa Ngục Online
 src/shared/levels.json            nội dung 18 tầng (Codex)
 src/tour/tour.template.html       trang tour (Claude)
 src/online/online.template.html   thế giới 3D + nhiều người chơi (Claude)

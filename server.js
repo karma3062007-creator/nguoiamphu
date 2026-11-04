@@ -10,13 +10,14 @@ const PORT = +process.env.PORT || 8080;
 const ROOT = __dirname;
 const DATA_DIR = process.env.DATA_DIR || path.join(ROOT, "data");
 const MERIT_FILE = path.join(DATA_DIR, "merit.json");
-const MAX_CLIENTS = 300;      // tối đa số người cùng lúc trên cả máy chủ
+const MAX_CLIENTS = +process.env.MAX_CLIENTS || 60; // tối đa số người cùng lúc; đầy thì hiện trang "quá tải"
 const MAX_MSG = 4096;         // byte mỗi tin
 const RATE = 30;              // tin tối đa mỗi giây mỗi người
 
 /* ---------- trang tĩnh ---------- */
 const PAGES = {
-  "/": "dist/am-phu-online.html",
+  "/": "dist/index.html",
+  "/choi": "dist/am-phu-online.html",
   "/am-phu-online.html": "dist/am-phu-online.html",
   "/tour": "dist/am-phu-travel.html",
   "/am-phu-travel.html": "dist/am-phu-travel.html"
@@ -24,7 +25,14 @@ const PAGES = {
 const server = http.createServer((req, res) => {
   const url = req.url.split("?")[0];
   if (url === "/health") { res.writeHead(200, { "content-type": "text/plain" }); res.end("ok " + clients.size); return; }
+  if (url === "/api/board") {
+    res.writeHead(200, { "content-type": "application/json; charset=utf-8", "cache-control": "no-store" });
+    res.end(JSON.stringify({ online: [...clients.values()].filter(c => c.p && c.p.sv).length, max: MAX_CLIENTS, rows: topRows().map(([, v]) => ({ n: v.n, m: v.m })) }));
+    return;
+  }
   const file = PAGES[url];
+  // game đầy: chuyển sang trang chủ ở trạng thái "quá tải"
+  if (file === PAGES["/choi"] && clients.size >= MAX_CLIENTS) { res.writeHead(302, { location: "/?full" }); res.end(); return; }
   if (!file) { res.writeHead(404, { "content-type": "text/plain; charset=utf-8" }); res.end("Không tìm thấy trang"); return; }
   fs.readFile(path.join(ROOT, file), (err, buf) => {
     if (err) { res.writeHead(500, { "content-type": "text/plain; charset=utf-8" }); res.end("Chưa có trang. Hãy chạy: node build.js"); return; }
@@ -65,12 +73,13 @@ const clients = new Map(); // id -> client
 let nextId = 1;
 
 server.on("upgrade", (req, socket) => {
-  if (req.url.split("?")[0] !== "/ws" || clients.size >= MAX_CLIENTS) { socket.destroy(); return; }
+  if (req.url.split("?")[0] !== "/ws") { socket.destroy(); return; }
   const key = req.headers["sec-websocket-key"];
   if (!key) { socket.destroy(); return; }
   const accept = crypto.createHash("sha1").update(key + "258EAFA5-E914-47DA-95CA-C5AB0DC85B11").digest("base64");
   socket.write("HTTP/1.1 101 Switching Protocols\r\nUpgrade: websocket\r\nConnection: Upgrade\r\nSec-WebSocket-Accept: " + accept + "\r\n\r\n");
   socket.setNoDelay(true);
+  if (clients.size >= MAX_CLIENTS) { writeFrame(socket, Buffer.from('{"t":"full"}')); socket.end(); return; }
 
   const c = { id: "p" + (nextId++).toString(36) + crypto.randomBytes(3).toString("hex"), socket, buf: Buffer.alloc(0), p: null, key: null, tokens: RATE, last: Date.now(), alive: true };
   clients.set(c.id, c);
