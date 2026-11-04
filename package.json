@@ -1,0 +1,13 @@
+{
+  "name": "am-phu-online",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Game 3D nhiều người chơi ở 18 tầng địa ngục",
+  "scripts": {
+    "build": "node build.js",
+    "start": "node build.js && node server.js"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}

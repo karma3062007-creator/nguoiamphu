@@ -1,0 +1,952 @@
+<!doctype html><html lang="vi"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0}img{max-width:100%}[hidden]{display:none!important}</style></head><body><title>Âm Phủ Travel</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Grenze+Gotisch:wght@500;700;900&family=Be+Vietnam+Pro:wght@400;500;700&display=swap">
+<style>
+/* Layout: an elevator ride down — a sticky floor panel on the side, floors B1→B18 stacked below, heat rising as you descend. Single deliberate look: lacquer red + joss-paper gold. */
+:root {
+  color-scheme: dark;
+  --lacquer: #1c0a0a;
+  --lacquer-2: #2a0f0d;
+  --ink: #f3e3c4;
+  --muted: #b99a7a;
+  --gold: #d9a441;
+  --gold-hi: #f2cf6b;
+  --cinnabar: #d2381f;
+  --ash: #3b2320;
+  --line: rgba(217,164,65,.28);
+  --display: "Grenze Gotisch", "Times New Roman", serif;
+  --body: "Be Vietnam Pro", system-ui, sans-serif;
+}
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body {
+  background: var(--lacquer);
+  color: var(--ink);
+  font: 400 16px/1.6 var(--body);
+}
+body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-area-inset-top, 0px); z-index: 10; background: var(--lacquer); }
+#heat { position: fixed; inset: 0; pointer-events: none; z-index: 0;
+  background: radial-gradient(120% 70% at 50% 110%, rgba(210,56,31,var(--h,0)) 0%, transparent 70%); }
+.wrap { position: relative; z-index: 1; max-width: 1120px; margin: 0 auto;
+  padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+a { color: var(--gold-hi); }
+:focus-visible { outline: 2px solid var(--gold-hi); outline-offset: 3px; }
+
+/* top bar */
+.bar { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 5; background: color-mix(in srgb, var(--lacquer) 88%, transparent);
+  backdrop-filter: blur(6px); border-bottom: 1px solid var(--line); }
+.bar .wrap { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding-block: 10px; }
+.logo { font-family: var(--display); font-size: 1.6rem; font-weight: 900; color: var(--gold); letter-spacing: .02em; text-decoration: none; }
+.logo small { font-family: var(--body); font-size: .7rem; color: var(--muted); letter-spacing: .14em; text-transform: uppercase; margin-left: 8px; font-weight: 500; }
+.btn { font: 700 .9rem var(--body); border: 1px solid var(--gold); color: var(--lacquer); background: var(--gold);
+  padding: 10px 18px; border-radius: 2px; cursor: pointer; letter-spacing: .02em; }
+.btn:hover { background: var(--gold-hi); }
+.btn.ghost { background: transparent; color: var(--gold); }
+.btn.ghost:hover { background: rgba(217,164,65,.12); }
+
+/* hero */
+.hero { padding-block: 56px 40px; display: grid; grid-template-columns: 1.4fr 1fr; gap: 40px; align-items: center; }
+.eyebrow { font-size: .75rem; letter-spacing: .2em; text-transform: uppercase; color: var(--cinnabar); font-weight: 700; }
+h1 { font-family: var(--display); font-weight: 900; font-size: clamp(2.8rem, 7vw, 5.4rem); line-height: .95; margin: 12px 0 18px; text-wrap: balance; color: var(--ink); }
+h1 em { font-style: normal; color: var(--gold); }
+.lede { color: var(--muted); max-width: 52ch; font-size: 1.05rem; }
+.hero .cta { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 24px; }
+.stamp { border: 2px solid var(--cinnabar); color: var(--cinnabar); padding: 18px 20px; transform: rotate(-3deg); max-width: 340px; justify-self: center;
+  font-family: var(--display); text-align: center; background: rgba(210,56,31,.06); }
+.stamp b { display: block; font-size: 2.6rem; line-height: 1; }
+.stamp span { font-family: var(--body); font-size: .78rem; letter-spacing: .12em; text-transform: uppercase; display: block; margin-top: 8px; }
+.facts { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1px; background: var(--line); border: 1px solid var(--line); margin-bottom: 56px; }
+.facts div { background: var(--lacquer-2); padding: 16px; }
+.facts b { display: block; font-family: var(--display); font-size: 1.8rem; color: var(--gold); font-variant-numeric: tabular-nums; }
+.facts span { font-size: .8rem; color: var(--muted); }
+
+/* elevator layout */
+.ride { display: grid; grid-template-columns: 120px minmax(0,1fr); gap: 32px; align-items: start; padding-bottom: 80px; }
+.panel { position: sticky; top: calc(env(safe-area-inset-top, 0px) + 76px); border: 1px solid var(--line); background: var(--lacquer-2); padding: 12px; }
+.panel .disp { font-family: var(--display); font-size: 2.4rem; text-align: center; color: var(--cinnabar); background: #120505; border: 1px solid var(--ash);
+  font-variant-numeric: tabular-nums; line-height: 1.2; text-shadow: 0 0 10px rgba(210,56,31,.7); }
+.panel .lbl { font-size: .65rem; letter-spacing: .16em; text-transform: uppercase; color: var(--muted); text-align: center; margin: 6px 0 10px; }
+.keys { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
+.keys button { font: 700 .8rem var(--body); color: var(--muted); background: transparent; border: 1px solid var(--ash); border-radius: 50%;
+  aspect-ratio: 1; cursor: pointer; font-variant-numeric: tabular-nums; }
+.keys button:hover { color: var(--gold-hi); border-color: var(--gold); }
+.keys button.on { color: var(--lacquer); background: var(--cinnabar); border-color: var(--cinnabar); box-shadow: 0 0 10px rgba(210,56,31,.8); }
+
+.floors { display: flex; flex-direction: column; gap: 0; }
+.floor { border-top: 1px solid var(--line); padding-block: 36px; display: grid; grid-template-columns: 110px minmax(0,1fr) 220px; gap: 24px; scroll-margin-top: 80px; }
+.floor .num { font-family: var(--display); font-size: 4.2rem; line-height: .9; color: var(--gold); font-variant-numeric: tabular-nums; }
+.floor .num small { display: block; font-family: var(--body); font-size: .68rem; letter-spacing: .16em; text-transform: uppercase; color: var(--muted); margin-top: 8px; }
+.floor h2 { font-family: var(--display); font-weight: 700; font-size: clamp(1.7rem, 3.4vw, 2.4rem); line-height: 1.05; margin: 0 0 4px; text-wrap: balance; }
+.floor .han { color: var(--cinnabar); font-size: .85rem; letter-spacing: .08em; font-weight: 500; }
+.floor .pitch { font-size: 1.05rem; margin: 14px 0 10px; max-width: 60ch; }
+.floor .sin { color: var(--muted); font-size: .9rem; margin: 0 0 14px; }
+.floor .sin b { color: var(--ink); font-weight: 500; }
+.hl { list-style: none; padding: 0; margin: 0; display: flex; flex-wrap: wrap; gap: 8px; }
+.hl li { border: 1px solid var(--ash); padding: 4px 10px; font-size: .82rem; color: var(--ink); background: rgba(59,35,32,.4); }
+.tip { margin-top: 14px; font-size: .85rem; color: var(--gold-hi); }
+.tip::before { content: "Mẹo của hướng dẫn viên · "; color: var(--muted); }
+.ticket { border: 1px dashed var(--gold); padding: 14px; display: flex; flex-direction: column; gap: 8px; align-self: start; background: rgba(217,164,65,.04); }
+.ticket .row { display: flex; justify-content: space-between; gap: 8px; font-size: .82rem; color: var(--muted); }
+.ticket .row b { color: var(--ink); font-variant-numeric: tabular-nums; text-align: right; }
+.flames { display: inline-flex; gap: 3px; }
+.flames i { width: 9px; height: 13px; border-radius: 50% 50% 50% 50% / 60% 60% 40% 40%; background: var(--ash); display: inline-block; }
+.flames i.on { background: linear-gradient(to top, var(--cinnabar), var(--gold-hi)); }
+.ticket .price { font-family: var(--display); font-size: 1.3rem; color: var(--gold); line-height: 1.2; }
+.ticket .btn { width: 100%; }
+
+footer { border-top: 1px solid var(--line); padding-block: 28px; color: var(--muted); font-size: .8rem; }
+
+/* booking dialog */
+.modal { position: fixed; inset: 0; z-index: 20; background: rgba(10,3,3,.78); display: grid; place-items: center;
+  padding: max(16px, env(safe-area-inset-top,0px)) max(16px, env(safe-area-inset-right,0px)) max(16px, env(safe-area-inset-bottom,0px)) max(16px, env(safe-area-inset-left,0px)); }
+.sheet { background: var(--lacquer-2); border: 1px solid var(--gold); width: min(460px, 100%); padding: 24px; max-height: 100%; overflow: auto; }
+.sheet h3 { font-family: var(--display); font-size: 2rem; margin: 0 0 4px; color: var(--gold); }
+.sheet p { color: var(--muted); margin: 0 0 16px; font-size: .9rem; }
+.field { display: flex; flex-direction: column; gap: 6px; margin-bottom: 14px; }
+.field label { font-size: .75rem; letter-spacing: .12em; text-transform: uppercase; color: var(--muted); }
+.field input, .field select { font: 400 1rem var(--body); color: var(--ink); background: var(--lacquer); border: 1px solid var(--ash); padding: 10px; border-radius: 2px; }
+.actions { display: flex; gap: 10px; justify-content: flex-end; flex-wrap: wrap; }
+.pass { border: 2px solid var(--cinnabar); padding: 16px; margin-bottom: 16px; }
+.pass .code { font-family: var(--display); font-size: 1.6rem; color: var(--cinnabar); letter-spacing: .06em; }
+.pass dl { display: grid; grid-template-columns: auto 1fr; gap: 4px 12px; margin: 10px 0 0; font-size: .88rem; }
+.pass dt { color: var(--muted); } .pass dd { margin: 0; }
+
+/* shrine */
+.shrine { margin-bottom: 64px; display: flex; flex-direction: column; gap: 16px; }
+.live { display: flex; flex-wrap: wrap; gap: 8px; }
+.chip { display: inline-flex; align-items: center; gap: 8px; border: 1px solid var(--line); padding: 6px 12px; font-size: .82rem; color: var(--ink); background: var(--lacquer-2); font-variant-numeric: tabular-nums; }
+.chip .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--cinnabar); box-shadow: 0 0 8px var(--cinnabar); }
+.chip b { color: var(--gold-hi); }
+.sh-grid { display: grid; grid-template-columns: minmax(0, 1.6fr) minmax(0, 1fr); gap: 16px; align-items: start; }
+.sh-stage { position: relative; border: 1px solid var(--gold); background: #0d0404; line-height: 0; overflow: hidden; }
+.sh-stage canvas { width: 100%; height: auto; aspect-ratio: 16 / 9; max-width: 100%; image-rendering: pixelated; display: block; cursor: pointer; }
+.floats { position: absolute; inset: 0; pointer-events: none; line-height: 1.2; }
+.floats span { position: absolute; transform: translate(-50%, -50%); color: var(--gold-hi); font: 700 clamp(.8rem, 1.8vw, 1.05rem) var(--body);
+  text-shadow: 0 1px 0 #000, 0 0 8px rgba(0,0,0,.8); white-space: nowrap; animation: rise 1.4s ease-out forwards; }
+@keyframes rise { from { opacity: 1; margin-top: 0; } to { opacity: 0; margin-top: -48px; } }
+.mute { position: absolute; top: 8px; right: 8px; line-height: 1.2; font: 500 .75rem var(--body); color: var(--ink); background: rgba(28,10,10,.8); border: 1px solid var(--line); padding: 4px 8px; cursor: pointer; }
+.sh-side { border: 1px solid var(--line); background: var(--lacquer-2); padding: 16px; display: flex; flex-direction: column; gap: 14px; }
+.merit .lbl { font-size: .72rem; letter-spacing: .16em; text-transform: uppercase; color: var(--muted); }
+.merit .big { font-family: var(--display); font-size: 3rem; line-height: 1; color: var(--gold); font-variant-numeric: tabular-nums; }
+.merit .sent { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; margin-top: 6px; }
+.merit .sent b { font-family: var(--display); font-size: 1.5rem; color: var(--cinnabar); }
+.bar2 { height: 8px; background: var(--lacquer); border: 1px solid var(--ash); margin-top: 8px; }
+.bar2 i { display: block; height: 100%; width: 0; background: linear-gradient(90deg, var(--cinnabar), var(--gold-hi)); transition: width .3s; }
+.merit .next { font-size: .82rem; color: var(--muted); margin-top: 6px; }
+.acts { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.acts button { display: flex; justify-content: space-between; align-items: center; gap: 6px; font: 700 .88rem var(--body); color: var(--ink); background: var(--lacquer);
+  border: 1px solid var(--ash); padding: 10px 12px; cursor: pointer; border-radius: 2px; text-align: left; }
+.acts button:hover { border-color: var(--gold); }
+.acts button span { color: var(--gold-hi); font-weight: 500; font-size: .78rem; font-variant-numeric: tabular-nums; }
+.acts button.mo { grid-column: 1 / -1; background: var(--cinnabar); border-color: var(--cinnabar); padding: 14px; font-size: 1rem; }
+.acts button.mo span { color: var(--ink); }
+.sh-note { font-size: .82rem; color: var(--gold-hi); min-height: 1.3em; }
+.feed { list-style: none; margin: 0; padding: 0; font-size: .82rem; color: var(--muted); display: flex; flex-direction: column; gap: 4px; max-height: 120px; overflow: auto; }
+.feed li b { color: var(--ink); font-weight: 500; }
+.wishes { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.6fr); gap: 16px; align-items: start; }
+.wform { border: 1px solid var(--line); background: var(--lacquer-2); padding: 16px; display: flex; flex-direction: column; gap: 10px; }
+.wform h3, .wlist h3 { font-family: var(--display); font-size: 1.6rem; margin: 0; color: var(--gold); line-height: 1.1; }
+.wform textarea { font: 400 .95rem/1.5 var(--body); color: var(--ink); background: var(--lacquer); border: 1px solid var(--ash); padding: 10px; border-radius: 2px; resize: vertical; min-height: 84px; }
+.wform .meta { display: flex; justify-content: space-between; align-items: center; gap: 8px; font-size: .78rem; color: var(--muted); flex-wrap: wrap; }
+.wlist { display: flex; flex-direction: column; gap: 10px; min-width: 0; }
+.wgrid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 10px; }
+.wish { background: #7a1410; color: #fbe9c6; padding: 12px 12px 10px; border-top: 3px solid var(--gold); font-size: .9rem; line-height: 1.45; display: flex; flex-direction: column; gap: 8px; overflow-wrap: anywhere; }
+.wish .wm { display: flex; justify-content: space-between; font-size: .72rem; color: #f2cf6b; letter-spacing: .06em; }
+.wish.mine { outline: 1px dashed var(--gold-hi); outline-offset: 2px; }
+.empty { border: 1px dashed var(--ash); padding: 16px; color: var(--muted); font-size: .88rem; }
+@media (max-width: 860px) { .sh-grid, .wishes { grid-template-columns: minmax(0, 1fr); } }
+@media (prefers-reduced-motion: reduce) { .floats span { animation-name: fade; } @keyframes fade { from { opacity: 1; } to { opacity: 0; } } }
+
+/* mini game */
+.game { margin-bottom: 64px; display: flex; flex-direction: column; gap: 14px; }
+.g-head { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: end; gap: 20px; }
+.g-head > div:first-child { min-width: 0; flex: 1 1 380px; }
+.g-title { font-family: var(--display); font-weight: 900; font-size: clamp(2rem, 5vw, 3.2rem); line-height: 1; margin: 8px 0 10px; color: var(--ink); }
+.g-head .lede { font-size: .95rem; margin: 0; }
+.pick { display: flex; gap: 8px; flex-wrap: wrap; }
+.pick button { display: flex; flex-direction: column; align-items: center; gap: 4px; padding: 8px 10px 6px; background: var(--lacquer-2);
+  border: 1px solid var(--ash); color: var(--muted); font: 500 .75rem var(--body); cursor: pointer; border-radius: 2px; }
+.pick button[aria-pressed="true"] { border-color: var(--gold); color: var(--gold-hi); background: rgba(217,164,65,.1); }
+.pick canvas { width: 36px; height: 42px; image-rendering: pixelated; }
+.stage { position: relative; border: 1px solid var(--gold); background: #0d0404; line-height: 0; }
+.stage canvas { width: 100%; height: auto; aspect-ratio: 5 / 3; max-width: 100%; image-rendering: pixelated; display: block; }
+.start { position: absolute; inset: 0; margin: auto; width: max-content; height: max-content; line-height: 1.4; }
+.hud { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 10px; font-size: .9rem; }
+.hud .room { min-width: 0; }
+.hud .room b { color: var(--gold); font-family: var(--display); font-size: 1.2rem; margin-right: 6px; }
+.hud .coin { font-variant-numeric: tabular-nums; color: var(--gold-hi); font-weight: 700; }
+.hud .btn { padding: 6px 12px; font-size: .8rem; }
+.hud .right { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+.talk { border: 1px solid var(--line); background: var(--lacquer-2); padding: 12px 14px; min-height: 64px; font-size: .95rem; }
+.talk b { color: var(--cinnabar); display: block; font-size: .75rem; letter-spacing: .14em; text-transform: uppercase; margin-bottom: 2px; }
+.pad { display: none; grid-template-columns: repeat(3, 56px); grid-template-rows: repeat(3, 48px); gap: 6px; justify-content: space-between; align-items: center; }
+.pad button { font: 700 1.1rem var(--body); color: var(--ink); background: var(--lacquer-2); border: 1px solid var(--ash); border-radius: 4px; touch-action: none; user-select: none; -webkit-user-select: none; height: 100%; }
+.pad button:active { background: var(--ash); }
+.pad .act { grid-column: 3; grid-row: 1 / span 3; height: 72px; align-self: center; border-radius: 50%; width: 72px; justify-self: end; background: var(--cinnabar); border-color: var(--cinnabar); font-size: .95rem; }
+.padwrap { display: flex; justify-content: space-between; align-items: center; gap: 16px; }
+@media (max-width: 860px), (pointer: coarse) { .pad { display: grid; } }
+
+@media (max-width: 860px) {
+  .hero { grid-template-columns: 1fr; }
+  .stamp { justify-self: start; }
+  .facts { grid-template-columns: repeat(2, 1fr); }
+  .ride { grid-template-columns: minmax(0,1fr); }
+  .panel { display: none; }
+  .floor { grid-template-columns: minmax(0,1fr); gap: 14px; }
+  .floor .num { font-size: 3rem; display: flex; align-items: baseline; gap: 12px; }
+  .floor .num small { margin: 0; }
+}
+@media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
+</style>
+
+<div id="heat"></div>
+
+<header class="bar">
+  <div class="wrap">
+    <a class="logo" href="#top">Âm Phủ Travel<small>Lữ hành một chiều</small></a>
+    <button class="btn" type="button" data-book="1">Đặt tour</button>
+  </div>
+</header>
+
+<main class="wrap" id="top">
+  <section class="hero">
+    <div>
+      <div class="eyebrow">Tour trọn gói · Thập Bát Tầng Địa Ngục</div>
+      <h1>Xuống <em>18 tầng</em>, không cần về.</h1>
+      <p class="lede">Hành trình dài nhất bạn từng đi, do Diêm Vương đích thân thẩm định. Đi thang máy từ tầng B1 xuống B18, mỗi tầng một đặc sản, mỗi đặc sản một tội. Hướng dẫn viên Ngưu Đầu và Mã Diện đồng hành suốt chuyến.</p>
+      <div class="cta">
+        <button class="btn" type="button" data-book="1">Đặt vé một chiều</button>
+        <a class="btn ghost" href="#dien" style="text-decoration:none">Thắp hương online</a>
+        <a class="btn ghost" href="#choi" style="text-decoration:none">Chơi bản đồ</a>
+        <a class="btn ghost" href="#f1" style="text-decoration:none">Xem lịch trình</a>
+      </div>
+    </div>
+    <div class="stamp">
+      <b>Khởi hành<br>đêm Rằm tháng 7</b>
+      <span>Cửa Quỷ Môn Quan mở · Số lượng vong hồn có hạn</span>
+    </div>
+  </section>
+
+  <section class="shrine" id="dien" aria-labelledby="sh-title">
+    <div class="g-head">
+      <div>
+        <div class="eyebrow">Thắp hương online · Giảm án tại gia</div>
+        <h2 id="sh-title" class="g-title">Điện Diêm La</h2>
+        <p class="lede">Ai vào đây cũng bắt đầu ở tầng B18. Gõ mõ, thắp hương, thỉnh chuông, đốt vàng mã, thả đèn hoa đăng để tích công đức. Cứ 108 công đức bạn được giảm án lên một tầng. Đủ 18 tầng thì được đầu thai. Bấm thẳng vào đồ vật trong điện cũng được.</p>
+      </div>
+      <div class="live">
+        <span class="chip"><i class="dot"></i><span id="online">Đang kết nối âm phủ…</span></span>
+        <span class="chip">Công đức toàn âm phủ <b id="total">–</b></span>
+      </div>
+    </div>
+    <div class="sh-grid">
+      <div class="sh-stage">
+        <canvas id="alt" width="960" height="540" aria-label="Điện Diêm La: mõ, bát hương, chuông, lò vàng mã và dòng sông thả đèn"></canvas>
+        <div class="floats" id="floats"></div>
+        <button class="mute" id="mute" type="button" aria-pressed="false">Âm thanh: bật</button>
+      </div>
+      <aside class="sh-side">
+        <div class="merit">
+          <div class="lbl">Công đức của bạn</div>
+          <div class="big" id="my-merit">0</div>
+          <div class="sent"><span class="lbl">Án hiện tại</span><b id="my-floor">B18</b></div>
+          <div class="bar2"><i id="my-bar"></i></div>
+          <div class="next" id="my-next"></div>
+        </div>
+        <div class="acts" id="acts">
+          <button type="button" class="mo" data-act="mo">Gõ mõ <span>+1 công đức</span></button>
+          <button type="button" data-act="huong">Thắp hương <span>+3</span></button>
+          <button type="button" data-act="chuong">Thỉnh chuông <span>+2</span></button>
+          <button type="button" data-act="vang">Đốt vàng mã <span>+5</span></button>
+          <button type="button" data-act="den">Thả đèn <span>+4</span></button>
+        </div>
+        <div class="sh-note" id="sh-note" aria-live="polite"></div>
+        <ul class="feed" id="feed" aria-label="Hoạt động gần đây"></ul>
+      </aside>
+    </div>
+    <div class="wishes">
+      <form class="wform" id="wform">
+        <h3>Treo sớ cầu nguyện</h3>
+        <label class="lbl" for="w-text" style="font-size:.78rem;color:var(--muted)">Mỗi vong hồn treo được một tờ sớ. Viết lại sẽ thay tờ cũ.</label>
+        <textarea id="w-text" maxlength="140" placeholder="Ví dụ: Xin cho kiếp sau được làm mèo nhà giàu."></textarea>
+        <div class="meta"><span id="w-count">0/140</span><button class="btn" type="submit" id="w-send">Treo sớ</button></div>
+        <div class="sh-note" id="w-note" aria-live="polite"></div>
+      </form>
+      <div class="wlist">
+        <h3>Sớ của các vong hồn</h3>
+        <div class="wgrid" id="wgrid"><div class="empty">Đang mở sổ sớ… Khi có người treo sớ, các tờ sớ sẽ hiện ở đây.</div></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="facts" aria-label="Thông tin tour">
+    <div><b>18</b><span>tầng tham quan</span></div>
+    <div><b id="f-temp">–</b><span>nhiệt độ cao nhất</span></div>
+    <div><b>0</b><span>vé khứ hồi đã bán</span></div>
+    <div><b>∞</b><span>thời gian lưu trú</span></div>
+  </section>
+
+  <section class="game" id="choi" aria-labelledby="g-title">
+    <div class="g-head">
+      <div>
+        <div class="eyebrow">Đi thử trước khi đặt vé</div>
+        <h2 id="g-title" class="g-title">Bản đồ Âm Phủ</h2>
+        <p class="lede">Đi qua 18 phòng, nhặt đủ 18 thỏi vàng mã rồi gặp Diêm Vương ở B18. Phím mũi tên hoặc WASD để đi, E hoặc Space để nói chuyện.</p>
+      </div>
+      <div class="pick" id="pick" aria-label="Chọn nhân vật"></div>
+    </div>
+    <div class="stage">
+      <canvas id="cv" width="960" height="576" tabindex="0" aria-label="Bản đồ trò chơi 18 tầng địa ngục"></canvas>
+      <button class="btn start" id="start" type="button">Bấm để chơi</button>
+    </div>
+    <div class="hud">
+      <div class="room" id="hud-room"></div>
+      <div class="right"><span class="coin" id="hud-coin">Vàng mã 0/18</span><button class="btn ghost" type="button" id="hud-go">Xem tầng này</button></div>
+    </div>
+    <div class="talk" aria-live="polite"><b id="talk-name">Ngưu Đầu</b><span id="talk-line">Chào mừng đến cổng B1. Đi lại gần ai đó rồi bấm E để nói chuyện.</span></div>
+    <div class="pad" id="pad">
+      <button type="button" data-k="u" style="grid-column:1/span 2;grid-row:1;width:56px;justify-self:center" aria-label="Lên">▲</button>
+      <button type="button" data-k="l" style="grid-column:1;grid-row:2" aria-label="Trái">◀</button>
+      <button type="button" data-k="r" style="grid-column:2;grid-row:2" aria-label="Phải">▶</button>
+      <button type="button" data-k="d" style="grid-column:1/span 2;grid-row:3;width:56px;justify-self:center" aria-label="Xuống">▼</button>
+      <button type="button" class="act" data-act="1">Nói</button>
+    </div>
+  </section>
+
+  <section class="ride">
+    <nav class="panel" aria-label="Chọn tầng">
+      <div class="disp" id="disp">B1</div>
+      <div class="lbl">Thang máy Diêm La</div>
+      <div class="keys" id="keys"></div>
+    </nav>
+    <div class="floors" id="floors"></div>
+  </section>
+</main>
+
+<footer>
+  <div class="wrap">Âm Phủ Travel · Giấy phép lữ hành số 18/ĐN do Thập Điện Diêm Vương cấp. Trang web mang tính giải trí, dựa trên truyền thuyết dân gian. Thanh toán bằng vàng mã, không hoàn tiền, không đổi trả kiếp.</div>
+</footer>
+
+<div class="modal" id="modal" hidden>
+  <div class="sheet" role="dialog" aria-modal="true" aria-labelledby="m-title">
+    <form id="form">
+      <h3 id="m-title">Đặt tour địa ngục</h3>
+      <p>Điền thông tin để Phán Quan lập hồ sơ. Ví dụ đã điền sẵn, bạn sửa tùy ý.</p>
+      <div class="field"><label for="b-name">Họ tên vong hồn</label><input id="b-name" required value="Nguyễn Văn Tội"></div>
+      <div class="field"><label for="b-floor">Tầng muốn đến</label><select id="b-floor"></select></div>
+      <div class="field"><label for="b-pax">Số người đi cùng</label><input id="b-pax" type="number" min="1" max="18" value="1"></div>
+      <div class="actions">
+        <button class="btn ghost" type="button" data-close="1">Để kiếp sau</button>
+        <button class="btn" type="submit">Xác nhận</button>
+      </div>
+    </form>
+    <div id="done" hidden>
+      <h3>Đã ghi sổ Sinh Tử</h3>
+      <div class="pass">
+        <div class="code" id="p-code"></div>
+        <dl>
+          <dt>Vong hồn</dt><dd id="p-name"></dd>
+          <dt>Điểm đến</dt><dd id="p-floor"></dd>
+          <dt>Số khách</dt><dd id="p-pax"></dd>
+          <dt>Tổng phí</dt><dd id="p-price"></dd>
+          <dt>Loại vé</dt><dd>Một chiều</dd>
+        </dl>
+      </div>
+      <p>Ngưu Đầu sẽ đến đón vào giờ Tý. Vui lòng mang theo nghiệp chướng.</p>
+      <div class="actions"><button class="btn" type="button" data-close="1">Đóng</button></div>
+    </div>
+  </div>
+</div>
+
+<script>
+const LEVELS = [{"n":1,"name":"Địa ngục Rút Lưỡi","han":"Bạt Thiệt","sin":"Dành cho người quen nói dối, vu khống và dùng lời ngon ngọt để lừa người khác.","pitch":"Chào mừng đến khóa nghỉ dưỡng cho chiếc miệng hoạt động quá công suất! Gói tour bao gồm thời gian im lặng để quý khách nghe lại chính mình.","highlights":["Cổng thu hồi tin đồn","Phòng vọng âm lời hứa","Quầy đăng ký nói thật"],"temp":"38°C","rating":2,"price":"1.800 thỏi vàng mã","tip":"Hãy khai đúng thông tin vì hướng dẫn viên đã đọc hết lịch sử trò chuyện của bạn."},{"n":2,"name":"Địa ngục Kéo Cắt","han":"Tiễn Đao","sin":"Dành cho người cố tình chia rẽ tình cảm và xúi giục người khác phá bỏ nghĩa tình vì tư lợi.","pitch":"Trải nghiệm khu trưng bày kéo khổng lồ dành cho chuyên gia cắt đứt duyên người khác. Ở đây, mọi câu mở đầu bằng ‘tôi nói vì muốn tốt cho bạn’ đều được kiểm tra chất lượng.","highlights":["Đại lộ kéo bạc","Bảo tàng lời xúi giục","Cầu nối duyên lành"],"temp":"42°C","rating":2,"price":"2.200 thỏi vàng mã","tip":"Đừng tư vấn chuyện tình cảm cho hướng dẫn viên nếu chưa được mời."},{"n":3,"name":"Địa ngục Cây Sắt","han":"Thiết Thụ","sin":"Dành cho người gieo bất hòa, gây rạn nứt gia đình và lấy chuyện riêng của người khác làm trò vui.","pitch":"Check-in rừng cây sắt với phong cảnh cứng cáp như cái tôi của quý khách. Tour không có tiết mục hóng chuyện nhà hàng xóm, xin đừng thất vọng.","highlights":["Rừng cây sắt","Lối mòn chuyện thị phi","Chòi ngẫm lời đã nói"],"temp":"48°C","rating":3,"price":"2.600 thỏi vàng mã","tip":"Nên mang giày kín và để thói quen buôn chuyện ở quầy gửi đồ."},{"n":4,"name":"Địa ngục Gương Nghiệp","han":"Nghiệt Kính","sin":"Dành cho người làm điều khuất tất rồi chối bỏ trách nhiệm hoặc tìm cách che giấu lỗi lầm.","pitch":"Studio duy nhất chụp rõ cả góc khuất đạo đức mà không cần bật đèn. Bộ lọc ‘tôi vô tội’ hiện đã ngừng hỗ trợ vĩnh viễn.","highlights":["Đại sảnh gương nghiệp","Rạp chiếu chuyện đã quên","Quầy nhận trách nhiệm"],"temp":"26°C","rating":3,"price":"3.000 thỏi vàng mã","tip":"Hãy chuẩn bị lời nhận lỗi vì gương không nhận yêu cầu chỉnh ảnh."},{"n":5,"name":"Địa ngục Lồng Hấp","han":"Chưng Lung","sin":"Dành cho người tung tin thất thiệt, bịa chuyện hại người và biến chuyện nhỏ thành tai tiếng lớn.","pitch":"Khu xông hơi dành riêng cho những tâm hồn từng làm cả xóm nóng mặt. Hơi nước phủ kín, nhưng nguồn tin do quý khách bịa ra vẫn hiện rất rõ.","highlights":["Nhà hấp mây trắng","Đài phun tin đồn","Sảnh đính chính công khai"],"temp":"100°C","rating":3,"price":"3.500 thỏi vàng mã","tip":"Uống đủ nước và kiểm chứng tin trước khi kể tiếp cho đoàn bên cạnh."},{"n":6,"name":"Địa ngục Cột Đồng","han":"Đồng Trụ","sin":"Dành cho người cố ý phóng hỏa, phá hoại tài sản và gây tai họa để trục lợi.","pitch":"Tham quan quảng trường cột đồng với hệ thống sưởi hoạt động quanh năm. Quý khách từng thích châm ngòi rắc rối nay được tìm hiểu hậu quả bằng tour chuyên đề.","highlights":["Quảng trường cột đồng","Phòng học phòng hỏa","Đường vòng suy ngẫm"],"temp":"666°C","rating":4,"price":"4.000 thỏi vàng mã","tip":"Chỉ đứng trong vạch tham quan và đừng xin hướng dẫn viên tăng nhiệt cho có không khí."},{"n":7,"name":"Địa ngục Núi Dao","han":"Đao Sơn","sin":"Dành cho người tàn ác, ỷ mạnh hiếp yếu và cố tình gây đau khổ cho kẻ không thể chống trả.","pitch":"Chinh phục cung đường núi sắc sảo hơn mọi lời biện hộ của quý khách. Thành tích chuyến đi được tính bằng mức độ biết thương người, không tính bằng số ảnh đăng mạng.","highlights":["Đỉnh núi dao","Đài quan sát nhân quả","Trạm dừng lòng trắc ẩn"],"temp":"12°C","rating":5,"price":"4.800 thỏi vàng mã","tip":"Đi đúng lối có lan can và nhường đường cho người yếu hơn mình."},{"n":8,"name":"Địa ngục Núi Băng","han":"Băng Sơn","sin":"Dành cho người phản bội ân tình, phụ bạc và lạnh lùng làm tổn thương người từng hết lòng với mình.","pitch":"Nghỉ dưỡng tại thung lũng băng, nơi nhiệt độ rất hợp với thái độ quý khách từng dành cho ân nhân. Chăn ấm có sẵn, còn sự ấm áp trong cách cư xử cần tự bổ sung.","highlights":["Thung lũng băng xanh","Hồ soi ân nghĩa","Trạm sưởi lòng biết ơn"],"temp":"-80°C","rating":4,"price":"4.500 thỏi vàng mã","tip":"Mang áo dày và nhớ tên những người từng giúp mình qua lúc khó khăn."},{"n":9,"name":"Địa ngục Vạc Dầu","han":"Du Oa","sin":"Dành cho người trộm cướp, lừa chiếm tài sản và bóc lột người khác để làm giàu.","pitch":"Ghé khu bếp khổng lồ nổi tiếng với những chiếc vạc dầu nhìn thôi đã muốn sống tử tế. Gói tham quan không kèm buffet, xin đừng cầm đĩa xếp hàng.","highlights":["Đài ngắm vạc dầu","Bảo tàng của bất chính","Quầy hoàn trả tài sản"],"temp":"300°C","rating":5,"price":"5.200 thỏi vàng mã","tip":"Giữ khoảng cách an toàn và đừng nhầm đồ của đoàn khác là quà lưu niệm."},{"n":10,"name":"Địa ngục Hố Trâu","han":"Ngưu Khanh","sin":"Dành cho người ngược đãi gia súc và hành hạ những con vật đã phục vụ mình.","pitch":"Tour đồng quê có đàn trâu làm ban giám khảo thái độ phục vụ. Lần này quý khách kéo xe hành lý, còn các bác trâu thong thả đánh giá năm sao.","highlights":["Thung lũng trâu nghỉ phép","Đường xe kéo đổi vai","Trạm chăm sóc gia súc"],"temp":"35°C","rating":3,"price":"3.800 thỏi vàng mã","tip":"Hãy đối xử dịu dàng với động vật ngay cả khi chúng chưa chịu chụp ảnh cùng bạn."},{"n":11,"name":"Địa ngục Đá Đè","han":"Thạch Áp","sin":"Dành cho người tàn nhẫn với trẻ nhỏ, bỏ mặc người yếu thế và đẩy trách nhiệm chăm sóc sang người khác.","pitch":"Thăm công viên đá với những khối trách nhiệm quý khách từng bảo là ‘chuyện của ai đó’. Dịch vụ khuân hộ tạm ngừng để ai cũng có dịp tự gánh phần mình.","highlights":["Quảng trường đá lớn","Lối đi trách nhiệm","Nhà nghỉ biết quan tâm"],"temp":"40°C","rating":4,"price":"4.600 thỏi vàng mã","tip":"Đừng nhờ người yếu hơn mang hộ hành lý rồi gọi đó là rèn tính tự lập."},{"n":12,"name":"Địa ngục Cối Giã","han":"Thung Cữu","sin":"Dành cho người hoang phí lương thực, phá hoại mùa màng và coi thường công sức người làm ra hạt gạo.","pitch":"Trải nghiệm làng nghề giã gạo với lịch làm việc đủ dài để nhớ từng bát cơm bỏ dở. Suất ăn vừa đủ, còn câu ‘gọi thêm cho sang’ đã được gạch khỏi thực đơn.","highlights":["Quảng trường cối đá","Xưởng giã gạo trải nghiệm","Bếp cơm quý hạt"],"temp":"37°C","rating":3,"price":"3.600 thỏi vàng mã","tip":"Lấy thức ăn vừa sức vì ở đây mỗi hạt cơm thừa đều có sổ điểm danh."},{"n":13,"name":"Địa ngục Ao Máu","han":"Huyết Trì","sin":"Dành cho người làm điều ô uế, bất kính và cố ý xúc phạm nơi chốn hoặc điều người khác trân trọng.","pitch":"Du ngoạn hồ đỏ huyền thoại trên tuyến thuyền có mái che rất nên thơ. Màu hồ đủ gây ấn tượng, còn thuyết minh được tiết chế để quý khách vẫn ăn tối ngon miệng.","highlights":["Bến thuyền hồ đỏ","Cầu giữ lễ","Vườn học điều kính trọng"],"temp":"39°C","rating":4,"price":"4.200 thỏi vàng mã","tip":"Giữ vệ sinh và xin phép trước khi chụp ảnh tại những nơi có biển trang nghiêm."},{"n":14,"name":"Địa ngục Chết Oan","han":"Uổng Tử","sin":"Dành cho người gây ra cái chết oan uổng hoặc đẩy người vô tội vào bước đường cùng.","pitch":"Một chặng tham quan yên tĩnh dành cho việc lắng nghe những câu chuyện từng bị bỏ qua. Hướng dẫn viên nói nhỏ, nhưng câu ‘tôi có biết gì đâu’ vẫn được nghe rất rõ.","highlights":["Sảnh lời chưa được nói","Cầu lắng nghe","Vườn tưởng niệm oan khuất"],"temp":"18°C","rating":4,"price":"4.900 thỏi vàng mã","tip":"Giữ yên lặng khi người khác kể chuyện và cất sẵn câu đổ lỗi vào túi."},{"n":15,"name":"Địa ngục Phân Thây","han":"Trách Hình","sin":"Dành cho người đào mộ, xâm phạm di hài và trục lợi từ sự yên nghỉ của người đã khuất.","pitch":"Ghé khu di tích mang tên nghe đã muốn hoàn lương, với tuyến tham quan chỉ mở phần mô hình. Quà lưu niệm bán tại quầy; mọi ý tưởng tự đào tìm cổ vật đều bị từ chối.","highlights":["Nhà mô hình hình phạt","Đường bảo tồn mộ cổ","Sảnh tôn trọng người khuất"],"temp":"22°C","rating":5,"price":"5.500 thỏi vàng mã","tip":"Chỉ mang về ảnh chụp và tuyệt đối đừng coi bia mộ là món đồ trang trí độc lạ."},{"n":16,"name":"Địa ngục Núi Lửa","han":"Hỏa Sơn","sin":"Dành cho người tham nhũng, nhận của đút lót và dùng quyền thế để chiếm lợi bất chính.","pitch":"Ngắm núi lửa phun sáng rực như sự nghiệp từng được bôi trơn của quý khách. Vé ưu tiên không bán, phong bì chỉ được dùng để đựng bản tự kiểm điểm.","highlights":["Đài ngắm miệng núi lửa","Đường phong bì một chiều","Quầy kê khai quà tặng"],"temp":"1.080°C","rating":5,"price":"6.000 thỏi vàng mã","tip":"Xếp hàng đúng lượt vì quan hệ quen biết không giúp đổi hướng dòng dung nham."},{"n":17,"name":"Địa ngục Cối Xay Đá","han":"Thạch Ma","sin":"Dành cho người gian lận cân đo, làm hàng giả và kiếm lời bằng cách bớt xén của người mua.","pitch":"Khám phá cối xay đá vận hành chính xác đến từng vòng, rất hợp để học lại khái niệm đủ cân. Gói tour đủ thời lượng như quảng cáo, một trải nghiệm có thể khá mới với quý khách.","highlights":["Đại cối xay đá","Chợ cân đúng bán đủ","Phòng kiểm định lương tâm"],"temp":"45°C","rating":4,"price":"5.700 thỏi vàng mã","tip":"Đừng thử chỉnh cân ở quầy hành lý vì chiếc cân này có lưu bằng chứng."},{"n":18,"name":"Địa ngục Cưa Xẻ","han":"Đao Cứ","sin":"Dành cho người gian lận trong buôn bán, cắt xén vật tư và gây thiệt hại cho người khác vì lòng tham.","pitch":"Chặng cuối đưa quý khách đến xưởng cưa huyền thoại, nơi mọi khoản ăn bớt đều được tính lại. Kết thúc tour, ai cũng muốn làm ăn ngay thẳng để khỏi tích điểm quay về.","highlights":["Xưởng cưa mô phỏng","Bàn đối soát phần ăn bớt","Cổng hẹn đừng tái ngộ"],"temp":"50°C","rating":5,"price":"6.800 thỏi vàng mã","tip":"Kiểm tra hóa đơn bằng sự trung thực vì tour này không có chương trình khách hàng thân thiết."}];
+const $ = s => document.querySelector(s);
+const esc = s => String(s ?? "").replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+
+const floors = $("#floors"), keys = $("#keys"), sel = $("#b-floor");
+LEVELS.forEach(l => {
+  const r = Math.max(1, Math.min(5, Math.round(l.rating || 1)));
+  floors.insertAdjacentHTML("beforeend", `
+  <article class="floor" id="f${l.n}" data-n="${l.n}">
+    <div class="num">B${l.n}<small>Tầng ${l.n}</small></div>
+    <div style="min-width:0">
+      <h2>${esc(l.name)}</h2>
+      <div class="han">${esc(l.han)}</div>
+      <p class="pitch">${esc(l.pitch)}</p>
+      <p class="sin"><b>Dành cho:</b> ${esc(l.sin)}</p>
+      <ul class="hl">${(l.highlights||[]).map(h => `<li>${esc(h)}</li>`).join("")}</ul>
+      <div class="tip">${esc(l.tip)}</div>
+    </div>
+    <aside class="ticket">
+      <div class="row">Nhiệt độ <b>${esc(l.temp)}</b></div>
+      <div class="row">Độ đáng sợ <span class="flames" aria-label="${r} trên 5">${[1,2,3,4,5].map(i=>`<i class="${i<=r?"on":""}"></i>`).join("")}</span></div>
+      <div class="price">${esc(l.price)}</div>
+      <button class="btn" type="button" data-book="${l.n}">Đặt tầng này</button>
+    </aside>
+  </article>`);
+  keys.insertAdjacentHTML("beforeend", `<button type="button" data-go="${l.n}" aria-label="Đến tầng ${l.n}">${l.n}</button>`);
+  sel.insertAdjacentHTML("beforeend", `<option value="${l.n}">B${l.n} · ${esc(l.name)}</option>`);
+});
+const temps = LEVELS.map(l => parseFloat(String(l.temp).replace(/[^\d-]/g,""))).filter(n => !isNaN(n));
+$("#f-temp").textContent = temps.length ? Math.max(...temps).toLocaleString("vi-VN") + "°C" : "?";
+
+keys.addEventListener("click", e => { const b = e.target.closest("[data-go]"); if (b) $("#f" + b.dataset.go).scrollIntoView(); });
+
+// floor indicator + heat
+const disp = $("#disp"), heat = $("#heat");
+function setFloor(n) {
+  disp.textContent = "B" + n;
+  keys.querySelectorAll("button").forEach(b => b.classList.toggle("on", +b.dataset.go === n));
+}
+const io = new IntersectionObserver(es => es.forEach(e => { if (e.isIntersecting) setFloor(+e.target.dataset.n); }), { rootMargin: "-45% 0px -50% 0px" });
+document.querySelectorAll(".floor").forEach(f => io.observe(f));
+setFloor(1);
+addEventListener("scroll", () => {
+  const max = document.documentElement.scrollHeight - innerHeight;
+  heat.style.setProperty("--h", (max > 0 ? scrollY / max : 0) * 0.55);
+}, { passive: true });
+
+// booking
+const modal = $("#modal"), form = $("#form"), done = $("#done");
+document.addEventListener("click", e => {
+  const b = e.target.closest("[data-book]");
+  if (b) { sel.value = b.dataset.book; form.hidden = false; done.hidden = true; modal.hidden = false; $("#b-name").focus(); }
+  if (e.target.closest("[data-close]") || e.target === modal) modal.hidden = true;
+});
+document.addEventListener("keydown", e => { if (e.key === "Escape") modal.hidden = true; });
+form.addEventListener("submit", e => {
+  e.preventDefault();
+  const l = LEVELS.find(x => x.n == sel.value), pax = Math.max(1, +$("#b-pax").value || 1);
+  $("#p-code").textContent = "VÉ SỐ " + String(Math.floor(Math.random()*9000)+1000) + "-B" + l.n;
+  $("#p-name").textContent = $("#b-name").value;
+  $("#p-floor").textContent = "B" + l.n + " · " + l.name;
+  $("#p-pax").textContent = pax;
+  $("#p-price").textContent = pax > 1 ? `${l.price} × ${pax}` : l.price;
+  form.hidden = true; done.hidden = false;
+});
+
+/* ---------- Mini game: Bản đồ Âm Phủ ---------- */
+(() => {
+const cv = $("#cv"), ctx = cv.getContext("2d");
+const S = 3, VW = 320, VH = 192, TS = 16, RW = 9, RH = 7, COLS = 6, ROWS = 3, MW = COLS * RW, MH = ROWS * RH;
+const PAL = { W:"#e8e2d6", K:"#1a0a0a", H:"#e8c34a", S:"#e6b48a", T:"#2aa198", B:"#7a4a26", P:"#3b4a6b", F:"#2b1a14",
+  Y:"#e2b23a", R:"#c8321e", I:"#efe6cf", N:"#d98a8a", A:"#6e1d18", M:"#1d1414", G:"#9a9590", D:"#2c3e66", C:"#cfd8dc", U:"#7a4fa0" };
+const ART = {
+  ghost: ["....WWWW....","..WWWWWWWW..",".WWWWWWWWWW.",".WWKKWWKKWW.",".WWKKWWKKWW.",".WWWWWWWWWW.",".WWWWKKWWWW.",".WWWWWWWWWW.",".WWWWWWWWWW.",".WWWWWWWWWW.",".WWWWWWWWWW.",".WW.WWW.WWW.",".W...W...W.."],
+  tourist: ["...HHHHHH...","..HHHHHHHH..","....SSSS....","...SKSSKS...","...SSSSSS...","....SSSS....","..BBTTTTBB..","..BBTTTTBB..","..BBTTTTBB..","...STTTTS...","....PPPP....","....P..P....","....P..P....","...FF..FF..."],
+  taoist: ["....YYYY....","...YYYYYY...","....SSSS....","...SKSSKS...","...SSSSSS...","....SSSS....","..YYYYYYYY..",".SYYRRRRYYS.","..YYRRRRYY..","..YYYYYYYY..","..YYYYYYYY..","..YYYYYYYY..","...F....F..."],
+  ox: ["I..........I","II........II",".IIBBBBBBII.","...BBBBBB...","...BKBBKB...","...BBBBBB...","..BBNNNNBB..","...BNKKNB...","..AAAAAAAA..",".BAAAAAAAAB.",".BAAAAAAAAB.","..AAAAAAAA..","...AA..AA...","...KK..KK..."],
+  horse: ["...MM..MM...","...MMMMMM...","...GGGGGG...","...GKGGKG...","...GGGGGG...","....GGGG....","....GNNG....","....GKKG....","..DDDDDDDD..",".GDDDDDDDDG.",".GDDDDDDDDG.","..DDDDDDDD..","...DD..DD...","...KK..KK..."],
+  king: ["..YYYYYYYY..","..YRYYYYRY..","..YYYYYYYY..","...RRRRRR...","...RKRRKR...","...RRRRRR...","...KKKKKK...","...KKKKKK...","..RRRRRRRR..",".RRYYRRYYRR.",".RRRRRRRRRR.",".RRRRRRRRRR.",".RRRRRRRRRR.","..KK....KK.."],
+  meng: ["....WWWW....","...WWWWWW...","...SSSSSS...","...SKSSKS...","...SSSSSS...","....SSSS....","..UUUUUUUU..",".SUUUUUUUUC.","..UUUUUUUCC.","..UUUUUUUU..","..UUUUUUUU..","..UUUUUUUU..","...K....K..."]
+};
+function sprite(rows, pal = PAL) {
+  const c = document.createElement("canvas"); c.width = 12; c.height = rows.length;
+  const g = c.getContext("2d");
+  rows.forEach((r, y) => [...r].forEach((ch, x) => { if (ch !== ".") { g.fillStyle = pal[ch]; g.fillRect(x, y, 1, 1); } }));
+  return c;
+}
+const SPR = {};
+for (const k in ART) SPR[k] = sprite(ART[k]);
+SPR.npcGhost = sprite(ART.ghost, { ...PAL, W: "#9fc0d4", K: "#14202a" });
+window.AMPHU_SPR = SPR;
+
+// player characters
+const PCS = [{ id: "ghost", name: "Hồn ma" }, { id: "tourist", name: "Du khách" }, { id: "taoist", name: "Đạo sĩ" }];
+let pc = "ghost";
+try { pc = localStorage.getItem("amphu-pc") || pc; } catch (e) {}
+if (!SPR[pc]) pc = "ghost";
+const pick = $("#pick");
+PCS.forEach(p => {
+  const b = document.createElement("button"); b.type = "button"; b.dataset.pc = p.id; b.setAttribute("aria-pressed", p.id === pc);
+  const c = document.createElement("canvas"); c.width = 12; c.height = 14;
+  c.getContext("2d").drawImage(SPR[p.id], 0, 14 - SPR[p.id].height);
+  b.append(c, p.name); pick.append(b);
+});
+pick.addEventListener("click", e => {
+  const b = e.target.closest("[data-pc]"); if (!b) return;
+  pc = b.dataset.pc; pick.querySelectorAll("button").forEach(x => x.setAttribute("aria-pressed", x === b));
+  try { localStorage.setItem("amphu-pc", pc); } catch (e) {}
+});
+
+// map
+const lv = n => LEVELS.find(l => +l.n === n) || { n, name: "Tầng " + n, temp: "0", tip: "" };
+const tempOf = n => { const t = parseFloat(String(lv(n).temp).replace(/[^\d-]/g, "")); return isNaN(t) ? 20 : t; };
+const floorAt = (cx, cy) => cy * COLS + (cy % 2 ? COLS - 1 - cx : cx) + 1;
+const roomPos = n => { const i = n - 1, cy = Math.floor(i / COLS), k = i % COLS; return { cx: cy % 2 ? COLS - 1 - k : k, cy }; };
+let seed = 18;
+const rnd = () => { seed |= 0; seed = seed + 0x6D2B79F5 | 0; let t = Math.imul(seed ^ seed >>> 15, 1 | seed); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; };
+
+const grid = Array.from({ length: MH }, (_, y) => Array.from({ length: MW }, (_, x) => {
+  const lx = x % RW, ly = y % RH; return (lx === 0 || lx === RW - 1 || ly === 0 || ly === RH - 1) ? 1 : 0;
+}));
+for (let cy = 0; cy < ROWS; cy++) for (let cx = 0; cx < COLS - 1; cx++) { const y = cy * RH + 3; grid[y][cx * RW + RW - 1] = 0; grid[y][(cx + 1) * RW] = 0; }
+[[5, 0], [0, 1]].forEach(([cx, cy]) => { const x = cx * RW + 4; grid[cy * RH + RH - 1][x] = 0; grid[(cy + 1) * RH][x] = 0; });
+
+const rooms = {}, coins = [];
+for (let cy = 0; cy < ROWS; cy++) for (let cx = 0; cx < COLS; cx++) {
+  const n = floorAt(cx, cy), L = lv(n), t = tempOf(n), name = L.name || "";
+  const theme = /Máu/i.test(name) ? 4 : /Dao|Sắt|Cưa|Kéo/i.test(name) ? 5 : t >= 100 ? 2 : t < 0 ? 3 : 6;
+  let fc;
+  if (t < 0) fc = ["#1d3245", "#22394f"];
+  else { const k = Math.min(1, Math.log10(Math.max(t, 1)) / 3.05), h = 12 + k * 8, s = 16 + k * 52, l = 12 + k * 12; fc = [`hsl(${h} ${s}% ${l}%)`, `hsl(${h} ${s}% ${l + 2.5}%)`]; }
+  rooms[n] = { n, cx, cy, fc, theme };
+  const cand = [];
+  for (let ly = 1; ly < RH - 1; ly++) for (let lx = 1; lx < RW - 1; lx++) if (ly !== 3 && lx !== 4) cand.push([lx, ly]);
+  for (let i = 0; i < 6 && cand.length; i++) { const [lx, ly] = cand.splice(Math.floor(rnd() * cand.length), 1)[0]; grid[cy * RH + ly][cx * RW + lx] = 10 + theme; }
+  const cross = [];
+  for (let lx = 1; lx < RW - 1; lx++) if (lx !== 4) cross.push([lx, 3]);
+  for (let ly = 1; ly < RH - 1; ly++) if (ly !== 3) cross.push([4, ly]);
+  const [lx, ly] = cross[Math.floor(rnd() * cross.length)];
+  coins.push({ n, x: (cx * RW + lx) * TS + 8, y: (cy * RH + ly) * TS + 10, got: false });
+}
+const SOLID = new Set([1, 12, 14, 15, 16]); // walls, lava, blood, spikes, rocks (ice 13 is walkable)
+const solidAt = (px, py) => { const tx = Math.floor(px / TS), ty = Math.floor(py / TS); return tx < 0 || ty < 0 || tx >= MW || ty >= MH || SOLID.has(grid[ty][tx]); };
+const blocked = (x, y) => solidAt(x - 5, y - 6) || solidAt(x + 5, y - 6) || solidAt(x - 5, y - 1) || solidAt(x + 5, y - 1);
+const roomCenter = (n, dx = 0, dy = 0) => { const { cx, cy } = roomPos(n); return { x: (cx * RW + 4 + dx) * TS + 8, y: (cy * RH + 3 + dy) * TS + 13 }; };
+const clearTile = (n, dx, dy) => { const { cx, cy } = roomPos(n); grid[cy * RH + 3 + dy][cx * RW + 4 + dx] = 0; };
+
+// characters
+const player = { ...roomCenter(1), face: 1, moving: false };
+const rowBounds = cy => ({ x0: TS, x1: MW * TS - TS, y0: cy * RH * TS + TS, y1: (cy + 1) * RH * TS - TS });
+const roomBounds = n => { const { cx, cy } = roomPos(n); return { x0: cx * RW * TS + TS, x1: (cx + 1) * RW * TS - TS, y0: cy * RH * TS + TS, y1: (cy + 1) * RH * TS - TS }; };
+const npcs = [
+  { name: "Ngưu Đầu", spr: "ox", ...roomCenter(3), speed: .55, b: rowBounds(0),
+    lines: ["Giữ vé cẩn thận nha, mất vé là ở lại luôn đó.", "Tầng này view đẹp, chụp hình nhớ tag Âm Phủ Travel.", "Đi hàng một, không chen lấn, không đầu thai lậu.", "Thang máy xuống ở phòng B6, cuối hành lang bên phải."] },
+  { name: "Mã Diện", spr: "horse", ...roomCenter(9), speed: .55, b: rowBounds(1),
+    lines: ["Tôi mặt ngựa nhưng tâm không ngựa đâu nha.", "Ai có vàng mã lẻ đổi giùm tôi tờ chẵn với.", "Xuống thêm vài tầng nữa là ấm áp hơn nhiều.", "Lối xuống tầng dưới ở phòng B12, phía bên trái."] },
+  { name: "Diêm Vương", spr: "king", ...roomCenter(18, 1, -1), speed: 0, king: true,
+    lines: ["Ta đã đọc hết sổ Sinh Tử của ngươi. Khá là thú vị.", "Gom đủ 18 thỏi vàng mã rồi hẵng nói chuyện đầu thai."] },
+  { name: "Mạnh Bà", spr: "meng", ...roomCenter(18, -2, 1), speed: 0,
+    lines: ["Canh nóng đây, uống xong quên hết deadline.", "Không đường, không đá, chỉ có quên.", "Đừng hỏi công thức, uống xong con cũng quên à."] }
+];
+clearTile(18, 1, -1); clearTile(18, -2, 1); clearTile(18, 1, 0); clearTile(18, -2, 0);
+[2, 5, 8, 11, 14, 16].forEach(n => {
+  const L = lv(n), c = roomCenter(n, 2, 0);
+  npcs.push({ name: "Vong hồn ở B" + n, spr: "npcGhost", ghost: true, ...c, speed: .3, b: roomBounds(n),
+    lines: [L.tip || "Hu hu... tôi chỉ lỡ có một lần thôi mà.", "Tôi đặt tour khứ hồi mà sao họ nói hết vé về?", "Ở " + (L.name || "đây") + " wifi yếu quá trời."] });
+});
+npcs.forEach(e => { e.face = 1; e.t = 0; e.dx = 0; e.dy = 0; e.li = 0; e.moving = false; });
+
+// input
+const keys = {}; let active = false;
+const KMAP = { ArrowUp: "u", KeyW: "u", ArrowDown: "d", KeyS: "d", ArrowLeft: "l", KeyA: "l", ArrowRight: "r", KeyD: "r" };
+const startBtn = $("#start");
+function setActive(on) { active = on; startBtn.hidden = on; startBtn.textContent = "Bấm để chơi tiếp"; if (!on) for (const k in keys) keys[k] = false; }
+startBtn.addEventListener("click", () => { setActive(true); cv.focus({ preventScroll: true }); });
+cv.addEventListener("pointerdown", () => setActive(true));
+document.addEventListener("pointerdown", e => { if (!e.target.closest("#choi")) setActive(false); });
+addEventListener("keydown", e => {
+  if (!active || !$("#modal").hidden) return;
+  const k = KMAP[e.code];
+  if (k) { keys[k] = true; e.preventDefault(); }
+  if (e.code === "KeyE" || e.code === "Space" || e.code === "Enter") { e.preventDefault(); if (!e.repeat) act(); }
+});
+addEventListener("keyup", e => { const k = KMAP[e.code]; if (k) keys[k] = false; });
+addEventListener("blur", () => { for (const k in keys) keys[k] = false; });
+const pad = $("#pad");
+pad.addEventListener("contextmenu", e => e.preventDefault());
+pad.querySelectorAll("[data-k]").forEach(b => {
+  const on = e => { e.preventDefault(); setActive(true); keys[b.dataset.k] = true; };
+  const off = () => { keys[b.dataset.k] = false; };
+  b.addEventListener("pointerdown", on); ["pointerup", "pointercancel", "pointerleave"].forEach(ev => b.addEventListener(ev, off));
+});
+pad.querySelector("[data-act]").addEventListener("click", () => { setActive(true); act(); });
+
+// talking + HUD
+const tName = $("#talk-name"), tLine = $("#talk-line"), hudRoom = $("#hud-room"), hudCoin = $("#hud-coin");
+let got = 0, curRoom = 0, near = null;
+function say(name, line) { tName.textContent = name; tLine.textContent = line; }
+function act() {
+  if (!near) { say("Hướng dẫn viên", "Không có ai gần đây. Đi lại sát một nhân vật rồi bấm E."); return; }
+  if (near.king && got >= 18) { say(near.name, "Đủ 18 thỏi vàng mã rồi à? Tốt. Ta cho ngươi đầu thai thành một con mèo được cả nhà cưng chiều."); return; }
+  say(near.name, near.lines[near.li % near.lines.length]); near.li++;
+}
+$("#hud-go").addEventListener("click", () => { const f = $("#f" + curRoom); if (f) f.scrollIntoView(); });
+function updateRoom() {
+  const tx = Math.floor(player.x / TS), ty = Math.floor((player.y - 3) / TS);
+  const n = floorAt(Math.min(COLS - 1, Math.floor(tx / RW)), Math.min(ROWS - 1, Math.floor(ty / RH)));
+  if (n === curRoom) return;
+  curRoom = n; const L = lv(n);
+  hudRoom.innerHTML = `<b>B${n}</b>${esc(L.name)} · ${esc(L.temp)}`;
+}
+
+// movement
+function move(e, dx, dy) {
+  if (dx && !blocked(e.x + dx, e.y) && (!e.b || (e.x + dx > e.b.x0 && e.x + dx < e.b.x1))) e.x += dx; else if (dx && e !== player) e.t = 0;
+  if (dy && !blocked(e.x, e.y + dy) && (!e.b || (e.y + dy > e.b.y0 + 6 && e.y + dy < e.b.y1))) e.y += dy; else if (dy && e !== player) e.t = 0;
+  if (dx) e.face = dx > 0 ? 1 : -1;
+}
+const DIRS = [[0, 0], [1, 0], [-1, 0], [0, 1], [0, -1], [0, 0]];
+function step(dt) {
+  let dx = (keys.r ? 1 : 0) - (keys.l ? 1 : 0), dy = (keys.d ? 1 : 0) - (keys.u ? 1 : 0);
+  if (dx && dy) { dx *= .7071; dy *= .7071; }
+  player.moving = !!(dx || dy);
+  move(player, dx * 1.3 * dt, dy * 1.3 * dt);
+  npcs.forEach(e => {
+    if (!e.speed) return;
+    e.t -= dt;
+    if (e.t <= 0) { const d = DIRS[Math.floor(rnd() * DIRS.length)]; e.dx = d[0]; e.dy = d[1]; e.t = 50 + rnd() * 90; }
+    e.moving = !!(e.dx || e.dy);
+    if (near === e) { e.moving = false; e.face = player.x < e.x ? -1 : 1; return; }
+    move(e, e.dx * e.speed * dt, e.dy * e.speed * dt);
+  });
+  coins.forEach(c => {
+    if (!c.got && Math.abs(c.x - player.x) < 10 && Math.abs(c.y - (player.y - 4)) < 10) {
+      c.got = true; got++;
+      document.dispatchEvent(new CustomEvent("amphu-merit", { detail: { n: 10, why: "nhặt vàng mã ở B" + c.n } }));
+      hudCoin.textContent = `Vàng mã ${got}/18`;
+      say("Hướng dẫn viên", got >= 18 ? "Đủ 18 thỏi vàng mã rồi! Xuống phòng B18 gặp Diêm Vương để xin đầu thai." : `Nhặt được 1 thỏi vàng mã ở B${c.n}. Còn ${18 - got} thỏi nữa.`);
+    }
+  });
+  near = null; let best = 24;
+  npcs.forEach(e => { const d = Math.hypot(e.x - player.x, e.y - player.y); if (d < best) { best = d; near = e; } });
+  updateRoom();
+}
+
+// drawing
+function drawTile(v, x, y, room, time) {
+  const px = x * TS, py = y * TS;
+  if (v === 1) {
+    ctx.fillStyle = "#2a1411"; ctx.fillRect(px, py, TS, TS);
+    ctx.fillStyle = "#3d1f19"; ctx.fillRect(px, py, TS, 3);
+    ctx.fillStyle = "#1a0b09"; ctx.fillRect(px, py + 8, TS, 1); ctx.fillRect(px + ((y % 2) ? 4 : 11), py + 3, 1, 5); ctx.fillRect(px + ((y % 2) ? 11 : 4), py + 9, 1, 7);
+    return;
+  }
+  ctx.fillStyle = room.fc[(x + y) % 2]; ctx.fillRect(px, py, TS, TS);
+  if (v === 12) { const f = Math.sin(time / 260 + x * 1.7 + y) * 8; ctx.fillStyle = `hsl(${18 + f} 92% 46%)`; ctx.fillRect(px + 1, py + 1, 14, 14); ctx.fillStyle = "#ffd36b"; ctx.fillRect(px + 4 + (f > 0 ? 2 : 0), py + 5, 2, 2); ctx.fillRect(px + 10, py + 10 - (f > 0 ? 2 : 0), 2, 2); }
+  else if (v === 13) { ctx.fillStyle = "#8fc3e0"; ctx.fillRect(px + 1, py + 1, 14, 14); ctx.fillStyle = "#d8f0ff"; ctx.fillRect(px + 3, py + 3, 6, 1); ctx.fillRect(px + 3, py + 3, 1, 4); }
+  else if (v === 14) { const r = Math.sin(time / 400 + x) > 0 ? 1 : 0; ctx.fillStyle = "#6b0d0d"; ctx.fillRect(px + 1, py + 1, 14, 14); ctx.fillStyle = "#a01818"; ctx.fillRect(px + 3 + r, py + 6, 6, 1); ctx.fillRect(px + 7 - r, py + 10, 5, 1); }
+  else if (v === 15) { ctx.fillStyle = "#b9b4ae"; for (const sx of [2, 9]) for (let i = 0; i < 5; i++) { ctx.fillRect(px + sx + i * .0, py + 13 - i * 2, 5 - i, 2); } ctx.fillStyle = "#6e6a66"; ctx.fillRect(px + 1, py + 14, 14, 1); }
+  else if (v === 16) { ctx.fillStyle = "#4a3b36"; ctx.fillRect(px + 3, py + 5, 10, 9); ctx.fillRect(px + 5, py + 3, 6, 2); ctx.fillStyle = "#6a5650"; ctx.fillRect(px + 5, py + 5, 4, 2); }
+}
+function draw(time) {
+  ctx.setTransform(1, 0, 0, 1, 0, 0); ctx.imageSmoothingEnabled = false;
+  ctx.fillStyle = "#0d0404"; ctx.fillRect(0, 0, cv.width, cv.height);
+  const camX = Math.round(Math.max(0, Math.min(MW * TS - VW, player.x - VW / 2)));
+  const camY = Math.round(Math.max(0, Math.min(MH * TS - VH, player.y - VH / 2)));
+  ctx.setTransform(S, 0, 0, S, -camX * S, -camY * S); ctx.imageSmoothingEnabled = false;
+  const x0 = Math.floor(camX / TS), y0 = Math.floor(camY / TS);
+  for (let y = y0; y <= Math.min(MH - 1, y0 + VH / TS + 1); y++)
+    for (let x = x0; x <= Math.min(MW - 1, x0 + VW / TS + 1); x++)
+      drawTile(grid[y][x], x, y, rooms[floorAt(Math.floor(x / RW), Math.floor(y / RH))], time);
+  // room labels
+  ctx.font = "700 9px 'Grenze Gotisch', serif"; ctx.textBaseline = "top";
+  for (const n in rooms) { const r = rooms[n]; ctx.fillStyle = "rgba(242,207,107,.42)"; ctx.fillText("B" + n, r.cx * RW * TS + TS + 3, r.cy * RH * TS + TS + 2); }
+  // coins (gold ingots)
+  coins.forEach(c => {
+    if (c.got) return; const b = Math.round(Math.sin(time / 250 + c.n) * 1.5);
+    ctx.fillStyle = "rgba(0,0,0,.35)"; ctx.fillRect(c.x - 4, c.y + 4, 8, 2);
+    ctx.fillStyle = "#b8862b"; ctx.fillRect(c.x - 5, c.y - 1 + b, 10, 4);
+    ctx.fillStyle = "#f2cf6b"; ctx.fillRect(c.x - 3, c.y - 4 + b, 6, 4); ctx.fillRect(c.x - 5, c.y - 1 + b, 10, 1);
+    ctx.fillStyle = "#fff1b8"; ctx.fillRect(c.x - 2, c.y - 3 + b, 2, 1);
+  });
+  // characters, back to front
+  [...npcs, player].sort((a, b) => a.y - b.y).forEach(e => {
+    const img = SPR[e === player ? pc : e.spr];
+    const bob = e.moving ? (Math.floor(time / 130) % 2) : (e.ghost || (e === player && pc === "ghost") ? Math.round(Math.sin(time / 300)) : 0);
+    ctx.fillStyle = "rgba(0,0,0,.4)"; ctx.beginPath(); ctx.ellipse(e.x, e.y, 5, 2, 0, 0, 7); ctx.fill();
+    ctx.save(); if (e.ghost) ctx.globalAlpha = .75;
+    ctx.translate(Math.round(e.x), 0); ctx.scale(e.face, 1);
+    ctx.drawImage(img, -6, Math.round(e.y) - img.height - bob - 1);
+    ctx.restore();
+  });
+  if (near) {
+    const y = near.y - 24 - Math.round(Math.sin(time / 200));
+    ctx.fillStyle = "#1a0a0a"; ctx.fillRect(near.x - 4, y - 1, 9, 11);
+    ctx.fillStyle = "#f2cf6b"; ctx.fillRect(near.x - 3, y, 7, 9);
+    ctx.fillStyle = "#1a0a0a"; ctx.font = "700 8px 'Be Vietnam Pro', sans-serif"; ctx.textAlign = "center"; ctx.fillText("E", near.x + .5, y + 1); ctx.textAlign = "left";
+  }
+}
+let last = performance.now();
+function loop(now) {
+  const dt = Math.min(3, (now - last) / 16.67); last = now;
+  step(dt); draw(now);
+  requestAnimationFrame(loop);
+}
+updateRoom(); draw(0); requestAnimationFrame(loop);
+})();
+
+/* ---------- Điện Diêm La: thắp hương online ---------- */
+(() => {
+const cv = $("#alt"), g = cv.getContext("2d"), W = 320, H = 180, S = 3, STEP = 108;
+const floats = $("#floats"), note = $("#sh-note"), feed = $("#feed");
+const KING = window.AMPHU_SPR && window.AMPHU_SPR.king;
+let merit = 0;
+try { merit = Math.max(0, Math.floor(+localStorage.getItem("amphu-merit") || 0)); } catch (e) {}
+const floorOf = m => Math.max(0, 18 - Math.floor(m / STEP));
+
+// sound (starts only after a click)
+let ac = null, muted = false;
+try { muted = localStorage.getItem("amphu-mute") === "1"; } catch (e) {}
+const muteBtn = $("#mute");
+const showMute = () => { muteBtn.textContent = "Âm thanh: " + (muted ? "tắt" : "bật"); muteBtn.setAttribute("aria-pressed", muted); };
+showMute();
+muteBtn.addEventListener("click", () => { muted = !muted; showMute(); try { localStorage.setItem("amphu-mute", muted ? "1" : "0"); } catch (e) {} });
+function tone(freq, dur, type = "sine", vol = .3, at = 0, glide) {
+  const t = ac.currentTime + at, o = ac.createOscillator(), v = ac.createGain();
+  o.type = type; o.frequency.setValueAtTime(freq, t); if (glide) o.frequency.exponentialRampToValueAtTime(glide, t + dur);
+  v.gain.setValueAtTime(vol, t); v.gain.exponentialRampToValueAtTime(.0001, t + dur);
+  o.connect(v).connect(ac.destination); o.start(t); o.stop(t + dur + .02);
+}
+function noise(dur, vol, freq) {
+  const b = ac.createBuffer(1, ac.sampleRate * dur, ac.sampleRate), d = b.getChannelData(0);
+  for (let i = 0; i < d.length; i++) d[i] = (Math.random() * 2 - 1) * (1 - i / d.length);
+  const s = ac.createBufferSource(), f = ac.createBiquadFilter(), v = ac.createGain();
+  f.type = "lowpass"; f.frequency.value = freq; v.gain.value = vol; s.buffer = b; s.connect(f).connect(v).connect(ac.destination); s.start();
+}
+function sfx(kind) {
+  if (muted) return;
+  try { ac = ac || new (window.AudioContext || window.webkitAudioContext)(); if (ac.state === "suspended") ac.resume(); } catch (e) { return; }
+  if (kind === "mo") { tone(720, .09, "sine", .5, 0, 420); tone(1450, .04, "triangle", .15); }
+  if (kind === "chuong") [1, 2.76, 5.4, 8.93].forEach((k, i) => tone(196 * k, 3.2 - i * .6, "sine", .22 / (i + 1)));
+  if (kind === "huong") tone(880, .25, "sine", .08, 0, 1320);
+  if (kind === "vang") noise(1.4, .35, 900);
+  if (kind === "den") { tone(523, .5, "sine", .1); tone(784, .7, "sine", .08, .12); }
+}
+
+// scene state
+const sticks = [], smoke = [], sparks = [], lanterns = [];
+let moT = -1e9, bellT = -1e9, burnUntil = 0;
+const last = {};
+const ACTS = {
+  mo:     { gain: 1, cd: 80,   verb: "gõ mõ",            at: [118, 84] },
+  huong:  { gain: 3, cd: 300,  verb: "thắp một nén hương", at: [160, 70] },
+  chuong: { gain: 2, cd: 1500, verb: "thỉnh chuông",     at: [262, 30] },
+  vang:   { gain: 5, cd: 3500, verb: "đốt vàng mã",      at: [55, 118] },
+  den:    { gain: 4, cd: 900,  verb: "thả đèn hoa đăng",  at: [60, 156] }
+};
+function floatText(text, x, y) {
+  const s = document.createElement("span"); s.textContent = text;
+  s.style.left = (x / W * 100) + "%"; s.style.top = (y / H * 100) + "%";
+  floats.append(s); setTimeout(() => s.remove(), 1500);
+  while (floats.children.length > 24) floats.firstChild.remove();
+}
+function addFeed(html) {
+  const li = document.createElement("li"); li.innerHTML = html; feed.prepend(li);
+  while (feed.children.length > 12) feed.lastChild.remove();
+}
+function gain(n) {
+  const before = floorOf(merit); merit += n; renderMerit(); saveSoon();
+  const after = floorOf(merit);
+  if (after < before) {
+    note.textContent = after ? `Được giảm án! Bạn lên tầng B${after}.` : "Đủ công đức rồi! Bạn được đầu thai. Mạnh Bà đang chờ ở B18 với bát canh.";
+    floatText(after ? `Lên B${after}!` : "Được đầu thai!", 160, 40);
+  }
+}
+function act(kind, x, y) {
+  const a = ACTS[kind], now = performance.now();
+  if (now - (last[kind] || -1e9) < a.cd) return;
+  if (kind === "huong") {
+    if (sticks.length >= 3) { note.textContent = "Bát hương đã đủ 3 nén. Chờ hương tàn bớt rồi thắp tiếp."; return; }
+    sticks.push(now);
+  }
+  if (kind === "den") {
+    if (lanterns.length >= 6) { note.textContent = "Sông đã kín đèn. Chờ đèn trôi đi bớt nhé."; return; }
+    lanterns.push({ x: -8, y: 166 + Math.random() * 8, hue: Math.random() < .5 ? "#e0607a" : "#e8a33a" });
+  }
+  if (kind === "mo") moT = now;
+  if (kind === "chuong") bellT = now;
+  if (kind === "vang") burnUntil = now + 3500;
+  last[kind] = now;
+  if (kind !== "mo") note.textContent = "";
+  sfx(kind);
+  const [fx, fy] = x != null ? [x, y] : a.at;
+  floatText(`+${a.gain} công đức`, fx + (Math.random() * 16 - 8), fy);
+  gain(a.gain);
+  if (kind !== "mo") addFeed(`<b>Bạn</b> vừa ${a.verb}.`);
+  tellRoom(kind);
+}
+$("#acts").addEventListener("click", e => { const b = e.target.closest("[data-act]"); if (b) act(b.dataset.act); });
+document.addEventListener("amphu-merit", e => { gain(e.detail.n); addFeed(`<b>Bạn</b> ${esc(e.detail.why)} trong bản đồ, +${e.detail.n} công đức.`); });
+cv.addEventListener("pointerdown", e => {
+  const r = cv.getBoundingClientRect(), x = (e.clientX - r.left) / r.width * W, y = (e.clientY - r.top) / r.height * H;
+  if (Math.abs(x - 118) < 15 && y > 84 && y < 108) act("mo", x, y - 10);
+  else if (x > 144 && x < 176 && y > 66 && y < 104) act("huong", x, y - 8);
+  else if (x > 246 && x < 278 && y > 16 && y < 60) act("chuong", x, y);
+  else if (x > 32 && x < 78 && y > 116 && y < 156) act("vang", x, y - 10);
+  else if (y > 156) act("den", x, y - 6);
+  else if (x > 128 && x < 192 && y > 24 && y < 100) note.textContent = "Diêm Vương đang nhìn bạn. Gõ mõ đi cho đỡ ngại.";
+});
+
+// personal merit display
+const myMerit = $("#my-merit"), myFloor = $("#my-floor"), myBar = $("#my-bar"), myNext = $("#my-next");
+function renderMerit() {
+  const f = floorOf(merit);
+  myMerit.textContent = merit.toLocaleString("vi-VN");
+  myFloor.textContent = f ? "B" + f : "Đầu thai";
+  myBar.style.width = (f ? (merit % STEP) / STEP * 100 : 100) + "%";
+  myNext.textContent = f ? `Còn ${STEP - merit % STEP} công đức nữa để ${f > 1 ? "lên B" + (f - 1) : "được đầu thai"}.` : "Bạn đã đủ công đức để đầu thai.";
+  try { localStorage.setItem("amphu-merit", merit); } catch (e) {}
+}
+renderMerit();
+
+// drawing
+function update(now, dt) {
+  for (let i = sticks.length - 1; i >= 0; i--) if (now - sticks[i] > 45000) sticks.splice(i, 1);
+  sticks.forEach((t, i) => {
+    const h = 18 * (1 - (now - t) / 45000 * .75);
+    if (Math.random() < .25 * dt) smoke.push({ x: 154 + i * 6, y: 92 - h, life: 1, ph: Math.random() * 6 });
+  });
+  smoke.forEach(p => { p.y -= .22 * dt; p.life -= .006 * dt; p.x += Math.sin(p.y / 7 + p.ph) * .18; });
+  for (let i = smoke.length - 1; i >= 0; i--) if (smoke[i].life <= 0) smoke.splice(i, 1);
+  if (now < burnUntil && Math.random() < .6 * dt) sparks.push({ x: 48 + Math.random() * 14, y: 132, vy: -.4 - Math.random() * .5, life: 1 });
+  sparks.forEach(p => { p.y += p.vy * dt; p.x += (Math.random() - .5) * .4; p.life -= .02 * dt; });
+  for (let i = sparks.length - 1; i >= 0; i--) if (sparks[i].life <= 0) sparks.splice(i, 1);
+  lanterns.forEach(l => l.x += .22 * dt);
+  for (let i = lanterns.length - 1; i >= 0; i--) if (lanterns[i].x > W + 10) lanterns.splice(i, 1);
+}
+function draw(now) {
+  g.setTransform(S, 0, 0, S, 0, 0); g.imageSmoothingEnabled = false;
+  g.fillStyle = "#170605"; g.fillRect(0, 0, W, H);
+  g.fillStyle = "#220a08"; g.fillRect(34, 0, 252, 128);
+  for (let x = 40; x < 280; x += 24) { g.fillStyle = "#1c0807"; g.fillRect(x, 0, 1, 128); }
+  // pillars
+  [[16, 30], [290, 304]].forEach(([a, b]) => { g.fillStyle = "#8a1a12"; g.fillRect(a, 0, b - a, 156); g.fillStyle = "#d9a441"; g.fillRect(a, 18, b - a, 3); g.fillRect(a, 110, b - a, 3); g.fillStyle = "#a8261a"; g.fillRect(a + 2, 0, 2, 156); });
+  // plaque
+  g.fillStyle = "#7a1410"; g.fillRect(108, 4, 104, 16); g.strokeStyle = "#d9a441"; g.lineWidth = 1; g.strokeRect(108.5, 4.5, 103, 15);
+  g.fillStyle = "#f2cf6b"; g.font = "700 10px 'Grenze Gotisch', serif"; g.textAlign = "center"; g.textBaseline = "middle"; g.fillText("ĐIỆN DIÊM LA", 160, 12.5);
+  // aura + statue
+  const glow = g.createRadialGradient(160, 62, 4, 160, 62, 56);
+  glow.addColorStop(0, `rgba(242,207,107,${.22 + .06 * Math.sin(now / 600)})`); glow.addColorStop(1, "rgba(242,207,107,0)");
+  g.fillStyle = glow; g.fillRect(100, 10, 120, 100);
+  if (KING) g.drawImage(KING, 0, 0, 12, KING.height, 130, 30, 60, KING.height * 5);
+  // altar table
+  g.fillStyle = "#5a1210"; g.fillRect(80, 100, 160, 12); g.fillStyle = "#d9a441"; g.fillRect(80, 100, 160, 2);
+  g.fillStyle = "#8a1a12"; g.fillRect(92, 112, 136, 16); g.fillStyle = "#d9a441"; g.fillRect(92, 126, 136, 2); g.fillRect(156, 114, 8, 8);
+  g.fillStyle = "#3a0c0a"; g.fillRect(84, 112, 6, 16); g.fillRect(230, 112, 6, 16);
+  // floor
+  for (let y = 128; y < 156; y += 14) for (let x = 0; x < W; x += 16) { g.fillStyle = ((x / 16 + y / 14) % 2) ? "#241010" : "#2b1311"; g.fillRect(x, y, 16, 14); }
+  // incense bowl + sticks
+  g.fillStyle = "#8a6a2a"; g.fillRect(148, 92, 24, 8); g.fillStyle = "#c9a24a"; g.fillRect(146, 91, 28, 2); g.fillStyle = "#5e4618"; g.fillRect(150, 99, 20, 1);
+  sticks.forEach((t, i) => {
+    const h = Math.round(18 * (1 - (now - t) / 45000 * .75)), x = 154 + i * 6;
+    g.fillStyle = "#b0302a"; g.fillRect(x, 92 - h, 1, h);
+    g.fillStyle = Math.sin(now / 90 + i) > 0 ? "#ffb347" : "#ff6a2a"; g.fillRect(x, 92 - h - 1, 1, 1);
+  });
+  smoke.forEach(p => { g.fillStyle = `rgba(210,200,190,${p.life * .45})`; g.fillRect(Math.round(p.x), Math.round(p.y), 2, 2); });
+  // wooden fish (mõ)
+  const hit = now - moT < 110, sq = hit ? 1 : 0;
+  g.fillStyle = "#3a1d0b"; g.beginPath(); g.ellipse(118, 97 + sq, 12, 7 - sq, 0, 0, 7); g.fill();
+  g.fillStyle = "#8a4a1e"; g.beginPath(); g.ellipse(118, 96 + sq, 11, 6 - sq, 0, 0, 7); g.fill();
+  g.fillStyle = "#b8682e"; g.fillRect(112, 92 + sq, 6, 1);
+  g.fillStyle = "#2a1206"; g.fillRect(108, 97 + sq, 20, 1);
+  g.save(); g.translate(132, 84); g.rotate(hit ? .5 : -.2); g.fillStyle = "#6b3a1a"; g.fillRect(-1, -12, 2, 12); g.fillStyle = "#c9a24a"; g.fillRect(-2, -15, 4, 4); g.restore();
+  // bell
+  const bt = now - bellT, sway = Math.sin(bt / 160) * .35 * Math.exp(-bt / 1600);
+  g.fillStyle = "#4a2a1a"; g.fillRect(250, 0, 24, 3);
+  g.save(); g.translate(262, 3); g.rotate(bt < 6000 ? sway : 0);
+  g.fillStyle = "#6b4a2a"; g.fillRect(-.5, 0, 1, 24);
+  g.fillStyle = "#b8862b"; g.beginPath(); g.moveTo(-5, 24); g.lineTo(5, 24); g.lineTo(9, 46); g.lineTo(-9, 46); g.closePath(); g.fill();
+  g.fillStyle = "#e0b04a"; g.fillRect(-3, 28, 2, 14); g.fillStyle = "#7a5518"; g.fillRect(-10, 45, 20, 2);
+  g.restore();
+  // joss-paper brazier
+  if (now < burnUntil) {
+    for (let i = 0; i < 6; i++) { const f = Math.sin(now / 70 + i * 2) * 3; g.fillStyle = i % 2 ? "#ffb347" : "#e2401e"; g.fillRect(44 + i * 4, 128 - 6 - f - (i % 3) * 3, 4, 8 + f + (i % 3) * 3); }
+  }
+  sparks.forEach(p => { g.fillStyle = `rgba(255,${150 + 80 * p.life | 0},60,${p.life})`; g.fillRect(Math.round(p.x), Math.round(p.y), 1, 1); });
+  g.fillStyle = "#555"; g.fillRect(40, 130, 32, 2); g.fillStyle = "#3a3a3a"; g.fillRect(42, 132, 28, 10); g.fillStyle = "#2a2a2a"; g.fillRect(44, 142, 3, 8); g.fillRect(65, 142, 3, 8);
+  g.fillStyle = "#d9a441"; g.fillRect(52, 135, 8, 3);
+  // river + lanterns
+  g.fillStyle = "#0e1a24"; g.fillRect(0, 156, W, 24);
+  for (let i = 0; i < 9; i++) { g.fillStyle = "#1c3346"; g.fillRect(((i * 41 + now / 40) % (W + 30)) - 20, 160 + (i * 7) % 18, 12, 1); }
+  lanterns.forEach(l => {
+    const bob = Math.round(Math.sin(now / 400 + l.x / 10));
+    const lg = g.createRadialGradient(l.x, l.y - 3 + bob, 1, l.x, l.y - 3 + bob, 14); lg.addColorStop(0, "rgba(255,210,120,.45)"); lg.addColorStop(1, "rgba(255,210,120,0)");
+    g.fillStyle = lg; g.fillRect(l.x - 14, l.y - 17 + bob, 28, 28);
+    g.fillStyle = l.hue; g.fillRect(l.x - 5, l.y - 2 + bob, 10, 3); g.fillRect(l.x - 3, l.y - 4 + bob, 2, 2); g.fillRect(l.x + 1, l.y - 4 + bob, 2, 2);
+    g.fillStyle = "#fff1b8"; g.fillRect(l.x - .5, l.y - 6 + bob, 1, 2);
+  });
+  g.textAlign = "left"; g.textBaseline = "alphabetic";
+}
+let lt = performance.now();
+function loop(now) { const dt = Math.min(3, (now - lt) / 16.67); lt = now; update(now, dt); draw(now); requestAnimationFrame(loop); }
+draw(0); requestAnimationFrame(loop);
+
+// shared: who is here (room), total merit + wishes (db)
+let room = null, db = null, uid = null, saveTimer = 0, lastTell = 0, remoteLoaded = false;
+const online = $("#online"), totalEl = $("#total");
+function tellRoom(kind) {
+  if (!room) return;
+  const now = Date.now(); if (kind === "mo" && now - lastTell < 3000) return; lastTell = now;
+  room.presence({ act: kind, at: now, floor: floorOf(merit) }).catch(() => {});
+}
+function saveSoon() {
+  if (!db || !uid || !remoteLoaded) return;
+  clearTimeout(saveTimer);
+  saveTimer = setTimeout(() => db.doc("merit/" + uid).set({ m: merit, at: Date.now() }).catch(() => {}), 1500);
+}
+const seen = new WeakSet();
+async function startRoom() {
+  try { room = await window.claude?.use?.("room"); } catch (e) { room = null; }
+  if (!room) { online.textContent = "Chế độ một mình"; return; }
+  const people = ps => ps.filter(p => p.kind !== "agent").length;
+  room.onPeers(ch => {
+    online.textContent = `${Math.max(1, people(ch.peers))} vong hồn đang ở trong điện`;
+    ch.updated.forEach(p => {
+      if (p.isMe || seen.has(p) || p.kind === "agent") return; seen.add(p);
+      const a = ACTS[p.presence && p.presence.act]; if (!a) return;
+      const f = +p.presence.floor;
+      addFeed(`<b>Một vong hồn${f ? " ở B" + f : " sắp đầu thai"}</b> vừa ${a.verb}.`);
+    });
+  }, () => { online.textContent = "Mất kết nối, đang thử lại…"; });
+  room.presence({ floor: floorOf(merit) }).catch(() => {});
+}
+function ago(t) {
+  const s = Math.max(0, (Date.now() - t) / 1000);
+  return s < 60 ? "vừa xong" : s < 3600 ? Math.floor(s / 60) + " phút trước" : s < 86400 ? Math.floor(s / 3600) + " giờ trước" : Math.floor(s / 86400) + " ngày trước";
+}
+const wgrid = $("#wgrid"), wform = $("#wform"), wtext = $("#w-text"), wnote = $("#w-note");
+wtext.addEventListener("input", () => { $("#w-count").textContent = wtext.value.length + "/140"; });
+async function startDb() {
+  let user = null;
+  try { [db, user] = await Promise.all([window.claude?.use?.("db"), window.claude?.use?.("user")]); } catch (e) {}
+  if (user) { try { uid = await user.id(); } catch (e) {} }
+  if (!db || !uid) {
+    totalEl.textContent = merit.toLocaleString("vi-VN");
+    wgrid.innerHTML = `<div class="empty">Sổ sớ chung chỉ mở khi bạn xem trang này trên Claude với tài khoản đã đăng nhập. Công đức của bạn vẫn được giữ trên máy này.</div>`;
+    $("#w-send").disabled = true; return;
+  }
+  const timer = setTimeout(() => { if (totalEl.textContent === "–") totalEl.textContent = "chưa tải được"; }, 10000);
+  try {
+    const mine = await db.doc("merit/" + uid).get();
+    const m = mine.exists ? +(mine.data().m || 0) : 0;
+    if (m > merit) { merit = m; renderMerit(); }
+  } catch (e) {}
+  remoteLoaded = true; saveSoon();
+  db.collection("merit").onSnapshot(snap => {
+    clearTimeout(timer);
+    let sum = 0, n = 0;
+    snap.docs.forEach(d => { const v = +(d.data().m || 0); if (v > 0) { sum += v; n++; } });
+    totalEl.textContent = `${sum.toLocaleString("vi-VN")} · ${n} vong hồn`;
+  }, () => { clearTimeout(timer); totalEl.textContent = "chưa tải được"; });
+  db.collection("wishes").orderBy("at", "desc").limit(40).onSnapshot(snap => {
+    if (!snap.docs.length) { wgrid.innerHTML = `<div class="empty">Chưa ai treo sớ. Viết tờ sớ đầu tiên ở khung bên cạnh.</div>`; return; }
+    wgrid.innerHTML = snap.docs.map(d => {
+      const w = d.data(), mine = d.id === uid, f = +w.floor;
+      if (mine && !wtext.value) { wtext.value = w.text || ""; $("#w-count").textContent = wtext.value.length + "/140"; }
+      return `<div class="wish${mine ? " mine" : ""}"><div>${esc(String(w.text || "").slice(0, 140))}</div><div class="wm"><span>${f ? "Vong hồn B" + f : "Đã đầu thai"}${mine ? " · của bạn" : ""}</span><span>${ago(+w.at || 0)}</span></div></div>`;
+    }).join("");
+  }, () => { wgrid.innerHTML = `<div class="empty">Chưa mở được sổ sớ. Tải lại trang sau ít phút.</div>`; });
+}
+wform.addEventListener("submit", async e => {
+  e.preventDefault();
+  const text = wtext.value.trim().slice(0, 140);
+  if (!text) { wnote.textContent = "Viết vài chữ vào sớ trước đã."; return; }
+  if (!db || !uid) { wnote.textContent = "Cần mở trang trên Claude và đăng nhập để treo sớ."; return; }
+  $("#w-send").disabled = true; wnote.textContent = "Đang treo sớ…";
+  try {
+    await db.doc("wishes/" + uid).set({ text, floor: floorOf(merit), at: Date.now() });
+    wnote.textContent = "Đã treo sớ. Diêm Vương sẽ đọc vào giờ Tý.";
+    floatText("+9 công đức", 160, 60); gain(9);
+  } catch (err) {
+    wnote.textContent = "Chưa treo được sớ. Có thể bạn chỉ có quyền xem trang này.";
+  }
+  $("#w-send").disabled = false;
+});
+startRoom(); startDb();
+})();
+</script>
+</body></html>
