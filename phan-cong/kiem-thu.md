@@ -53,7 +53,7 @@ Môi trường kiểm thử: Máy tính (Desktop/Laptop - Edge/Chrome) và Giả
   - *Trình duyệt / Thiết bị*: Mọi trình duyệt hiện đại trên PC và Mobile.
   - *Đánh giá*: Tuân thủ tiêu chuẩn Web Audio API của trình duyệt. Sau khi người dùng click vào nút hoặc màn hình, âm thanh hoạt động bình thường và sắc nét.
 
-- [ ] (mức: nhẹ) **Giao diện tạo nhân vật trên màn hình điện thoại xoay ngang hẹp (Landscape Mobile < 400px height)**
+- [x] (mức: nhẹ, Claude đã sửa: thu gọn bảng, nút "Vào âm phủ" luôn nằm ở đáy) **Giao diện tạo nhân vật trên màn hình điện thoại xoay ngang hẹp (Landscape Mobile < 400px height)**
   - *Hiện tượng*: Khi điện thoại xoay ngang có chiều cao màn hình nhỏ (< 400px), khung tạo vong hồn (`#ov-char`) có nhiều tùy chọn (màu da, màu áo, màu tóc) nên nút "Vào âm phủ" nằm ở cuối khung, người dùng cần cuộn nhẹ xuống để thấy.
   - *Cách làm lại*: Mở DevTools, chọn mô phỏng thiết bị iPhone SE hoặc xoay ngang màn hình (Landscape).
   - *Trình duyệt / Thiết bị*: Trình duyệt di động (iOS Safari / Android Chrome) ở chế độ xoay ngang.

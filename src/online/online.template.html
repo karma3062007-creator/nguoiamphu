@@ -130,6 +130,15 @@ h2 { font-size: 1.8rem; color: var(--gold); }
 .board li b { color: var(--gold-hi); font-variant-numeric: tabular-nums; }
 .board li.me { outline: 1px dashed var(--gold-hi); }
 .empty { color: var(--muted); font-size: .85rem; border: 1px dashed var(--ash); padding: 12px; }
+/* short screens (phone sideways): compact character maker, start button always visible */
+@media (max-height: 500px) {
+  .sheet { padding: 12px 14px 0; gap: 8px; }
+  .sheet h2 { font-size: 1.4rem; }
+  .sw button { width: 24px; height: 24px; }
+  .seg button { padding: 5px 10px; }
+  .namerow input { padding: 7px 9px; }
+  #charf .row2 { position: sticky; bottom: 0; background: var(--panel); padding: 8px 0 12px; margin-top: auto; }
+}
 .loading { position: absolute; inset: 0; display: grid; place-items: center; z-index: 9; background: var(--lacquer); color: var(--muted); text-align: center; padding: 16px; }
 .loading b { display: block; font-family: var(--display); font-size: 2rem; color: var(--gold); }
 </style>
