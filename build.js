@@ -34,10 +34,12 @@ fs.writeFileSync(path.join(root, "dist/tro-choi.html"), wrap(hub));
 const avatarFile = fs.existsSync(path.join(root, "src/online/avatars-gen.js")) ? "src/online/avatars-gen.js" : "src/online/avatars.js";
 const avatars = readOpt(avatarFile);
 const extras = readOpt("src/online/extras.js");
+// Hình kiếp sau khi đầu thai (Codex, việc 15) và phòng thờ + quầy ăn (Codex, việc 17); chưa có thì game dùng hình tạm
+const reborn = readOpt("src/online/reborn.js"), scenesJs = readOpt("src/online/scenes.js");
 const online = read("src/online/online.template.html")
   .replace("__DATA__", () => levels)
   .replace("<!--__LOGO__-->", () => logo)
-  .replace("/*__AVATARS__*/", () => safe(avatars) || "/* chưa có avatars.js: game dùng hình nhân vật đơn giản */")
+  .replace("/*__AVATARS__*/", () => (safe(avatars) || "/* chưa có avatars.js: game dùng hình nhân vật đơn giản */") + "\n;\n" + safe(reborn) + "\n;\n" + safe(scenesJs))
   .replace("/*__EXTRAS__*/", () => safe(extras) || "/* chưa có extras.js */");
 fs.writeFileSync(path.join(root, "dist/am-phu-online.html"), wrap(online));
 // Bản không có khung, dùng để xuất bản lên Claude Artifact
@@ -52,5 +54,6 @@ for (const [name, html] of [["index", home], ["tro-choi", hub], ["am-phu-travel"
 }
 console.log(ok ? "✓ Đã ghép xong dist/index.html, dist/am-phu-travel.html và dist/am-phu-online.html" : "Có lỗi cú pháp, xem ở trên.");
 console.log(`  giao diện trò chơi: ${uiFiles.length ? uiFiles.join(", ") : "chưa có (dùng bản dự phòng)"}`);
+console.log(`  kiếp đầu thai: ${reborn ? "reborn.js" : "chưa có"} · phòng thờ + quầy ăn: ${scenesJs ? "scenes.js" : "chưa có"}`);
 console.log(`  nhân vật: ${avatars ? avatarFile : "chưa có"} · extras.js: ${extras ? "có" : "chưa có"}`);
 process.exit(ok ? 0 : 1);

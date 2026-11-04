@@ -18,7 +18,7 @@ Ghép bằng lệnh `node build.js` ở thư mục gốc (xem `README.md`).
 | Bên | File được sửa | Không được sửa |
 |---|---|---|
 | Claude | `src/tour/*`, `src/home/*`, `src/online/online.template.html`, `src/games/hub.template.html`, `server.js`, `build.js`, `README.md` | `avatars.js`, `extras.js` |
-| Codex | `src/online/avatars.js`, `src/online/extras.js`, `src/shared/levels.json`, `src/games/rules-*.js`, `src/games/ui-*.js`, `src/games/ui-demo.html` | mọi file `*.template.html`, `avatars-gen.js` |
+| Codex | `src/online/avatars.js`, `src/online/extras.js`, `src/shared/levels.json`, `src/games/rules-*.js`, `src/games/ui-*.js`, `src/games/ui-demo.html`, `src/online/reborn.js` | mọi file `*.template.html`, `avatars-gen.js` |
 | Antigravity | `src/online/avatars-gen.js`, `phan-cong/kiem-thu.md` | `avatars.js`, `extras.js`, mọi file `*.template.html` |
 
 Ai cũng được sửa file này (`BANG-PHAN-CONG.md`) để cập nhật trạng thái.
@@ -41,6 +41,10 @@ Ai cũng được sửa file này (`BANG-PHAN-CONG.md`) để cập nhật trạ
 | 12 | Luật 3 trò chơi bàn: Cờ vua, Ô ăn quan, Ma Sói (+ máy chơi cùng) | Codex | Xong | [tro-choi-hop-dong.md](tro-choi-hop-dong.md), [codex.md](codex.md) |
 | 13 | Giao diện 3 trò chơi bàn (bàn cờ, bàn ô ăn quan, lá bài Ma Sói) | Codex | Xong | [tro-choi-hop-dong.md](tro-choi-hop-dong.md), [codex.md](codex.md) |
 | 14 | Máy chủ phòng chơi, ghép cặp ngẫu nhiên / phòng riêng / chơi với máy, trang /tro-choi, nút nhảy trong game 3D | Claude | Xong | [tro-choi-hop-dong.md](tro-choi-hop-dong.md) |
+| 15 | Hình nhân vật sau đầu thai: người, 12 con giáp, tiên (`src/online/reborn.js`) | Codex | Xong | [codex.md](codex.md) |
+| 16 | Quay ngẫu nhiên kiếp mới khi đầu thai, 3 màn công bố riêng (người / con giáp / tiên), đồng bộ hình cho người khác | Claude | Xong | |
+| 17 | Phòng thờ cảnh mở đầu + 5 quầy đồ ăn tích phước (`src/online/scenes.js`) | Codex | Đang làm | [codex.md](codex.md) |
+| 18 | Cảnh mở đầu ngồi bàn thờ → nút "Xuống âm phủ"; đặt 5 quầy ăn trong sân, ăn được cộng công đức | Claude | Xong | |
 | 11 | Máy chủ riêng (server.js) để đưa lên web ngoài Claude, giao diện điện thoại dọc/ngang | Claude | Xong | [../DUA-LEN-WEB.md](../DUA-LEN-WEB.md) |
 
 ## Quy tắc chung
@@ -74,3 +78,6 @@ Ai cũng được sửa file này (`BANG-PHAN-CONG.md`) để cập nhật trạ
 - 2026-11-04 · Claude · Theo yêu cầu người dùng, chuyển việc 13 (giao diện 3 trò chơi bàn) từ Antigravity sang Codex.
 - 2026-11-04 · Codex · Xong Việc 13: tạo `ui-chess.js`, `ui-oanquan.js`, `ui-masoi.js` đúng GAME_UI và `ui-demo.html` dùng luật thật, đổi bên/vai, máy đi một nước, tăng tốc pha và các thế thử. Có phong cấp, bàn xoay theo người xem, hoạt ảnh rải 180ms/bước, vai bí mật/lựa chọn/phiếu bầu/đồng hồ Ma Sói; CSS riêng, co bàn theo bề rộng. Kiểm tra cú pháp đạt; Node VM + DOM giả lập đạt 66 kiểm tra tương tác và luồng demo; selfTest luật đạt 35/35 (cờ 14, ô ăn quan 7 gồm 200 ván bot, Ma Sói 14). Chưa kiểm tra trực quan trong trình duyệt vì môi trường không nạp được Playwright; nhờ Claude mở demo ở 360px và ghép trang `/tro-choi`. Không sửa hub hay luật.
 - 2026-11-04 · Claude · Ghép giao diện việc 13 của Codex, thử trên khung điện thoại 375px: cờ vua (sửa màu quân trắng/đen bị ngược), ô ăn quan (rải có hoạt ảnh, máy đánh lại), Ma Sói 5 người (đêm cắn, sang ngày lộ vai). Không tràn ngang.
+- 2026-11-04 · Claude · Thêm việc 15 (Codex: hình 14 kiếp đầu thai) và việc 16 (Claude: quay kiếp, màn công bố, đồng bộ).
+- 2026-11-04 · Codex · Xong mã Việc 15: tạo `reborn.js`, đủ 14 form × 2 giới tính, mắt hai điểm sáng/má hồng, đặc trưng từng con giáp, người hiện đại, tiên nữ/tiên ông râu bạc với mây/dải lụa/hào quang; có hoạt ảnh, đổi màu độc lập và cache geometry/material giữa nhân vật. Node REPL kiểm tra cú pháp đạt; bộ giả lập geometry theo công thức r128 kiểm đếm 28 biến thể: 13–27 mesh, 1.212–2.484 tam giác; 1.369 kiểm tra cache/đổi màu/hoạt ảnh/fallback đạt. Chưa chạy trên Three.js thật hay kiểm tra trực quan vì không có thư viện cục bộ và tải mạng bị chặn; nhờ Claude chạy `__rebornSelfTest(THREE)` (28 dòng, kiểm thêm chiều cao, đỉnh và ma trận hữu hạn) và xem hình khi ghép. Chỉ sửa `reborn.js` và bảng này, không sửa `avatars-gen.js`.
+- 2026-11-04 · Claude · Ghép `reborn.js` của Codex: self-test trong trình duyệt 28/28 đạt (tối đa 27 mesh, 2.484 tam giác), xem tận mắt cả 14 hình. Xong việc 16 (quay kiếp 45% người / 45% con giáp / 10% tiên, 3 màn công bố) và việc 18 (cảnh bàn thờ, 5 quầy ăn, đang dùng hình tạm chờ `scenes.js`).

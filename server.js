@@ -162,6 +162,7 @@ function clean(p) {
     if (Array.isArray(p.a)) out.a = [str(p.a[0], 10), Math.floor(+p.a[1] || 0)];
     if (Array.isArray(p.s)) out.s = [str(p.s[0], 100), Math.floor(+p.s[1] || 0)];
     out.w = p.w ? 1 : 0;                                    // đang cầm gậy
+    out.rb = str(p.rb, 8) || "";                               // kiếp sau khi đầu thai (người / con giáp / tiên)
     out.j = Math.max(0, Math.floor(+p.j || 0));                // số thứ tự lần nhảy gần nhất
     if (Array.isArray(p.h)) out.h = [str(p.h[0], 40), Math.floor(+p.h[1] || 0)]; // lần gõ đầu gần nhất [người bị gõ, số thứ tự]
   }

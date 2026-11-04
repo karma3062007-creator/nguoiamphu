@@ -109,3 +109,74 @@ Yêu cầu:
 - **Ma Sói**: các lá bài người chơi xếp lưới/vòng (tên, còn sống/đã chết, vai nếu được thấy); thẻ vai của mình to ở trên kèm mô tả ngắn vai làm gì; đồng hồ đếm ngược theo `view.deadline` (tự chạy mỗi giây); nền đổi đêm (xanh tím đậm, trăng) / ngày (vàng cam); bấm lá bài để chọn mục tiêu khi có action tương ứng (`kill`/`see`/`guard`/`vote`), nút "Bỏ qua" (`skip`) và "Sẵn sàng" (`ready`) khi có; hiện `myPick`, `wolfPicks` cho sói, `seen` cho tiên tri, phiếu bầu `votes`; khung `log` các thông báo; hết ván lật hết bài.
 
 Xong thì sửa trạng thái việc 13 trong `BANG-PHAN-CONG.md` và ghi nhật ký. Claude sẽ ghép và thử trên trình duyệt.
+
+## Việc 15: Hình nhân vật sau khi đầu thai (người, 12 con giáp, tiên)
+
+Khi người chơi đủ công đức và uống canh Mạnh Bà, game quay ngẫu nhiên một kiếp mới. Viết file mới `src/online/reborn.js` (JavaScript thuần, không `import`/`export`, three.js **r128**, không `CapsuleGeometry`, không ảnh ngoài; `CanvasTexture` vẽ bằng code thì được). `build.js` tự nhúng file này sau `avatars-gen.js`.
+
+```js
+window.makeRebornAvatar = function (THREE, opts) { ... return { group, update(dt, moving, time), setColors(opts) }; };
+// opts = { form, gender: "nam"|"nu", skin, robe, hair }   (màu "#rrggbb"; robe dùng làm màu điểm nhấn: áo, yếm, khăn, dải lụa)
+window.__rebornSelfTest = function (THREE) { ... };   // tạo thử mọi form × 2 giới tính, trả { ok, rows: [{form, meshes, tris}] }
+```
+
+`form` là một trong 14 mã:
+
+| Mã | Kiếp | Gợi ý hình |
+|---|---|---|
+| `nguoi` | Người | Thanh niên Việt hiện đại: áo phông màu `robe`, quần jean, giày thể thao; nữ tóc dài màu `hair`, nam tóc ngắn. Mặt chibi giống phong cách `avatars-gen.js`. |
+| `ty` | Chuột (Tý) | xám, tai tròn to, đuôi dài mảnh, răng cửa |
+| `suu` | Trâu (Sửu) | nâu đen, sừng cong, mũi to có khoen |
+| `dan` | Hổ (Dần) | cam sọc đen, chữ "王" trên trán (vẽ bằng khối mảnh), đuôi sọc |
+| `mao` | Mèo (Mão, Việt Nam dùng mèo thay thỏ) | mèo tam thể, tai nhọn, ria |
+| `thin` | Rồng (Thìn) | xanh lục, sừng, râu dài, vây lưng, đuôi |
+| `ti` | Rắn (Tỵ) | không chân: thân cuộn vòng, đầu ngẩng cao, lưỡi chẻ đỏ |
+| `ngo` | Ngựa (Ngọ) | nâu, bờm đen, mõm dài |
+| `mui` | Dê (Mùi) | trắng kem, sừng xoắn, chòm râu |
+| `than` | Khỉ (Thân) | nâu, mặt và tai hồng, đuôi cong |
+| `dau` | Gà (Dậu) | mào đỏ, mỏ vàng, cánh, đuôi lông nhiều màu |
+| `tuat` | Chó (Tuất) | vàng, tai cụp, lưỡi thè |
+| `hoi` | Lợn (Hợi) | hồng, mũi tròn to, tai lật, đuôi xoắn |
+| `tien` | Tiên | nữ: tiên nữ; nam: tiên ông râu bạc. Áo trắng ánh vàng bay bay, dải lụa màu `robe` uốn lượn, vầng hào quang vàng sau đầu (xoay chậm), đứng trên một đám mây nhỏ lơ lửng, vài đốm sáng bay quanh. |
+
+Yêu cầu chung:
+
+- 12 con giáp theo kiểu **linh vật chibi đứng hai chân** (trừ rắn): đầu to, mắt to có điểm sáng, má hồng, dễ thương, nhận ra ngay từ xa. Mỗi con đeo một **yếm hoặc khăn quàng màu `robe`** để người chơi vẫn đổi màu được. `skin` có thể bỏ qua với con giáp.
+- Gốc ở chân (y = 0), mặt nhìn hướng **+Z**. Cao: người và tiên ~1.6 (tiên tính cả mây); con giáp 1.2–1.5.
+- `update(dt, moving, time)`: đi thì vung tay chân (rắn thì uốn thân, tiên lướt nhẹ không bước), đứng thì thở, chớp mắt; đuôi, tai, dải lụa, hào quang có chuyển động nhỏ.
+- Tối đa **35 mesh** và **3.000 tam giác** mỗi nhân vật. Dùng chung geometry và material giữa các lần tạo (cache theo màu) để điện thoại chạy nổi 15 người.
+- `form` lạ hoặc thiếu thì trả về hình `nguoi`.
+
+Chỉ tạo/sửa `src/online/reborn.js` và `BANG-PHAN-CONG.md` (việc 15). Claude sẽ chạy self-test trong trình duyệt với three r128 và ghép vào game.
+
+## Việc 17: Phòng thờ (cảnh mở đầu) và quầy đồ ăn tích phước
+
+Tạo file mới `src/online/scenes.js` (JavaScript thuần, three.js **r128**, không `import`/`export`, không ảnh ngoài; `CanvasTexture` vẽ chữ bằng code thì được). `build.js` tự nhúng file này. **Không sửa `BANG-PHAN-CONG.md`** trong việc này (một phiên Codex khác đang sửa nó), Claude sẽ cập nhật giúp.
+
+### 1. `window.makeAltarRoom(THREE)` → `{ group, update(dt, time), seat, cam }`
+
+Cảnh mở đầu: vong hồn mới chết ngồi trên bàn thờ nhà mình, nhìn con cháu khấn vái, rồi mới xuống âm phủ.
+
+- Phòng khách nhà Việt, ấm cúng, ánh sáng ban ngày vàng nhẹ (phòng tự mang đèn: `PointLight`/`HemisphereLight` đặt trong `group`, vì cảnh chính là địa ngục tối đỏ). Khoảng 8 × 8 m, có sàn gạch, tường sau, cửa sổ sáng, hai bên tường thấp để camera nhìn vào.
+- Tường sau (phía −Z) có **bàn thờ** gỗ đỏ son viền vàng: khung ảnh thờ (ảnh vẽ bằng CanvasTexture một gương mặt chibi đơn giản, viền đen, dải băng đen), bát hương có 3 nén nhang cháy đỏ đầu và **khói bay lên** (vài mảnh mờ bay lên rồi tan, lặp lại), mâm ngũ quả, hai đèn dầu hoặc nến lung linh, bình hoa cúc vàng, câu đối đỏ hai bên.
+- **Con cháu**: 3–4 người quỳ trước bàn thờ, quay mặt về phía bàn thờ (−Z), cầm nhang và **vái lạy** liên tục lệch nhịp nhau (gập người xuống rồi lên). Kiểu chibi giống `avatars-gen.js`, nhiều lứa tuổi (bố, mẹ, con nhỏ…). Có thể dùng `window.makeAvatar(THREE, {kind:"tourist", ...})` nếu có, nhưng cần tư thế quỳ, nên tự dựng chibi riêng cũng được.
+- `seat`: `THREE.Vector3` toạ độ (trong `group`) chỗ vong hồn ngồi: **trên mặt bàn thờ**, cạnh bát hương, nhìn ra phía +Z (về phía con cháu).
+- `cam`: `{ pos: THREE.Vector3, look: THREE.Vector3 }` góc máy đẹp: hơi cao, chếch sau lưng con cháu, thấy cả bàn thờ, vong hồn và con cháu.
+- `update(dt, time)`: khói nhang, lửa đèn, con cháu vái.
+- Tối đa khoảng 150 mesh cho cả phòng.
+
+### 2. `window.makeFoodStall(THREE, type)` → `{ group, update(dt, time) }`
+
+Quầy đồ ăn đặt trong sân Điện Diêm La. Ăn ở đây được tích phước (game tự cộng công đức). Kiểu sạp chợ quê vui mắt: mái vải sọc hoặc mái lá, quầy gỗ, bảng hiệu chữ (CanvasTexture), đèn lồng nhỏ, đồ ăn bày trên quầy, hơi nóng bốc lên nếu là món nóng. Mặt quầy nhìn hướng **+Z**, gốc ở đất (y = 0), rộng khoảng 2.4 m, sâu 1.4 m, cao 2.6 m. Tối đa 60 mesh mỗi quầy; dùng chung geometry/material.
+
+| `type` | Bảng hiệu | Đồ ăn trên quầy |
+|---|---|---|
+| `xoi` | XÔI CÚNG | mâm xôi gấc đỏ, xôi đậu xanh vàng, lá chuối |
+| `banhbao` | BÁNH BAO | xửng hấp tre chồng lên nhau, bánh bao trắng, hơi nóng |
+| `comchay` | CƠM CHAY | nồi cơm, đĩa rau củ, đậu phụ, bát đũa |
+| `che` | CHÈ NGỌT | cốc chè nhiều lớp màu, nồi chè, đá |
+| `trasua` | TRÀ SỮA ÂM PHỦ | cốc trà sữa có trân châu đen, ống hút to |
+
+`update`: hơi nóng bay, đèn lồng đung đưa nhẹ.
+
+Thêm `window.__scenesSelfTest(THREE)` tạo thử phòng thờ và 5 quầy, trả `{ ok, rows: [{name, meshes, tris}] }`.

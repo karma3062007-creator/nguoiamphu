@@ -173,6 +173,84 @@ h2 { font-size: 1.8rem; color: var(--gold); }
 .tr .btn.ghost { background: #fff3d6; color: #6a1414; border: 2px solid #e8b765; text-decoration: none; }
 .prompt { border-radius: 999px; }
 @media (max-height: 500px) { #charf .row2 { background: #f6d49a; } .logo-ic { width: 52px; } .word .a { font-size: 1.5rem; } .word .b { font-size: 1.7rem; } }
+/* reborn reveal: one card, three different designs */
+.rb-ov { background: rgba(10,4,8,.78); z-index: 8; }
+.rb-card { width: min(440px, 100%); max-height: 100%; overflow: auto; text-align: center; }
+.rb-card .btn { margin-top: 12px; font-size: 1.05rem; padding: 10px 22px; border-radius: 999px; font-family: var(--display); }
+.rb-wheel { position: relative; width: 240px; height: 240px; margin: 0 auto; border-radius: 50%; border: 4px solid #f7c24a; background: radial-gradient(circle, #3a1030, #12060c); box-shadow: 0 0 40px rgba(247,194,74,.35); }
+.rb-wheel span { position: absolute; left: 50%; top: 50%; font-size: 28px; transform: rotate(calc(var(--i) * 25.7deg)) translateY(-92px) rotate(calc(var(--i) * -25.7deg)); margin: -18px 0 0 -18px; width: 36px; height: 36px; line-height: 36px; border-radius: 50%; transition: transform .1s, background .1s; }
+.rb-wheel span.on { background: #f7c24a; box-shadow: 0 0 18px #ffdf7e; transform: rotate(calc(var(--i) * 25.7deg)) translateY(-92px) rotate(calc(var(--i) * -25.7deg)) scale(1.35); }
+.rb-spin-t { color: #ffdf7e; font: 800 1.2rem var(--display); margin-top: 14px; }
+.rb-card.show > div { animation: rbIn .55s cubic-bezier(.2,1.4,.4,1); }
+@keyframes rbIn { from { transform: scale(.6) rotate(-4deg); opacity: 0; } to { transform: none; opacity: 1; } }
+.rb-msg { margin: 10px 0 0; font-size: .95rem; line-height: 1.45; }
+.rb-title { display: block; font: 800 2.4rem/1.05 var(--display); }
+
+/* 1. Người: giấy chứng sinh */
+.rb-paper { position: relative; padding: 20px 18px 18px; background: #fffdf6; color: #23324a; border-radius: 6px; text-align: left;
+  border: 10px solid transparent; border-image: repeating-linear-gradient(45deg, #9cc8ef 0 10px, #f7b6c8 10px 20px) 10; box-shadow: 0 16px 40px rgba(0,0,0,.45); }
+.rb-head { text-align: center; border-bottom: 2px dashed #9cc8ef; padding-bottom: 8px; }
+.rb-head small { display: block; font-size: .66rem; letter-spacing: .06em; color: #5a6a86; font-weight: 700; }
+.rb-head b { display: block; font: 800 1.7rem/1.1 var(--display); color: #2b5d9c; letter-spacing: .04em; }
+.rb-head i { font-size: .75rem; color: #5a6a86; }
+.rb-baby { font-size: 64px; text-align: center; margin: 8px 0 2px; animation: rbBob 1.6s ease-in-out infinite; }
+@keyframes rbBob { 50% { transform: translateY(-6px) rotate(4deg); } }
+.rb-paper dl { display: grid; grid-template-columns: auto 1fr; gap: 4px 12px; margin: 6px 0; font-size: .92rem; }
+.rb-paper dt { color: #5a6a86; font-weight: 600; } .rb-paper dd { margin: 0; font-weight: 700; border-bottom: 1px dotted #9cc8ef; }
+.rb-stamp { position: absolute; right: 18px; top: 92px; width: 78px; height: 78px; border: 3px solid #d63a3a; border-radius: 50%; color: #d63a3a; font: 800 .95rem/1.05 var(--display); display: grid; place-items: center; transform: rotate(-16deg); opacity: .85; box-shadow: inset 0 0 0 3px #fffdf6, inset 0 0 0 5px #d63a3a; }
+.rb-paper .btn { display: block; margin: 12px auto 0; background: #2b5d9c; border-color: #1c3f6e; color: #fff; }
+
+/* 2. Con giáp: tết đỏ vàng */
+.rb-lunar { position: relative; padding: 22px 18px 18px; background: radial-gradient(circle at 50% 30%, #d8262b, #8e0e14 70%); color: #ffe9a8; border-radius: 22px;
+  border: 4px solid #f5c542; box-shadow: 0 0 0 4px #8e0e14, 0 0 0 7px #f5c542, 0 18px 40px rgba(0,0,0,.5); }
+.rb-lunar small { font: 700 .9rem var(--display); color: #ffd36a; }
+.rb-lunar .rb-title { color: #ffd23a; text-shadow: 0 3px 0 #6a0a0e; font-size: 2.8rem; }
+.rb-ring { position: relative; width: 230px; height: 230px; margin: 10px auto 0; border-radius: 50%; border: 3px dashed #f5c542; animation: rbTurn 30s linear infinite; }
+.rb-ring span { position: absolute; left: 50%; top: 50%; width: 34px; height: 34px; margin: -17px; line-height: 34px; font-size: 22px; transform: rotate(calc(var(--i) * 30deg)) translateY(-98px) rotate(calc(var(--i) * -30deg)); opacity: .55; filter: grayscale(.5); }
+.rb-ring span.on { opacity: 1; filter: none; background: #f5c542; border-radius: 50%; box-shadow: 0 0 14px #ffe27a; }
+.rb-ring em { position: absolute; inset: 50px; display: grid; place-items: center; font-style: normal; font-size: 84px; border-radius: 50%; background: radial-gradient(#ffeaa0, #f5c542); box-shadow: 0 0 0 4px #b3121a, 0 0 30px #ffd23a; animation: rbTurn 30s linear infinite reverse; }
+@keyframes rbTurn { to { transform: rotate(360deg); } }
+.rb-lantern { position: absolute; top: -6px; width: 30px; height: 40px; border-radius: 45%; background: radial-gradient(#ff7a3a, #c8141a); box-shadow: 0 0 16px #ff8a3a; }
+.rb-lantern::after { content: ""; position: absolute; left: 13px; bottom: -14px; width: 4px; height: 14px; background: #f5c542; }
+.rb-lantern.l { left: 16px; } .rb-lantern.r { right: 16px; }
+.rb-lunar .rb-msg { color: #fff1cf; } .rb-lunar .rb-msg b { color: #ffd23a; }
+.rb-lunar .btn { background: #f5c542; color: #8e0e14; border: 3px solid #fff1b0; }
+
+/* 3. Tiên: trời mây ngọc bích */
+.rb-heaven { position: relative; overflow: hidden; padding: 26px 18px 20px; border-radius: 30px; color: #2f5a52;
+  background: linear-gradient(180deg, #d9f1ff 0%, #f4fbff 45%, #fff6dc 100%); border: 3px solid #e9d38a; box-shadow: 0 0 60px rgba(255,236,170,.6), 0 18px 40px rgba(0,0,0,.4); }
+.rb-cloud { position: absolute; width: 140px; height: 46px; border-radius: 50px; background: #fff; opacity: .9; filter: blur(1px); animation: rbDrift 9s ease-in-out infinite alternate; }
+.rb-cloud::before, .rb-cloud::after { content: ""; position: absolute; background: #fff; border-radius: 50%; }
+.rb-cloud::before { width: 60px; height: 60px; left: 20px; top: -28px; } .rb-cloud::after { width: 46px; height: 46px; left: 70px; top: -18px; }
+.rb-cloud.a { left: -30px; top: 30px; } .rb-cloud.b { right: -40px; top: 120px; animation-delay: -3s; } .rb-cloud.c { left: 20%; bottom: -20px; animation-delay: -6s; }
+@keyframes rbDrift { to { transform: translateX(30px); } }
+.rb-halo { position: relative; width: 150px; height: 150px; margin: 0 auto -150px; border-radius: 50%; background: conic-gradient(from 0deg, #ffe27a, #fff8d6, #ffd23a, #fff8d6, #ffe27a); mask: radial-gradient(circle, transparent 52%, #000 54%, #000 64%, transparent 66%); -webkit-mask: radial-gradient(circle, transparent 52%, #000 54%, #000 64%, transparent 66%); animation: rbTurn 6s linear infinite; filter: drop-shadow(0 0 10px #ffd23a); }
+.rb-fairy { position: relative; font-size: 84px; line-height: 150px; animation: rbBob 2.4s ease-in-out infinite; }
+.rb-heaven small { position: relative; display: block; font: 700 .85rem var(--display); letter-spacing: .12em; text-transform: uppercase; color: #3fb39a; }
+.rb-heaven .rb-title { position: relative; background: linear-gradient(180deg, #e0a91a, #3fb39a); -webkit-background-clip: text; background-clip: text; color: transparent; }
+.rb-heaven .rb-msg { position: relative; } .rb-heaven .rb-msg b { color: #c8901a; }
+.rb-heaven .btn { position: relative; background: linear-gradient(180deg, #5fd3b5, #2f9a82); color: #fff; border: 3px solid #e9d38a; }
+@media (prefers-reduced-motion: reduce) { .rb-ring, .rb-ring em, .rb-halo, .rb-cloud, .rb-fairy, .rb-baby { animation: none; } }
+@media (max-height: 560px) {
+  .rb-wheel { width: 180px; height: 180px; }
+  .rb-wheel span { transform: rotate(calc(var(--i) * 25.7deg)) translateY(-68px) rotate(calc(var(--i) * -25.7deg)); }
+  .rb-ring { width: 170px; height: 170px; }
+  .rb-ring span { transform: rotate(calc(var(--i) * 30deg)) translateY(-72px) rotate(calc(var(--i) * -30deg)); }
+  .rb-ring em { inset: 36px; font-size: 56px; }
+  .rb-baby { font-size: 40px; } .rb-fairy { font-size: 56px; line-height: 110px; } .rb-halo { width: 110px; height: 110px; margin-bottom: -110px; } .rb-title { font-size: 1.8rem; }
+}
+
+/* altar intro */
+.intro { position: absolute; left: 0; right: 0; bottom: 0; z-index: 6; display: flex; justify-content: center; padding: 16px max(16px, env(safe-area-inset-right, 0px)) calc(16px + env(safe-area-inset-bottom, 0px)) max(16px, env(safe-area-inset-left, 0px)); pointer-events: none; }
+.in-card { pointer-events: auto; width: min(560px, 100%); text-align: center; background: linear-gradient(180deg, #fff3d6, #f6d49a); color: #2b0a0a; border: 3px solid #e8b765; border-radius: 22px; padding: 14px 18px; box-shadow: 0 6px 0 #7c2a12, 0 18px 40px rgba(0,0,0,.4); }
+.in-card small { display: block; font: 700 .78rem var(--display); letter-spacing: .1em; text-transform: uppercase; color: #d63a1f; }
+.in-card b { display: block; font: 800 1.25rem/1.15 var(--display); color: #6a1414; }
+.in-pray { min-height: 2.6em; margin: 8px 0 0; font-style: italic; color: #5a2a1a; }
+.in-note { margin: 6px 0 8px; font-size: .9rem; color: #7a3a2a; }
+#in-go-btn { font: 800 1.2rem var(--display); padding: 10px 28px; border-radius: 999px; background: linear-gradient(180deg, #e8492a, #b3201c); color: #fff6e3; border: 3px solid #8a2a17; box-shadow: 0 5px 0 #4a0d0d; }
+#fade { position: absolute; inset: 0; z-index: 20; background: #000; opacity: 0; pointer-events: none; transition: opacity .7s; }
+#fade.on { opacity: 1; }
+@media (max-height: 500px) { .in-card { padding: 8px 14px; } .in-card b { font-size: 1rem; } .in-pray { min-height: 0; margin-top: 4px; font-size: .85rem; } .in-note { display: none; } }
 .loading { position: absolute; inset: 0; display: grid; place-items: center; z-index: 9; background: var(--lacquer); color: var(--muted); text-align: center; padding: 16px; }
 .loading b { display: block; font-family: var(--display); font-size: 2rem; color: var(--gold); }
 </style>
@@ -233,6 +311,20 @@ h2 { font-size: 1.8rem; color: var(--gold); }
       <div class="row2"><button class="btn ghost" type="button" id="c-back">Quay lại</button><button class="btn" type="submit">Vào âm phủ</button></div>
     </form>
   </div>
+
+  <!-- altar intro -->
+  <div class="intro" id="ov-intro" hidden>
+    <div class="in-card">
+      <small>Nhà bạn · ngày giỗ đầu</small>
+      <b>Bạn đang ngồi trên bàn thờ, nhìn con cháu thắp hương</b>
+      <p class="in-pray" id="in-pray" aria-live="polite"></p>
+      <div id="in-go" hidden><p class="in-note">Đến giờ rồi. Ngưu Đầu Mã Diện đang đứng đợi ngoài cửa.</p><button class="btn" type="button" id="in-go-btn">Xuống âm phủ</button></div>
+    </div>
+  </div>
+  <div id="fade" aria-hidden="true"></div>
+
+  <!-- reborn reveal -->
+  <div class="ov rb-ov" id="ov-reborn" hidden role="dialog" aria-modal="true" aria-label="Kiếp mới"><div class="rb-card" id="rb-card"></div></div>
 
   <!-- leaderboard -->
   <div class="ov right" id="ov-board" hidden>
@@ -499,7 +591,36 @@ function fallbackAvatar(o) {
   mesh(new THREE.SphereGeometry(.42, 10, 8), M(o.skin), 0, 1.3, 0, g);
   return { group: g, update() {}, setColors() {} };
 }
+/* Kiếp sau khi đầu thai: người, 12 con giáp (Việt Nam: Mèo thay Thỏ) hoặc tiên. Hình 3D ở reborn.js (Codex). */
+const FORMS = [
+  { id: "nguoi", grp: "nguoi", name: "Người", ic: "👶" },
+  { id: "ty", grp: "giap", chi: "Tý", name: "Chuột", ic: "🐭", trait: "Lanh lợi, nhanh tay giành đồ ăn vặt." },
+  { id: "suu", grp: "giap", chi: "Sửu", name: "Trâu", ic: "🐃", trait: "Chăm chỉ, cày việc không biết mệt." },
+  { id: "dan", grp: "giap", chi: "Dần", name: "Hổ", ic: "🐯", trait: "Oai phong, nói một câu cả xóm im." },
+  { id: "mao", grp: "giap", chi: "Mão", name: "Mèo", ic: "🐱", trait: "Sang chảnh, ngủ mười sáu tiếng một ngày." },
+  { id: "thin", grp: "giap", chi: "Thìn", name: "Rồng", ic: "🐲", trait: "Quyền quý, đi đâu cũng có mây theo." },
+  { id: "ti", grp: "giap", chi: "Tỵ", name: "Rắn", ic: "🐍", trait: "Khôn ngoan, ít nói mà nói là trúng." },
+  { id: "ngo", grp: "giap", chi: "Ngọ", name: "Ngựa", ic: "🐴", trait: "Phóng khoáng, mê đi phượt." },
+  { id: "mui", grp: "giap", chi: "Mùi", name: "Dê", ic: "🐐", trait: "Hiền lành, thích cỏ non và nhạc nhẹ." },
+  { id: "than", grp: "giap", chi: "Thân", name: "Khỉ", ic: "🐵", trait: "Tinh nghịch, leo trèo giỏi nhất nhà." },
+  { id: "dau", grp: "giap", chi: "Dậu", name: "Gà", ic: "🐔", trait: "Dậy sớm, gáy hay, đúng giờ tuyệt đối." },
+  { id: "tuat", grp: "giap", chi: "Tuất", name: "Chó", ic: "🐶", trait: "Trung thành, thấy người quen là vẫy đuôi." },
+  { id: "hoi", grp: "giap", chi: "Hợi", name: "Lợn", ic: "🐷", trait: "Phúc hậu, ăn no ngủ kỹ, tiền vô như nước." },
+  { id: "tien", grp: "tien", name: "Tiên", ic: "🧚" }
+];
+const FORM = Object.fromEntries(FORMS.map(f => [f.id, f]));
+const formShort = id => { const f = FORM[id]; return !f ? "" : f.grp === "giap" ? "Tuổi " + f.name : f.name; };
+// 45% làm người, 45% làm một trong 12 con giáp, 10% thành tiên
+function rollForm() {
+  const r = Math.random(), giap = FORMS.filter(f => f.grp === "giap");
+  return r < .45 ? "nguoi" : r < .9 ? giap[Math.random() * giap.length | 0].id : "tien";
+}
 function makeAv(o) {
+  if (o.rb && FORM[o.rb]) {
+    try { if (window.makeRebornAvatar) return window.makeRebornAvatar(THREE, { form: o.rb, gender: o.g, skin: o.skin, robe: o.robe, hair: o.hair }); } catch (e) { console.warn(e); }
+    // reborn.js chưa có: tạm mượn hình gần giống
+    try { if (window.makeAvatar) return window.makeAvatar(THREE, { kind: o.rb === "nguoi" ? "tourist" : o.rb === "tien" ? "taoist" : "ghost", gender: o.g, skin: o.skin, robe: o.rb === "tien" ? "#f4efe2" : o.robe, hair: o.hair }); } catch (e) { console.warn(e); }
+  }
   try { if (window.makeAvatar) return window.makeAvatar(THREE, { kind: o.k, gender: o.g, skin: o.skin, robe: o.robe, hair: o.hair }); } catch (e) { console.warn(e); }
   return fallbackAvatar(o);
 }
@@ -507,7 +628,7 @@ function makeNpc(type, fallbackColor) {
   try { if (window.makeNPC) return window.makeNPC(THREE, type); } catch (e) { console.warn(e); }
   const g = new THREE.Group(); mesh(new THREE.BoxGeometry(1, 2, .6), M(fallbackColor), 0, 1, 0, g); return { group: g, update() {} };
 }
-function tagText(name, m) { const f = floorOf(m); return `${name} · ${f ? "B" + f : "Đầu thai"}`; }
+function tagText(name, m, rb) { const f = floorOf(m); return `${name}${rb && FORM[rb] ? " · " + formShort(rb) : ""} · ${f ? "B" + f : "Đầu thai"}`; }
 
 class Avatar {
   constructor(o, isMe) {
@@ -516,13 +637,13 @@ class Avatar {
     this.setLook(o); this.setTag(o.name, o.m || 0);
   }
   setLook(o) {
-    const key = [o.k, o.g, o.skin, o.robe, o.hair].join("|"); if (key === this.look) return; this.look = key;
+    const key = [o.k, o.g, o.skin, o.robe, o.hair, o.rb || ""].join("|"); this.rb = o.rb || ""; if (key === this.look) return; this.look = key;
     if (this.av) this.root.remove(this.av.group);
     this.av = makeAv(o); this.root.add(this.av.group);
     this.av.group.traverse(m => { if (m.isMesh) m.castShadow = true; });
   }
   setTag(name, m) {
-    const t = tagText(name, m); if (t === this.tagT) return; this.tagT = t;
+    const t = tagText(name, m, this.rb); if (t === this.tagT) return; this.tagT = t;
     disposeSprite(this.tag); this.tag = textSprite(t, { size: 26, bg: false, color: this.isMe ? "#f2cf6b" : "#f3e3c4", scale: .0062 });
     this.tag.position.y = 1.85; this.root.add(this.tag);
   }
@@ -588,6 +709,35 @@ steles.forEach(s => solids.push({ x: s.x, z: s.z, r: 1 }));
 // extra scenery from src/online/extras.js (Antigravity's part); optional
 const extraUpdates = [];
 try { if (window.buildExtras) { const u = window.buildExtras(THREE, scene, { M, mesh, box, labelTex, textSprite, solids }); if (typeof u === "function") extraUpdates.push(u); } } catch (e) { console.warn("extras", e); }
+// food stalls in the courtyard: eat here to gain merit ("tích phước"). Models from scenes.js (Codex), simple fallback otherwise.
+const STALLS = [
+  { id: "an_xoi", type: "xoi", ang: -95, label: "Ăn xôi cúng", verb: "ăn một đĩa xôi cúng", ic: "🍚", gain: 4, sign: "XÔI CÚNG", col: 0xd9483b },
+  { id: "an_comchay", type: "comchay", ang: -60, label: "Ăn cơm chay", verb: "ăn một suất cơm chay", ic: "🥢", gain: 6, sign: "CƠM CHAY", col: 0x4f9a4a },
+  { id: "an_banhbao", type: "banhbao", ang: 50, label: "Ăn bánh bao", verb: "ăn một cái bánh bao nóng", ic: "🥟", gain: 3, sign: "BÁNH BAO", col: 0xe8d9b0 },
+  { id: "an_che", type: "che", ang: 80, label: "Ăn chè ngọt", verb: "ăn một cốc chè", ic: "🍧", gain: 3, sign: "CHÈ NGỌT", col: 0x9a4ad9 },
+  { id: "an_trasua", type: "trasua", ang: 110, label: "Uống trà sữa âm phủ", verb: "uống một ly trà sữa âm phủ", ic: "🧋", gain: 2, sign: "TRÀ SỮA", col: 0x8a5a3a }
+];
+function fallbackStall(st) {
+  const g = new THREE.Group();
+  box(2.4, 1, 1.2, M(0x7a4a2a), 0, .5, 0, g); box(2.6, .12, 1.5, M(st.col), 0, 2.5, .1, g);
+  for (const x of [-1.15, 1.15]) box(.1, 2.5, .1, M(0x5a3a1a), x, 1.25, .55, g);
+  const sign = new THREE.Mesh(new THREE.PlaneGeometry(2, .5), new THREE.MeshBasicMaterial({ map: labelTex(st.sign, 512, 128, "900 72px 'Baloo 2', sans-serif") }));
+  sign.position.set(0, 2.2, .62); g.add(sign);
+  return { group: g, update() {} };
+}
+const stallUpdates = [];
+for (const st of STALLS) {
+  const th = st.ang * Math.PI / 180, x = Math.sin(th) * 14.5, z = 4 + Math.cos(th) * 14.5;
+  let made = null;
+  try { if (window.makeFoodStall) made = window.makeFoodStall(THREE, st.type); } catch (e) { console.warn("stall", e); }
+  if (!made) made = fallbackStall(st);
+  made.group.position.set(x, 0, z); made.group.rotation.y = Math.atan2(-x, 4 - z); scene.add(made.group);
+  made.group.traverse(m => { if (m.isMesh) m.castShadow = true; });
+  if (made.update) stallUpdates.push(made.update);
+  solids.push({ x, z, r: 1.4 });
+  // stand spot: in front of the counter, toward the middle of the courtyard
+  const d = Math.hypot(x, z - 4); st.x = x - x / d * 2.2; st.z = z - (z - 4) / d * 2.2;
+}
 function inHall(x, z) { return Math.abs(x) < 12.6 && z < -18 && z > -32; }
 function walkable(x, z) {
   const onBridge = Math.abs(x) < 1.9 && z > -15.6 && z < -8.4;
@@ -612,8 +762,10 @@ const ACTS = {
   vang:   { label: "Đốt vàng mã", gain: 5, cd: 4000, verb: "đốt vàng mã", x: -6.5, z: 9, r: 3.4 },
   den:    { label: "Thả đèn hoa đăng", gain: 4, cd: 1200, verb: "thả đèn hoa đăng", x: 7, z: -8.4, r: 2.8 }
 };
+for (const st of STALLS) ACTS[st.id] = { label: st.label + " (tích phước)", gain: st.gain, cd: 5000, verb: st.verb, x: st.x, z: st.z, r: 2.6, eat: st.ic };
 function playEffect(kind, from) {
   const now = performance.now();
+  if (ACTS[kind] && ACTS[kind].eat) { const w = from || player; floatText(ACTS[kind].eat + " Ngon!", w.x !== undefined ? w.x : player.x, 3.1, w.z !== undefined ? w.z : player.z, "#ffe9a8"); }
   if (kind === "mo") props.mo.t = now;
   if (kind === "chuong") props.bell.t = now;
   if (kind === "vang") props.furnace.until = now + 4000;
@@ -646,6 +798,7 @@ function sfx(kind, vol = 1) {
   if (kind === "den") { tone(523, .5, "sine", .1 * vol); tone(784, .7, "sine", .08 * vol, .12); }
   if (kind === "bonk") { tone(340, .14, "square", .22 * vol, 0, 90); noise(.09, .45 * vol, 2600); }
   if (kind === "jump") tone(300, .18, "triangle", .12 * vol, 0, 640);
+  if (kind.startsWith("an_")) { tone(420, .08, "square", .08 * vol); tone(520, .08, "square", .08 * vol, .14); tone(660, .2, "triangle", .1 * vol, .3); }
   if (kind === "up") { [523, 659, 784, 1046].forEach((f, i) => tone(f, .5, "triangle", .12, i * .1)); }
 }
 
@@ -690,7 +843,7 @@ let peersSnap = [];
 function presenceNow(force) {
   if (!room) return;
   const now = performance.now();
-  const p = playing ? { sv, n: me.name, k: me.k, g: me.g, c: [me.skin, me.robe, me.hair], m: merit, x: +player.x.toFixed(2), z: +player.z.toFixed(2), r: +player.ry.toFixed(2), mv: player.moving ? 1 : 0, a: myAct, s: mySay, w: armed ? 1 : 0, h: myHit, j: myJump }
+  const p = playing ? { sv, n: me.name, k: me.k, g: me.g, c: [me.skin, me.robe, me.hair], rb: me.rb || "", m: merit, x: +player.x.toFixed(2), z: +player.z.toFixed(2), r: +player.ry.toFixed(2), mv: player.moving ? 1 : 0, a: myAct, s: mySay, w: armed ? 1 : 0, h: myHit, j: myJump }
     : { sv: null, browsing: 1 };
   const key = JSON.stringify(p);
   if (key === sentKey || (!force && now - lastSent < 120)) return;
@@ -714,7 +867,7 @@ function syncPeers() {
     const q = p.presence || {};
     if (!playing || q.sv !== sv || typeof q.x !== "number") return;
     seen.add(p.peer);
-    const look = { name: String(q.n || "Vong hồn").slice(0, 24), k: q.k, g: q.g, skin: (q.c || [])[0] || SKINS[0], robe: (q.c || [])[1] || ROBES[0], hair: (q.c || [])[2] || HAIRS[0] };
+    const look = { name: String(q.n || "Vong hồn").slice(0, 24), k: q.k, g: q.g, rb: FORM[q.rb] ? q.rb : "", skin: (q.c || [])[0] || SKINS[0], robe: (q.c || [])[1] || ROBES[0], hair: (q.c || [])[2] || HAIRS[0] };
     ["k", "g"].forEach(f => { if (typeof look[f] !== "string") look[f] = f === "k" ? "ghost" : "nam"; });
     ["skin", "robe", "hair"].forEach(f => { if (!/^#[0-9a-f]{6}$/i.test(look[f])) look[f] = "#888888"; });
     let o = others.get(p.peer);
@@ -851,6 +1004,57 @@ async function startDb() {
   }, () => { clearTimeout(timer); $("#board").innerHTML = `<li class="empty" style="display:block">Chưa tải được bảng công đức.</li>`; });
 }
 
+/* ---------- cảnh mở đầu: ngồi trên bàn thờ nhìn con cháu, rồi mới xuống âm phủ ---------- */
+const ALTAR = new THREE.Vector3(0, 0, 420);
+let altar = null, intro = null, introSeen = false;
+function fallbackAltar() {
+  const g = new THREE.Group(), people = [];
+  const floor = new THREE.Mesh(new THREE.PlaneGeometry(9, 9), M(0xc9a27a)); floor.rotation.x = -Math.PI / 2; g.add(floor);
+  box(9, 4, .2, M(0xf2e2c4), 0, 2, -4.5, g);
+  box(2.6, 1.1, 1, M(0x9a1a14), 0, .55, -3.6, g); box(2.8, .1, 1.1, M(0xd9a441), 0, 1.12, -3.6, g);
+  const photo = new THREE.Mesh(new THREE.PlaneGeometry(.6, .8), new THREE.MeshBasicMaterial({ map: labelTex("ẢNH", 128, 160, "900 40px sans-serif") })); photo.position.set(-.7, 1.6, -3.9); g.add(photo);
+  for (let i = 0; i < 3; i++) { const pv = new THREE.Group(); pv.position.set(-1.2 + i * 1.2, 0, -.6); box(.6, .5, .5, M(0x4a6a9a), 0, .25, 0, pv); const up = new THREE.Group(); up.position.y = .5; box(.5, .6, .35, M(0x6a8aba), 0, .3, 0, up); mesh(new THREE.SphereGeometry(.28, 10, 8), M(0xf1c9a5), 0, .85, 0, up); pv.add(up); g.add(pv); people.push(up); }
+  const light = new THREE.PointLight(0xffe2b0, 1.6, 14, 2); light.position.set(0, 3.4, 0); g.add(light);
+  g.add(new THREE.HemisphereLight(0xfff2dc, 0x8a6a4a, .9));
+  return { group: g, update(dt, t) { people.forEach((u, i) => u.rotation.x = -Math.max(0, Math.sin(t * 1.6 + i)) * .7); }, seat: new THREE.Vector3(.3, 1.17, -3.6), cam: { pos: new THREE.Vector3(1.4, 2.8, 3.6), look: new THREE.Vector3(0, 1.2, -2.2) } };
+}
+function buildAltar() {
+  if (altar) return altar;
+  let r = null;
+  try { if (window.makeAltarRoom) r = window.makeAltarRoom(THREE); } catch (e) { console.warn("altar", e); }
+  if (!r || !r.group || !r.seat || !r.cam) r = fallbackAltar();
+  r.group.position.copy(ALTAR); scene.add(r.group);
+  return (altar = r);
+}
+const PRAYERS = [
+  "Phù hộ con thi qua môn, con hứa lần sau học bài.",
+  "Phù hộ cả nhà mạnh khỏe, làm ăn phát đạt.",
+  "Con có đốt cho cái điện thoại đời mới nhất rồi đó, nhận nha.",
+  "Dưới đó có lạnh không? Con gửi thêm áo ấm với tiền vàng.",
+  "Phù hộ con năm nay lấy được vợ, à không, chồng cũng được.",
+  "Nhớ phù hộ con trúng số, trúng con chia đôi."
+];
+function startIntro() {
+  intro = { t0: performance.now(), i: 0 };
+  buildAltar(); show(null); setHud(false);
+  const ov = $("#ov-intro"); ov.hidden = false; $("#in-go").hidden = true;
+  const say = () => { if (!intro) return; $("#in-pray").textContent = "“" + PRAYERS[intro.i++ % PRAYERS.length] + "”"; };
+  say(); intro.timer = setInterval(say, 2800);
+  setTimeout(() => { if (intro) { $("#in-go").hidden = false; $("#in-go-btn").focus(); } }, 3500);
+}
+function endIntro() {
+  if (!intro) return;
+  clearInterval(intro.timer);
+  const fade = $("#fade"); fade.classList.add("on");
+  setTimeout(() => {
+    intro = null; introSeen = true; $("#ov-intro").hidden = true;
+    if (altar) { scene.remove(altar.group); }
+    enterWorld();
+    setTimeout(() => fade.classList.remove("on"), 150);
+  }, 700);
+}
+$("#in-go-btn").addEventListener("click", endIntro);
+
 /* ---------- UI: servers, character ---------- */
 function show(id) { ["#ov-sv", "#ov-char", "#ov-board"].forEach(s => $(s).hidden = s !== id); }
 function setHud(on) { ["#hud", "#hud2", "#chat", "#help", "#stick", "#actbtn", "#b-gay", "#b-jump"].forEach(s => $(s).hidden = !on); if (!on) $("#prompt").hidden = true; }
@@ -880,11 +1084,15 @@ $("#c-back").addEventListener("click", () => { show("#ov-sv"); });
 $("#charf").addEventListener("submit", e => {
   e.preventDefault(); me.name = ($("#c-name").value.trim() || randName()).slice(0, 24); store.set("apo-char", me);
   ensureMyAv(); myAv.setLook(me); myAv.setTag(me.name, merit);
+  if (!playing && !introSeen) { startIntro(); return; }
+  enterWorld();
+});
+function enterWorld() {
   const was = playing; playing = true; show(null); setHud(true); renderMerit(); renderServers();
   if (!was) { player.x = (Math.random() - .5) * 4; player.z = 13; player.ry = Math.PI; cam.yaw = cam.tYaw = 0; addLog(`Chào <b>${esc(me.name)}</b>! Bạn đang ở ${esc(svName(sv))}. Lại gần mõ, đỉnh hương, chuông, lò vàng mã hoặc bến đèn rồi bấm E.`, true); }
   others.forEach(o => o.av.dispose()); others.clear(); syncPeers();
   presenceNow(true); canvas.focus({ preventScroll: true });
-});
+}
 function ensureMyAv() { if (!myAv) { myAv = new Avatar(Object.assign({ m: merit }, me), true); myAv.root.position.set(player.x, 0, player.z); setArmed(armed); } }
 $("#b-char").addEventListener("click", () => { fillChar(); show("#ov-char"); });
 $("#b-board").addEventListener("click", () => show("#ov-board"));
@@ -915,6 +1123,57 @@ $("#chatf").addEventListener("submit", e => {
   lastChat = performance.now(); inp.value = "";
   myAv.say(t); addLog(`<b>${esc(me.name)}:</b> ${esc(t)}`); mySay = [t, ++actSeq]; presenceNow(true);
 });
+
+/* ---------- đầu thai: quay kiếp mới, màn công bố theo từng loại ---------- */
+const CITIES = ["Sài Gòn", "Hà Nội", "Huế", "Đà Nẵng", "Cần Thơ", "Hải Phòng", "Đà Lạt", "Nha Trang", "Vũng Tàu", "Quy Nhơn"];
+const FATES = ["mê trà sữa từ trong trứng", "khóc to nhất phòng sinh", "cười với bác sĩ ngay khi chào đời", "nắm chặt điện thoại không chịu buông", "ngủ suốt ba ngày liền", "đòi ăn phở ngay ngày đầu"];
+const pick = a => a[Math.random() * a.length | 0];
+function reborn(force) {
+  const form = FORM[force] ? force : rollForm();
+  const lives = (+store.get("apo-lives", 0) || 0) + 1; store.set("apo-lives", lives);
+  me.rb = form; store.set("apo-char", me);
+  merit = 0; renderMerit(); saveSoon();
+  if (myAv) { myAv.setLook(me); myAv.setTag(me.name, merit); }
+  const f = FORM[form];
+  addLog(`<b>${esc(me.name)}</b> đã uống canh Mạnh Bà và đầu thai thành <b>${esc(f.grp === "giap" ? "tuổi " + f.chi + " (" + f.name + ")" : f.name)}</b>.`, true);
+  mySay = [f.grp === "tien" ? "Ta đã thành Tiên rồi nha!" : f.grp === "giap" ? `Kiếp này tôi tuổi ${f.chi}!` : "Tôi được làm người rồi!", ++actSeq]; presenceNow(true);
+  showReborn(f, lives);
+}
+function showReborn(f, lives) {
+  const ov = $("#ov-reborn"), card = $("#rb-card");
+  ov.hidden = false; ov.className = "ov rb-ov spinning"; card.className = "rb-card";
+  card.innerHTML = `<div class="rb-wheel" aria-hidden="true">${FORMS.map((x, i) => `<span style="--i:${i}">${x.ic}</span>`).join("")}</div><p class="rb-spin-t">Bánh xe luân hồi đang quay…</p>`;
+  sfx("chuong");
+  const wheel = card.querySelector(".rb-wheel"); let n = 0;
+  const spin = setInterval(() => { wheel.querySelectorAll("span").forEach((s, i) => s.classList.toggle("on", i === n % FORMS.length)); n++; sfx("mo", .3); }, 120);
+  setTimeout(() => {
+    clearInterval(spin); ov.classList.remove("spinning"); ov.classList.add("rb-" + f.grp); card.classList.add("show");
+    const today = new Date().toLocaleDateString("vi-VN"), nm = esc(me.name);
+    if (f.grp === "nguoi") {
+      card.innerHTML = `<div class="rb-paper"><div class="rb-head"><small>CỘNG HÒA TRẦN GIAN · Độc lập · Tự do · Ăn ngon</small><b>GIẤY CHỨNG SINH</b><i>Số: ${String(Math.random() * 1e6 | 0).padStart(6, "0")}/KS-${lives}</i></div>
+        <div class="rb-baby" aria-hidden="true">👶</div>
+        <dl><dt>Họ và tên</dt><dd>${nm}</dd><dt>Ngày sinh</dt><dd>${today}</dd><dt>Nơi sinh</dt><dd>${pick(CITIES)}</dd><dt>Ghi chú</dt><dd>Bé ${pick(FATES)}.</dd></dl>
+        <div class="rb-stamp">ĐÃ<br>DUYỆT</div>
+        <p class="rb-msg">Chúc mừng! Bạn được <b>làm người</b> (kiếp thứ ${lives}). Sống tốt nhé, đừng để phải xuống đây lần nữa.</p>
+        <button class="btn" type="button" data-close>Bắt đầu kiếp mới</button></div>`;
+    } else if (f.grp === "giap") {
+      card.innerHTML = `<div class="rb-lunar"><div class="rb-lantern l" aria-hidden="true"></div><div class="rb-lantern r" aria-hidden="true"></div>
+        <small>Kiếp này con…</small><b class="rb-title">Tuổi ${esc(f.chi)}</b>
+        <div class="rb-ring" aria-hidden="true">${FORMS.filter(x => x.grp === "giap").map((x, i) => `<span style="--i:${i}" class="${x.id === f.id ? "on" : ""}">${x.ic}</span>`).join("")}<em>${f.ic}</em></div>
+        <p class="rb-msg">Bạn đầu thai thành <b>${esc(f.name)}</b>. ${esc(f.trait)}</p>
+        <button class="btn" type="button" data-close>Ra mắt cả làng</button></div>`;
+    } else {
+      card.innerHTML = `<div class="rb-heaven"><div class="rb-cloud a"></div><div class="rb-cloud b"></div><div class="rb-cloud c"></div>
+        <div class="rb-halo" aria-hidden="true"></div><div class="rb-fairy" aria-hidden="true">${f.ic}</div>
+        <small>Thiên Đình thông báo</small><b class="rb-title">Thăng thiên thành Tiên</b>
+        <p class="rb-msg">Hiếm lắm đó: cứ mười vong hồn mới có một người được thành tiên. <b>${nm}</b> nay có hào quang, đi trên mây, khỏi phải đầu thai làm gì cho mệt.</p>
+        <button class="btn" type="button" data-close>Bay lên</button></div>`;
+    }
+    sfx("up");
+    card.querySelector("[data-close]").focus();
+  }, 2600);
+}
+$("#ov-reborn").addEventListener("click", e => { if (e.target.closest("[data-close]")) { $("#ov-reborn").hidden = true; canvas.focus({ preventScroll: true }); } });
 
 /* ---------- input ---------- */
 const keys = {};
@@ -993,9 +1252,8 @@ function interact() {
   } else if (n.type === "npc") {
     const h = n.h;
     if (h === NPC_MENG && floorOf(merit) === 0) {
-      npcSay(h, "Uống bát canh này rồi quên hết nhé. Kiếp sau nhớ ngoan."); toast("Bạn đã đầu thai! Công đức trở về 0, hành trình mới bắt đầu ở B18");
-      addLog(`<b>${esc(me.name)}</b> đã uống canh Mạnh Bà và <b>đầu thai</b>.`, true); merit = 0; renderMerit(); saveSoon(); sfx("up");
-      mySay = ["Tôi vừa đầu thai xong!", ++actSeq]; presenceNow(true); return;
+      npcSay(h, "Uống bát canh này rồi quên hết nhé. Kiếp sau nhớ ngoan.");
+      reborn(); return;
     }
     if (h === NPC_KING && floorOf(merit) === 0) { npcSay(h, "Đủ công đức rồi. Qua cầu gặp Mạnh Bà mà đầu thai."); return; }
     npcSay(h, h.lines[h.li++ % h.lines.length]);
@@ -1009,7 +1267,7 @@ function interact() {
 const clock = new THREE.Clock(); let t = 0;
 const actBtn = $("#actbtn");
 // test hook, only when running on this computer
-if (location.hostname === "localhost") window.__apo = { player, others, interact, findNear, setArmed, get merit() { return merit; } };
+if (location.hostname === "localhost") window.__apo = { player, others, interact, findNear, setArmed, reborn, endIntro, STALLS, get intro() { return intro; }, get merit() { return merit; } };
 // big static meshes that can block the camera (collected once, after extras are built)
 const camRay = new THREE.Raycaster(), camDir = new THREE.Vector3(), camFrom = new THREE.Vector3();
 let camD = 9;
@@ -1055,7 +1313,7 @@ function frame() {
   // camera
   cam.yaw += (cam.tYaw - cam.yaw) * Math.min(1, dt * 8);
   // character maker open: slow orbit close to your own avatar so you can see it
-  const preview = !playing && myAv && !$("#ov-char").hidden;
+  const preview = !playing && !intro && myAv && !$("#ov-char").hidden;
   if (preview) { myAv.root.position.set(player.x, 0, player.z); myAv.root.rotation.y = t * .6; }
   // in landscape the maker panel sits on the right, so aim the camera right of the avatar to show it on the left
   const fx = playing ? player.x : preview ? player.x + (portrait ? 0 : 1.35) : Math.sin(t * .08) * 6, fz = playing || preview ? player.z : 4 + Math.cos(t * .08) * 4;
@@ -1075,6 +1333,14 @@ function frame() {
   camera.position.set(fx + Math.sin(yaw) * Math.cos(pitch) * camD, fy + Math.sin(pitch) * camD, fz + Math.cos(yaw) * Math.cos(pitch) * camD);
   if (now < shakeUntil) { camera.position.x += (Math.random() - .5) * .3; camera.position.y += (Math.random() - .5) * .2; }
   camera.lookAt(fx, fy, fz);
+  if (intro && altar) {
+    const k = (now - intro.t0) / 1000;
+    myAv.root.position.copy(altar.seat).add(ALTAR); myAv.root.position.y += Math.sin(t * 2) * .04; myAv.root.rotation.y = 0;
+    camera.position.copy(altar.cam.pos).add(ALTAR); camera.position.x += Math.sin(k * .25) * .5;
+    camera.lookAt(altar.cam.look.x + ALTAR.x, altar.cam.look.y + ALTAR.y, altar.cam.look.z + ALTAR.z);
+    altar.update && altar.update(dt, t);
+  }
+  stallUpdates.forEach(u => u(dt, t));
   // props animation
   const mt = (now - props.mo.t) / 140; props.mo.mo.scale.y = .8 - (mt < 1 ? .12 * (1 - mt) : 0); props.mo.mallet.rotation.z = mt < 1 ? -.3 : .5;
   const bt = (now - props.bell.t) / 1000; props.bell.pivot.rotation.x = bt < 8 ? Math.sin(bt * 4) * .45 * Math.exp(-bt * .6) : 0;
