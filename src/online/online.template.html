@@ -58,12 +58,15 @@ button { font-family: var(--body); }
 .actbtn { right: max(18px, env(safe-area-inset-right, 0px)); bottom: calc(30px + env(safe-area-inset-bottom, 0px)); width: 84px; height: 84px; border-radius: 50%; background: var(--cinnabar); border: 2px solid var(--gold); color: #fff4e0; font: 700 .85rem var(--body); display: none; touch-action: none; }
 .gaybtn { right: max(10px, env(safe-area-inset-right, 0px)); bottom: calc(46px + env(safe-area-inset-bottom, 0px)); font: 700 .85rem var(--body); color: var(--ink); background: var(--panel); border: 1px solid var(--gold); padding: 8px 14px; border-radius: 3px; cursor: pointer; }
 .gaybtn[aria-pressed="true"] { background: #7a4520; color: #fff4e0; }
+.jumpbtn { right: max(10px, env(safe-area-inset-right, 0px)); bottom: calc(92px + env(safe-area-inset-bottom, 0px)); font: 800 .85rem var(--display); color: #6a1414; background: #fff3d6; border: 2px solid #e8b765; padding: 8px 14px; border-radius: 999px; cursor: pointer; touch-action: none; }
+.jumpbtn:active { transform: translateY(2px); }
 .menu-btn { display: none; }
 @media (pointer: coarse) {
   .stick, .actbtn { display: block; }
   .help { display: none; }
   .chat { bottom: calc(164px + env(safe-area-inset-bottom, 0px)); }
   .gaybtn { right: max(18px, env(safe-area-inset-right, 0px)); bottom: calc(122px + env(safe-area-inset-bottom, 0px)); padding: 7px 10px; font-size: .78rem; }
+  .jumpbtn { right: calc(112px + env(safe-area-inset-right, 0px)); bottom: calc(26px + env(safe-area-inset-bottom, 0px)); width: 64px; height: 64px; padding: 0; border-radius: 50%; font-size: .9rem; }
   .log { max-height: 72px; font-size: .75rem; }
   .log li { padding: 2px 6px; }
   .chatf input { font-size: 16px; padding: 6px 8px; }
@@ -90,6 +93,7 @@ button { font-family: var(--body); }
   .chat { left: calc(130px + env(safe-area-inset-left, 0px)); right: calc(110px + env(safe-area-inset-right, 0px)); width: auto; bottom: calc(8px + env(safe-area-inset-bottom, 0px)); }
   .log { max-height: 46px; }
   .gaybtn { bottom: calc(98px + env(safe-area-inset-bottom, 0px)); }
+  .jumpbtn { right: calc(96px + env(safe-area-inset-right, 0px)); bottom: calc(14px + env(safe-area-inset-bottom, 0px)); width: 56px; height: 56px; }
   .prompt { bottom: auto; top: calc(10px + env(safe-area-inset-top, 0px)); }
   .toast { top: calc(48px + env(safe-area-inset-top, 0px)); }
 }
@@ -189,6 +193,7 @@ h2 { font-size: 1.8rem; color: var(--gold); }
     <button class="btn ghost" type="button" id="b-board">Bảng công đức</button>
     <button class="btn ghost" type="button" id="b-char">Nhân vật</button>
     <button class="btn ghost" type="button" id="b-mute" aria-pressed="false">Âm thanh: bật</button>
+    <a class="btn ghost" href="/tro-choi" id="b-games" target="_blank" rel="noopener">Trò chơi</a>
     <a class="btn ghost" href="/" id="b-home">Trang chủ</a>
   </div>
   <div class="hud chat" id="chat" hidden>
@@ -197,9 +202,10 @@ h2 { font-size: 1.8rem; color: var(--gold); }
   </div>
   <div class="hud prompt" id="prompt" hidden></div>
   <div class="hud toast" id="toast" hidden></div>
-  <div class="hud help" id="help" hidden>WASD / mũi tên: đi · Kéo chuột: xoay góc nhìn · Lăn chuột: gần xa · E: tương tác</div>
+  <div class="hud help" id="help" hidden>WASD / mũi tên: đi · Kéo chuột: xoay góc nhìn · Lăn chuột: gần xa · E: tương tác · Space: nhảy · G: cầm gậy</div>
   <div class="hud stick" id="stick" hidden><i id="knob"></i></div>
   <button class="hud actbtn" id="actbtn" type="button" hidden>Tương tác</button>
+  <button class="hud jumpbtn" id="b-jump" type="button" hidden>Nhảy</button>
   <button class="hud gaybtn" id="b-gay" type="button" aria-pressed="false" hidden>Cầm gậy (G)</button>
 
   <!-- server select -->
@@ -639,6 +645,7 @@ function sfx(kind, vol = 1) {
   if (kind === "vang") noise(1.6, .35 * vol, 900);
   if (kind === "den") { tone(523, .5, "sine", .1 * vol); tone(784, .7, "sine", .08 * vol, .12); }
   if (kind === "bonk") { tone(340, .14, "square", .22 * vol, 0, 90); noise(.09, .45 * vol, 2600); }
+  if (kind === "jump") tone(300, .18, "triangle", .12 * vol, 0, 640);
   if (kind === "up") { [523, 659, 784, 1046].forEach((f, i) => tone(f, .5, "triangle", .12, i * .1)); }
 }
 
@@ -672,7 +679,10 @@ function gain(n) {
 }
 
 /* ---------- multiplayer (room presence) ---------- */
-let room = null, lastSent = 0, sentKey = "", actSeq = 0, myAct = null, mySay = null, myHit = null;
+let room = null, lastSent = 0, sentKey = "", actSeq = 0, myAct = null, mySay = null, myHit = null, myJump = 0, jumpT0 = -1e9;
+// jump arc shared by me and others: height (m) at time k seconds after take-off
+const JUMP_V = 6.2, JUMP_G = 17, JUMP_T = 2 * JUMP_V / JUMP_G;
+const jumpH = k => (k > 0 && k < JUMP_T) ? JUMP_V * k - JUMP_G * k * k / 2 : 0;
 let armed = !!store.get("apo-armed", false), lastBonk = 0, lastHitTaken = 0, shakeUntil = 0;
 const myPeer = () => (peersSnap.find(p => p.sameTab) || {}).peer;
 const others = new Map(); // peer -> {av, x, z, ry, tx, tz, tr, aat, sat}
@@ -680,7 +690,7 @@ let peersSnap = [];
 function presenceNow(force) {
   if (!room) return;
   const now = performance.now();
-  const p = playing ? { sv, n: me.name, k: me.k, g: me.g, c: [me.skin, me.robe, me.hair], m: merit, x: +player.x.toFixed(2), z: +player.z.toFixed(2), r: +player.ry.toFixed(2), mv: player.moving ? 1 : 0, a: myAct, s: mySay, w: armed ? 1 : 0, h: myHit }
+  const p = playing ? { sv, n: me.name, k: me.k, g: me.g, c: [me.skin, me.robe, me.hair], m: merit, x: +player.x.toFixed(2), z: +player.z.toFixed(2), r: +player.ry.toFixed(2), mv: player.moving ? 1 : 0, a: myAct, s: mySay, w: armed ? 1 : 0, h: myHit, j: myJump }
     : { sv: null, browsing: 1 };
   const key = JSON.stringify(p);
   if (key === sentKey || (!force && now - lastSent < 120)) return;
@@ -709,7 +719,7 @@ function syncPeers() {
     ["skin", "robe", "hair"].forEach(f => { if (!/^#[0-9a-f]{6}$/i.test(look[f])) look[f] = "#888888"; });
     let o = others.get(p.peer);
     if (!o) {
-      o = { av: new Avatar(Object.assign({ m: +q.m || 0 }, look), false), x: q.x, z: q.z, ry: q.r || 0, aat: q.a && q.a[1], sat: q.s && q.s[1], hat: Array.isArray(q.h) ? q.h[1] : null };
+      o = { av: new Avatar(Object.assign({ m: +q.m || 0 }, look), false), x: q.x, z: q.z, ry: q.r || 0, aat: q.a && q.a[1], sat: q.s && q.s[1], hat: Array.isArray(q.h) ? q.h[1] : null, jq: +q.j || 0, jt0: -1e9 };
       others.set(p.peer, o); o.av.root.position.set(q.x, groundY(q.x, q.z), q.z);
       if (o.aat || o.sat) {} // ignore actions that happened before we arrived
       addLog(`<b>${esc(look.name)}</b> vừa vào ${esc(svName(sv))}.`, true);
@@ -718,6 +728,7 @@ function syncPeers() {
     o.tx = clamp(+q.x || 0, -60, 60); o.tz = clamp(+q.z || 0, -60, 60); o.tr = +q.r || 0; o.av.moving = !!q.mv;
     if (Array.isArray(q.a) && q.a[1] !== o.aat) { o.aat = q.a[1]; if (ACTS[q.a[0]]) { playEffect(q.a[0], o); floatText(`+${ACTS[q.a[0]].gain}`, o.tx, 2.6, o.tz); if (q.a[0] !== "mo") addLog(`<b>${esc(look.name)}</b> vừa ${ACTS[q.a[0]].verb}.`); } }
     if (Array.isArray(q.s) && q.s[1] !== o.sat) { o.sat = q.s[1]; const t = String(q.s[0] || "").slice(0, 100); if (t) { o.av.say(t); addLog(`<b>${esc(look.name)}:</b> ${esc(t)}`); } }
+    if ((+q.j || 0) !== o.jq) { o.jq = +q.j || 0; o.jt0 = performance.now(); }
     o.av.setArmed(q.w);
     if (Array.isArray(q.h) && q.h[1] !== o.hat) { o.hat = q.h[1]; if (q.w) onBonkSeen(o, String(q.h[0] || "")); }
   });
@@ -842,7 +853,7 @@ async function startDb() {
 
 /* ---------- UI: servers, character ---------- */
 function show(id) { ["#ov-sv", "#ov-char", "#ov-board"].forEach(s => $(s).hidden = s !== id); }
-function setHud(on) { ["#hud", "#hud2", "#chat", "#help", "#stick", "#actbtn", "#b-gay"].forEach(s => $(s).hidden = !on); if (!on) $("#prompt").hidden = true; }
+function setHud(on) { ["#hud", "#hud2", "#chat", "#help", "#stick", "#actbtn", "#b-gay", "#b-jump"].forEach(s => $(s).hidden = !on); if (!on) $("#prompt").hidden = true; }
 $("#servers").addEventListener("click", e => { const b = e.target.closest("[data-sv]"); if (!b) return; sv = b.dataset.sv; applyServerLook(); fillChar(); show("#ov-char"); ensureMyAv(); });
 function applyServerLook() {
   const s = SERVERS.find(s => s.id === sv) || SERVERS[0];
@@ -911,7 +922,8 @@ const KM = { KeyW: "f", ArrowUp: "f", KeyS: "b", ArrowDown: "b", KeyA: "l", Arro
 addEventListener("keydown", e => {
   if (!playing || (e.target.closest && e.target.closest("input, textarea"))) { if (e.key === "Escape") e.target.blur && e.target.blur(); return; }
   if (KM[e.code]) { keys[KM[e.code]] = true; e.preventDefault(); }
-  if ((e.code === "KeyE" || e.code === "Space") && !e.repeat) { e.preventDefault(); interact(); }
+  if (e.code === "KeyE" && !e.repeat) { e.preventDefault(); interact(); }
+  if (e.code === "Space") { e.preventDefault(); if (!e.repeat) jump(); }
   if (e.code === "Enter") { e.preventDefault(); $("#chat-in").focus(); }
   if (e.code === "KeyG" && !e.repeat) { e.preventDefault(); setArmed(!armed); }
 });
@@ -930,6 +942,12 @@ const endJoy = () => { joy = null; knob.style.transform = ""; };
 stick.addEventListener("pointerup", endJoy); stick.addEventListener("pointercancel", endJoy);
 function moveJoy(e) { const r = stick.getBoundingClientRect(); let dx = (e.clientX - r.left - r.width / 2) / (r.width / 2), dy = (e.clientY - r.top - r.height / 2) / (r.height / 2); const l = Math.hypot(dx, dy); if (l > 1) { dx /= l; dy /= l; } joy.x = dx; joy.y = dy; knob.style.transform = `translate(${dx * 36}px, ${dy * 36}px)`; }
 $("#actbtn").addEventListener("click", () => interact());
+$("#b-jump").addEventListener("pointerdown", e => { e.preventDefault(); jump(); });
+function jump() {
+  if (!playing) return; const now = performance.now();
+  if (now - jumpT0 < JUMP_T * 1000) return; // already in the air
+  jumpT0 = now; myJump = ++actSeq; sfx("jump"); presenceNow(true);
+}
 $("#b-gay").addEventListener("click", () => { setArmed(!armed); canvas.focus({ preventScroll: true }); });
 
 /* ---------- interact ---------- */
@@ -948,7 +966,7 @@ function findNear() {
 }
 function promptText(n) {
   if (!n) return "";
-  if (n.type === "bonk") return `<kbd>E</kbd>Gõ đầu ${esc(n.o.name || "vong hồn")} · trừ 2 công đức của họ`;
+  if (n.type === "bonk") return `<kbd>E</kbd>Gõ đầu ${esc(n.o.name || "vong hồn")} · cả hai cùng mất 2 công đức`;
   if (n.type === "act") { const a = ACTS[n.k]; return `<kbd>E</kbd>${a.label} · +${a.gain} công đức`; }
   if (n.type === "npc") return `<kbd>E</kbd>Nói chuyện với ${esc(n.h.name)}`;
   const L = LEVELS.find(l => +l.n === n.s.n) || {}; return `<kbd>E</kbd>Đọc bia B${n.s.n} · ${esc(L.name || "")}`;
@@ -960,8 +978,11 @@ function interact() {
     if (now - lastBonk < 1000) return; lastBonk = now;
     myAv.swing(); sfx("bonk"); n.o.av.hitFx();
     floatText("Bốp!", n.o.x, 2.5, n.o.z, "#ff6a4a");
+    // đánh người là gây nghiệp: người gõ cũng mất 2 công đức
+    merit = Math.max(0, merit - 2); renderMerit(); saveSoon();
+    floatText("-2 công đức (gây nghiệp)", player.x, 2.9, player.z, "#ffb04a");
     myHit = [n.peer, ++actSeq]; presenceNow(true);
-    addLog(`<b>Bạn</b> gõ đầu <b>${esc(n.o.name || "vong hồn")}</b>. Họ mất 2 công đức.`);
+    addLog(`<b>Bạn</b> gõ đầu <b>${esc(n.o.name || "vong hồn")}</b>. Cả hai cùng mất 2 công đức.`);
     return;
   }
   if (n.type === "act") {
@@ -1017,7 +1038,7 @@ function frame() {
       if (!drag) { let cd = (player.ry + Math.PI) - cam.tYaw; cd = Math.atan2(Math.sin(cd), Math.cos(cd)); cam.tYaw += cd * Math.min(1, dt * .8) * (Math.abs(iz) > .3 ? 1 : 0); }
     }
     myAv.moving = player.moving;
-    myAv.root.position.set(player.x, groundY(player.x, player.z), player.z); myAv.root.rotation.y = player.ry;
+    myAv.root.position.set(player.x, groundY(player.x, player.z) + jumpH((now - jumpT0) / 1000), player.z); myAv.root.rotation.y = player.ry;
     const n = findNear(); nearT = n; const pt = promptText(n); const pe = $("#prompt");
     const al = n && n.type === "bonk" ? "Gõ!" : "Tương tác"; if (actBtn.textContent !== al) actBtn.textContent = al;
     if (pt !== pe.dataset.t) { pe.dataset.t = pt; pe.innerHTML = pt; } pe.hidden = !pt;
@@ -1028,7 +1049,7 @@ function frame() {
   others.forEach(o => {
     const k = Math.min(1, dt * 10); o.x += (o.tx - o.x) * k; o.z += (o.tz - o.z) * k;
     let d = o.tr - o.ry; d = Math.atan2(Math.sin(d), Math.cos(d)); o.ry += d * k;
-    o.av.root.position.set(o.x, groundY(o.x, o.z), o.z); o.av.root.rotation.y = o.ry; o.av.update(dt, t);
+    o.av.root.position.set(o.x, groundY(o.x, o.z) + jumpH((now - o.jt0) / 1000), o.z); o.av.root.rotation.y = o.ry; o.av.update(dt, t);
   });
   npcs.forEach(h => { h.n.update && h.n.update(dt, t); if (h.bubble && now > h.bubbleUntil) { disposeSprite(h.bubble); h.bubble = null; } });
   // camera

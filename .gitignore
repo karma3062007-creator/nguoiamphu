@@ -3,3 +3,4 @@ dist/.publish-*.html
 phan-cong/.codex-log*.txt
 node_modules/
 .claude/
+phan-cong/.codex-*.log

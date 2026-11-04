@@ -69,3 +69,21 @@ Cần làm:
 6. Tổng không quá ~300 mesh. Dùng chung geometry/material.
 
 Kiểm tra: `node build.js` phải báo ghép xong, không lỗi cú pháp. Xong thì cập nhật việc 8 trong bảng.
+
+## Việc 12: Luật 3 trò chơi bàn (Cờ vua, Ô ăn quan, Ma Sói)
+
+Đọc kỹ `phan-cong/tro-choi-hop-dong.md` phần 1. Viết 3 file:
+
+- `src/games/rules-chess.js`
+- `src/games/rules-oanquan.js`
+- `src/games/rules-masoi.js`
+
+Đúng API trong hợp đồng (`setup`, `view`, `actions`, `apply`, `tick`, `result`, `bot`, `chatChannel`, `selfTest`), đúng hình dạng `view`. Chỉ tạo/sửa 3 file này (và cập nhật `BANG-PHAN-CONG.md`).
+
+`selfTest()` cần thử ít nhất:
+
+- Cờ vua: số nước đi hợp lệ ở thế đầu = 20; perft độ sâu 3 từ thế đầu = 8902; chiếu hết kiểu "Fool's mate"; nhập thành; bắt tốt qua đường; phong cấp; hòa hết nước đi.
+- Ô ăn quan: ván mới tổng 50 dân + 2 quan; rải đúng; ăn liên hoàn; hết quân bên mình thì rải lại; ván kết thúc tính điểm đúng; 2 bot đánh với nhau 200 ván không lỗi, tổng quân luôn bảo toàn.
+- Ma Sói: chia vai đúng số lượng với 5, 8, 12 người; `view` không lộ vai người khác; bảo vệ che đúng người bị cắn thì không ai chết; vote treo cổ; điều kiện thắng hai phe; pha tự chuyển khi hết giờ qua `tick`.
+
+Xong thì sửa trạng thái việc 12 trong `BANG-PHAN-CONG.md` thành `Xong` (hoặc `Cần sửa` nếu chưa chạy được kiểm tra) và ghi một dòng nhật ký nêu kết quả `selfTest`.

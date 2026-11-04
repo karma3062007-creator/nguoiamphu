@@ -24,6 +24,12 @@ const logo = read("src/shared/logo.svg").trim();
 const home = read("src/home/home.template.html").replace("__DATA__", () => levels).replace("<!--__LOGO__-->", () => logo);
 fs.writeFileSync(path.join(root, "dist/index.html"), wrap(home));
 
+// Trang trò chơi bàn: nhúng giao diện ui-*.js của Antigravity (chưa có thì trang tự dùng giao diện dự phòng)
+const uiFiles = ["chess", "oanquan", "masoi"].map(g => "src/games/ui-" + g + ".js").filter(f => fs.existsSync(path.join(root, f)));
+const hub = read("src/games/hub.template.html").replace("<!--__LOGO__-->", () => logo)
+  .replace("/*__GAME_UI__*/", () => uiFiles.map(f => "/* " + f + " */\n" + safe(read(f))).join("\n;\n") || "/* chưa có ui-*.js */");
+fs.writeFileSync(path.join(root, "dist/tro-choi.html"), wrap(hub));
+
 // Ưu tiên nhân vật của Antigravity (avatars-gen.js); chưa có thì dùng bản của Codex (avatars.js)
 const avatarFile = fs.existsSync(path.join(root, "src/online/avatars-gen.js")) ? "src/online/avatars-gen.js" : "src/online/avatars.js";
 const avatars = readOpt(avatarFile);
@@ -40,10 +46,11 @@ fs.writeFileSync(path.join(root, "dist/.publish-travel.html"), tour);
 
 // Kiểm tra cú pháp các đoạn script
 let ok = true;
-for (const [name, html] of [["index", home], ["am-phu-travel", tour], ["am-phu-online", online]]) {
+for (const [name, html] of [["index", home], ["tro-choi", hub], ["am-phu-travel", tour], ["am-phu-online", online]]) {
   const blocks = [...html.matchAll(/<script>([\s\S]*?)<\/script>/g)].map(m => m[1]);
   blocks.forEach((js, i) => { try { new Function(js); } catch (e) { ok = false; console.error(`✗ ${name} script #${i + 1}: ${e.message}`); } });
 }
 console.log(ok ? "✓ Đã ghép xong dist/index.html, dist/am-phu-travel.html và dist/am-phu-online.html" : "Có lỗi cú pháp, xem ở trên.");
+console.log(`  giao diện trò chơi: ${uiFiles.length ? uiFiles.join(", ") : "chưa có (dùng bản dự phòng)"}`);
 console.log(`  nhân vật: ${avatars ? avatarFile : "chưa có"} · extras.js: ${extras ? "có" : "chưa có"}`);
 process.exit(ok ? 0 : 1);

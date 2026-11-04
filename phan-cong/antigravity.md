@@ -58,3 +58,13 @@ Sau khi ghép, mở `dist/am-phu-online.html` và `dist/am-phu-travel.html` trê
 Khi mở file trực tiếp trên máy, phần nhiều người chơi và bảng công đức không chạy (chỉ chạy khi trang được xuất bản trên Claude). Game vẫn chơi một mình được, hãy kiểm thử phần đó.
 
 Xong thì sửa trạng thái việc 4b và 9 trong `BANG-PHAN-CONG.md` và ghi nhật ký.
+
+---
+
+## Việc 13: Giao diện 3 trò chơi bàn (Cờ vua, Ô ăn quan, Ma Sói)
+
+Dán đoạn này vào Antigravity:
+
+> Đọc `phan-cong/tro-choi-hop-dong.md` (nhất là phần 2). Viết 3 file giao diện `src/games/ui-chess.js`, `src/games/ui-oanquan.js`, `src/games/ui-masoi.js` đăng ký vào `window.GAME_UI` đúng API `mount(el, api)` → `{update(view, actions), destroy()}`, đúng hình dạng `view` trong hợp đồng. Thêm `src/games/ui-demo.html` để tự thử với `view` giả. Phong cách giống trang chủ Địa Ngục Online (thẻ màu kem, viền vàng, chữ nâu đỏ, font Baloo 2, hoạt hình dễ thương). Chạy được trên điện thoại dọc 360px. Chỉ tạo/sửa các file `src/games/ui-*.js`, `src/games/ui-demo.html` và cập nhật `BANG-PHAN-CONG.md` (việc 13 sang Xong, ghi nhật ký).
+
+Máy chủ và luật do Claude và Codex làm song song, bạn không cần đợi: cứ làm theo hợp đồng.

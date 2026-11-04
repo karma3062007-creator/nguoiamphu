@@ -19,6 +19,7 @@ const PAGES = {
   "/": "dist/index.html",
   "/choi": "dist/am-phu-online.html",
   "/am-phu-online.html": "dist/am-phu-online.html",
+  "/tro-choi": "dist/tro-choi.html",
   "/tour": "dist/am-phu-travel.html",
   "/am-phu-travel.html": "dist/am-phu-travel.html"
 };
@@ -32,7 +33,7 @@ const server = http.createServer((req, res) => {
   }
   const file = PAGES[url];
   // game đầy: chuyển sang trang chủ ở trạng thái "quá tải"
-  if (file === PAGES["/choi"] && clients.size >= MAX_CLIENTS) { res.writeHead(302, { location: "/?full" }); res.end(); return; }
+  if ((file === PAGES["/choi"] || file === PAGES["/tro-choi"]) && clients.size >= MAX_CLIENTS) { res.writeHead(302, { location: "/?full" }); res.end(); return; }
   if (!file) { res.writeHead(404, { "content-type": "text/plain; charset=utf-8" }); res.end("Không tìm thấy trang"); return; }
   fs.readFile(path.join(ROOT, file), (err, buf) => {
     if (err) { res.writeHead(500, { "content-type": "text/plain; charset=utf-8" }); res.end("Chưa có trang. Hãy chạy: node build.js"); return; }
@@ -70,6 +71,18 @@ function sendBoard(c, top = topRows()) {
 
 /* ---------- WebSocket (viết tay, không cần thư viện) ---------- */
 const clients = new Map(); // id -> client
+
+/* ---------- phòng trò chơi bàn (game-rooms.js) ---------- */
+const rooms = require("./game-rooms.js")({
+  send: (id, obj) => { const c = clients.get(id); if (c) send(c, obj); },
+  addMerit: (id, n) => {
+    const c = clients.get(id); if (!c || !c.key) return;
+    const old = merits[c.key] || { m: 0, n: "Vong hồn" };
+    merits[c.key] = { m: old.m + n, n: old.n, at: Date.now() };
+    send(c, { t: "me", m: merits[c.key].m, gain: n });
+    saveMerits(); broadcastBoard();
+  }
+});
 let nextId = 1;
 
 server.on("upgrade", (req, socket) => {
@@ -132,6 +145,7 @@ function drop(c) {
   clients.delete(c.id);
   try { c.socket.destroy(); } catch (e) {}
   if (c.p) broadcast({ t: "leave", id: c.id });
+  rooms.drop(c.id);
 }
 
 /* ---------- xử lý tin ---------- */
@@ -148,6 +162,7 @@ function clean(p) {
     if (Array.isArray(p.a)) out.a = [str(p.a[0], 10), Math.floor(+p.a[1] || 0)];
     if (Array.isArray(p.s)) out.s = [str(p.s[0], 100), Math.floor(+p.s[1] || 0)];
     out.w = p.w ? 1 : 0;                                    // đang cầm gậy
+    out.j = Math.max(0, Math.floor(+p.j || 0));                // số thứ tự lần nhảy gần nhất
     if (Array.isArray(p.h)) out.h = [str(p.h[0], 40), Math.floor(+p.h[1] || 0)]; // lần gõ đầu gần nhất [người bị gõ, số thứ tự]
   }
   return out;
@@ -172,6 +187,8 @@ function onMessage(c, text) {
       if (ok) c.lastHit = now; else if (prevH) p.h = prevH; else delete p.h;
     }
     c.p = p; broadcast({ t: "p", id: c.id, p }, c);
+  } else if (typeof m.t === "string" && m.t.startsWith("g.")) {
+    rooms.onMessage(c.id, m);
   } else if (m.t === "m" && c.key) {
     const old = merits[c.key] || { m: 0, n: "Vong hồn" };
     let v = Math.max(0, Math.floor(+m.m || 0));

@@ -9,6 +9,7 @@ Hai trang web vui về Thập Bát Tầng Địa Ngục:
 
 - Trang chủ Địa Ngục Online (6 ô chức năng, 18 tầng, bảng công đức): https://nguoiamphu.onrender.com
 - Game 3D nhiều người chơi: https://nguoiamphu.onrender.com/choi
+- Trò chơi bàn (Cờ vua, Ô ăn quan, Ma Sói): https://nguoiamphu.onrender.com/tro-choi
 - Trang tour Âm Phủ Travel: https://nguoiamphu.onrender.com/tour
 - Khi máy chủ đầy (mặc định 60 người, đổi bằng biến MAX_CLIENTS) người mới thấy màn "Địa ngục đang quá tải".
 
@@ -25,6 +26,10 @@ Xem [phan-cong/BANG-PHAN-CONG.md](phan-cong/BANG-PHAN-CONG.md).
 
 ```
 src/home/home.template.html       trang chủ + màn quá tải (Claude)
+src/games/hub.template.html       trang trò chơi bàn, ghép cặp (Claude)
+src/games/rules-*.js              luật Cờ vua, Ô ăn quan, Ma Sói (Codex)
+src/games/ui-*.js                 bàn cờ, bàn ô ăn quan, lá bài Ma Sói (Antigravity)
+game-rooms.js                     phòng chơi trên máy chủ (Claude)
 src/shared/logo.svg               logo Địa Ngục Online
 src/shared/levels.json            nội dung 18 tầng (Codex)
 src/tour/tour.template.html       trang tour (Claude)
