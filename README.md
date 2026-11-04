@@ -5,7 +5,12 @@ Hai trang web vui về Thập Bát Tầng Địa Ngục:
 - **Âm Phủ Travel**: trang tour du lịch xuống 18 tầng, có thang máy chọn tầng, đặt vé một chiều, mini game bản đồ 2D và điện thắp hương.
 - **Âm Phủ Online**: game 3D nhiều người chơi. Chọn cõi (máy chủ), tạo vong hồn, cùng đi lại trong sân Điện Diêm La, gõ mõ, thắp hương, đốt vàng mã, thả đèn để giảm án từ B18 đến lúc được đầu thai.
 
-## Link đã xuất bản (riêng tư, bật chia sẻ trong menu Share)
+## Web chính thức (Render)
+
+- Game Âm Phủ Online: https://nguoiamphu.onrender.com
+- Trang tour Âm Phủ Travel: https://nguoiamphu.onrender.com/tour
+
+## Bản trên Claude (người chơi ở đây không thấy người chơi trên web chính thức)
 
 - Âm Phủ Online: https://claude.ai/artifact/3jJa8PZs8gm5b3dCYNiiKD
 - Âm Phủ Travel: https://claude.ai/artifact/JqKw7Tud5jqAoA7cbrTnEX
