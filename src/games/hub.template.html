@@ -311,7 +311,7 @@ function onRoom(r) {
     return;
   }
   show("#s-play");
-  $("#p-title").textContent = r.name + " · " + r.players.map(p => p.n).join(" vs ").slice(0, 80);
+  $("#p-title").textContent = r.name + " · " + (r.players.length > 2 ? r.players.length + " người" : r.players.map(p => p.n).join(" vs ").slice(0, 80));
   if (r.status === "play") { $("#p-result").hidden = true; if (!wasPlaying) { $("#chat").innerHTML = ""; addChat({ sys: true, text: "Ván mới bắt đầu. Chúc may mắn!" }); } }
   mountUI(r.game);
 }

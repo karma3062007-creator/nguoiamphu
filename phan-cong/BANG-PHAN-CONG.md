@@ -18,8 +18,8 @@ Ghép bằng lệnh `node build.js` ở thư mục gốc (xem `README.md`).
 | Bên | File được sửa | Không được sửa |
 |---|---|---|
 | Claude | `src/tour/*`, `src/home/*`, `src/online/online.template.html`, `src/games/hub.template.html`, `server.js`, `build.js`, `README.md` | `avatars.js`, `extras.js` |
-| Codex | `src/online/avatars.js`, `src/online/extras.js`, `src/shared/levels.json`, `src/games/rules-*.js` | mọi file `*.template.html`, `avatars-gen.js` |
-| Antigravity | `src/online/avatars-gen.js`, `phan-cong/kiem-thu.md`, `src/games/ui-*.js`, `src/games/ui-demo.html` | `avatars.js`, `extras.js`, mọi file `*.template.html` |
+| Codex | `src/online/avatars.js`, `src/online/extras.js`, `src/shared/levels.json`, `src/games/rules-*.js`, `src/games/ui-*.js`, `src/games/ui-demo.html` | mọi file `*.template.html`, `avatars-gen.js` |
+| Antigravity | `src/online/avatars-gen.js`, `phan-cong/kiem-thu.md` | `avatars.js`, `extras.js`, mọi file `*.template.html` |
 
 Ai cũng được sửa file này (`BANG-PHAN-CONG.md`) để cập nhật trạng thái.
 
@@ -39,7 +39,7 @@ Ai cũng được sửa file này (`BANG-PHAN-CONG.md`) để cập nhật trạ
 | 9 | Kiểm thử trên máy tính + điện thoại, ghi lỗi | Antigravity | Xong | [antigravity.md](antigravity.md) |
 | 10 | Ghép bản cuối, xuất bản, sửa lỗi từ kiểm thử | Claude | Đang làm | [claude.md](claude.md) |
 | 12 | Luật 3 trò chơi bàn: Cờ vua, Ô ăn quan, Ma Sói (+ máy chơi cùng) | Codex | Xong | [tro-choi-hop-dong.md](tro-choi-hop-dong.md), [codex.md](codex.md) |
-| 13 | Giao diện 3 trò chơi bàn (bàn cờ, bàn ô ăn quan, lá bài Ma Sói) | Antigravity | Chưa làm | [tro-choi-hop-dong.md](tro-choi-hop-dong.md), [antigravity.md](antigravity.md) |
+| 13 | Giao diện 3 trò chơi bàn (bàn cờ, bàn ô ăn quan, lá bài Ma Sói) | Codex | Xong | [tro-choi-hop-dong.md](tro-choi-hop-dong.md), [codex.md](codex.md) |
 | 14 | Máy chủ phòng chơi, ghép cặp ngẫu nhiên / phòng riêng / chơi với máy, trang /tro-choi, nút nhảy trong game 3D | Claude | Xong | [tro-choi-hop-dong.md](tro-choi-hop-dong.md) |
 | 11 | Máy chủ riêng (server.js) để đưa lên web ngoài Claude, giao diện điện thoại dọc/ngang | Claude | Xong | [../DUA-LEN-WEB.md](../DUA-LEN-WEB.md) |
 
@@ -71,3 +71,6 @@ Ai cũng được sửa file này (`BANG-PHAN-CONG.md`) để cập nhật trạ
 - 2026-11-04 · Claude · Thêm 3 trò chơi bàn. Viết hợp đồng chung `tro-choi-hop-dong.md`; giao Codex việc 12 (luật), Antigravity việc 13 (giao diện), Claude việc 14 (máy chủ, ghép cặp, trang /tro-choi, nút nhảy).
 - 2026-11-04 · Codex · Hoàn tất Việc 12: tạo `rules-chess.js`, `rules-oanquan.js`, `rules-masoi.js` đúng API/view phần 1, state bất biến khi apply, bot cờ vua/ô ăn quan và giấu vai Ma Sói. Node.exe cục bộ bị Access is denied; đã chạy JavaScript thực tế bằng phiên Node REPL có sẵn (`node:vm`): selfTest cờ vua 14/14 (perft 3 = 8902), ô ăn quan 7/7 (200 ván hai bot kết thúc, bảo toàn 50 dân + 2 quan), Ma Sói 14/14, tất cả `ok: true`, `failed: []`. Đã thử nhánh đăng ký trình duyệt GAME_RULES và view JSON của cả ba module; chuyển trạng thái Xong.
 - 2026-11-04 · Claude · Xong việc 14: `game-rooms.js` (ghép ngẫu nhiên, phòng riêng mã 4 chữ, chơi với máy, Ma Sói tự bắt đầu sau 20 giây khi đủ 5 người, thắng người +18 / thắng máy +3 công đức), trang `/tro-choi` có giao diện dự phòng chờ `ui-*.js` của Antigravity. Kiểm tra lại luật của Codex: perft 3 = 8902, 50 ván Ô ăn quan bot không lỗi, ván Ma Sói 5 người qua máy chủ chạy trọn. Thêm nút nhảy (Space / nút Nhảy), người khác thấy nhảy. Gõ đầu giờ trừ 2 công đức cả người gõ lẫn người bị gõ.
+- 2026-11-04 · Claude · Theo yêu cầu người dùng, chuyển việc 13 (giao diện 3 trò chơi bàn) từ Antigravity sang Codex.
+- 2026-11-04 · Codex · Xong Việc 13: tạo `ui-chess.js`, `ui-oanquan.js`, `ui-masoi.js` đúng GAME_UI và `ui-demo.html` dùng luật thật, đổi bên/vai, máy đi một nước, tăng tốc pha và các thế thử. Có phong cấp, bàn xoay theo người xem, hoạt ảnh rải 180ms/bước, vai bí mật/lựa chọn/phiếu bầu/đồng hồ Ma Sói; CSS riêng, co bàn theo bề rộng. Kiểm tra cú pháp đạt; Node VM + DOM giả lập đạt 66 kiểm tra tương tác và luồng demo; selfTest luật đạt 35/35 (cờ 14, ô ăn quan 7 gồm 200 ván bot, Ma Sói 14). Chưa kiểm tra trực quan trong trình duyệt vì môi trường không nạp được Playwright; nhờ Claude mở demo ở 360px và ghép trang `/tro-choi`. Không sửa hub hay luật.
+- 2026-11-04 · Claude · Ghép giao diện việc 13 của Codex, thử trên khung điện thoại 375px: cờ vua (sửa màu quân trắng/đen bị ngược), ô ăn quan (rải có hoạt ảnh, máy đánh lại), Ma Sói 5 người (đêm cắn, sang ngày lộ vai). Không tràn ngang.

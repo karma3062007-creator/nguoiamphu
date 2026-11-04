@@ -194,7 +194,151 @@ nav.top { display: flex; gap: 8px; flex-wrap: wrap; }
 <div class="toast" id="toast" hidden></div>
 
 <script>
-/* chưa có ui-*.js */
+/* src/games/ui-chess.js */
+(function () {
+  'use strict';
+  const glyph = {wK:'♔',wQ:'♕',wR:'♖',wB:'♗',wN:'♘',wP:'♙',bK:'♚',bQ:'♛',bR:'♜',bB:'♝',bN:'♞',bP:'♟'};
+  const names = {K:'vua',Q:'hậu',R:'xe',B:'tượng',N:'mã',P:'tốt'};
+  const sq = i => 'abcdefgh'[i % 8] + (8 - Math.floor(i / 8));
+  const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'})[c]);
+  const css = `.gui-chess{font:700 15px/1.4 "Baloo 2",system-ui,sans-serif;color:#6a1414;max-width:640px;margin:auto;min-width:0}.gui-chess *{box-sizing:border-box}.gui-chess button{font:inherit;touch-action:manipulation;cursor:pointer}.gui-chess button:focus-visible{outline:3px solid #d63a1f;outline-offset:-3px;z-index:3}.gui-chess .gc-status{background:#6a1414;color:#fdebc8;padding:10px 12px;border-radius:14px;margin-bottom:10px;overflow-wrap:anywhere}.gui-chess .gc-status small{display:block;color:#ffdf7e;font-size:12px}.gui-chess .gc-player{display:flex;gap:8px;align-items:center;min-height:43px;padding:5px 2px}.gui-chess .gc-name{flex:1;min-width:0;overflow-wrap:anywhere}.gui-chess .gc-badge{font-size:12px;border:1px solid #e8b765;border-radius:20px;padding:2px 8px;background:#fff5df}.gui-chess .gc-taken{font:22px/1.1 "Segoe UI Symbol","Arial Unicode MS",serif;letter-spacing:-3px;min-height:24px;overflow-wrap:anywhere;color:#35191b}.gui-chess .gc-board{container-type:inline-size;display:grid;grid-template-columns:repeat(8,minmax(0,1fr));border:4px solid #6a1414;border-radius:8px;overflow:hidden;box-shadow:0 5px 0 #b06a2a;margin-bottom:7px}.gui-chess .gc-square{position:relative;aspect-ratio:1;min-width:0;border:0;border-radius:0;padding:0;display:grid;place-items:center;background:#f6d49a;color:#6a1414;isolation:isolate}.gui-chess .gc-dark{background:#b5653a}.gui-chess .gc-last{box-shadow:inset 0 0 0 999px #f7c24a66}.gui-chess .gc-selected{box-shadow:inset 0 0 0 4px #8b221a;background:#f7c24a}.gui-chess .gc-check{background:#ef654e;box-shadow:inset 0 0 0 3px #9a1414}.gui-chess .gc-piece{font:clamp(26px,7.7vw,57px)/1 "Segoe UI Symbol","Arial Unicode MS",serif;font-size:clamp(20px,11cqw,57px);z-index:1;filter:drop-shadow(0 2px 1px #59271855);color:#251c25;-webkit-text-stroke:.6px #fff0ce}.gui-chess .gc-piece{font-variant-emoji:text}.gui-chess .gc-white{color:#fff8e7;-webkit-text-stroke:1.2px #442029;paint-order:stroke fill}.gui-chess .gc-black{color:#2a1416;-webkit-text-stroke:.8px #fff0ce;paint-order:stroke fill}.gui-chess .gc-dot{position:absolute;width:24%;height:24%;border-radius:50%;background:#54261b77}.gui-chess .gc-capture{width:88%;height:88%;background:transparent;border:4px solid #6a1414aa}.gui-chess .gc-coordinate{position:absolute;bottom:1px;right:3px;font:700 9px/1 system-ui;color:#502116}.gui-chess .gc-dark .gc-coordinate{color:#fff2d5}.gui-chess .gc-promotion{background:#fff7e6;border:2px solid #e8b765;border-radius:14px;padding:10px;margin-top:10px}.gui-chess .gc-choices{display:flex;gap:6px;flex-wrap:wrap;margin-top:7px}.gui-chess .gc-choices button{flex:1;min-height:50px;background:#f6d49a;border:2px solid #e8b765;border-radius:10px;color:#6a1414}.gui-chess .gc-choices span{font:32px/1 "Segoe UI Symbol",serif;display:block}.gui-chess .gc-help{font-size:12px;margin:8px 0}.gui-chess details{background:#fff5df;border:1px solid #e8b765;border-radius:12px;padding:8px 10px;margin-top:10px}.gui-chess summary{cursor:pointer}.gui-chess .gc-moves{max-height:140px;overflow:auto;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:3px 8px;font:13px/1.7 ui-monospace,monospace;margin-top:6px}.gui-chess .gc-moves span{overflow-wrap:anywhere}.gui-chess .gc-moves i{color:#9b6852;font-style:normal;margin-right:5px}`;
+  (window.GAME_UI = window.GAME_UI || {}).chess = {
+    mount(el, api) {
+      if (!document.getElementById('gui-chess-style')) { const s=document.createElement('style');s.id='gui-chess-style';s.textContent=css;document.head.appendChild(s); }
+      const root=document.createElement('section');root.className='gui-chess';el.appendChild(root);
+      let view=null, acts=[], selected=null, promotion=null, pending=false, dead=false, historyOpen=false;
+      function sound(n) { if(api.sfx)api.sfx(n); }
+      function send(a) { if(pending||!a)return;pending=true;selected=null;promotion=null;render();api.act(a); }
+      function player(c) {
+        return `<div class="gc-player"><span aria-hidden="true">${c==='w'?'♔':'♚'}</span><span class="gc-name">${esc(view.players[c].n)}</span><span class="gc-badge">${view.you===c?'Bạn · ':''}${c==='w'?'Trắng':'Đen'}</span></div><div class="gc-taken" aria-label="Quân đã ăn">${view.captured[c].map(p=>glyph[p]||'').join('') || '<span style="font:12px system-ui;letter-spacing:0">Chưa ăn quân</span>'}</div>`;
+      }
+      function render() {
+        if(!view||dead)return;
+        const v=view, bottom=v.you==='b'?'b':'w', top=bottom==='w'?'b':'w', moves=acts.filter(a=>a.type==='move'), targets=moves.filter(a=>a.from===selected);
+        let status=v.over?(v.over.draw?'Ván cờ hòa':v.over.winners.includes(api.me)?'Bạn thắng rồi!':'Ván cờ kết thúc'):pending?'Đang gửi nước đi…':v.you===null?'Bạn đang xem bàn cờ':v.turn===v.you?'Lượt của bạn':'Đối thủ đang nghĩ…';
+        if(v.check&&!v.over)status+=' · Chiếu!';
+        let board='';
+        for(let j=0;j<64;j++) {
+          const i=bottom==='b'?63-j:j, square=sq(i), p=v.board[i], target=targets.some(a=>a.to===square), usable=!pending&&!promotion&&moves.some(a=>a.from===square);
+          board+=`<button type="button" class="gc-square ${((Math.floor(i/8)+i%8)%2)?'gc-dark':''} ${v.last&&(v.last.from===square||v.last.to===square)?'gc-last':''} ${selected===square?'gc-selected':''} ${v.check&&p===v.turn+'K'?'gc-check':''}" data-square="${square}" aria-label="${square}${p?' · '+(p[0]==='w'?'Trắng ':'Đen ')+names[p[1]]:' · trống'}${target?' · có thể đi tới':''}" aria-pressed="${selected===square}" aria-disabled="${!(usable||target)&&!selected}">${p?`<span aria-hidden="true" class="gc-piece ${p[0]==='w'?'gc-white':'gc-black'}">${glyph['b'+p[1]]}︎</span>`:''}${target?`<span class="gc-dot ${p?'gc-capture':''}" aria-hidden="true"></span>`:''}<span class="gc-coordinate" aria-hidden="true">${square}</span></button>`;
+        }
+        const promo=promotion?`<div class="gc-promotion" role="group" aria-label="Chọn quân phong cấp"><b>Tốt lên chức! Chọn quân:</b><div class="gc-choices">${promotion.map((a,i)=>`<button type="button" data-promo="${i}"><span aria-hidden="true">${glyph[v.turn+a.promo.toUpperCase()]}</span>${names[a.promo.toUpperCase()]}</button>`).join('')}<button type="button" data-cancel>Hủy</button></div></div>`:'';
+        root.innerHTML=`<div class="gc-status" role="status">${esc(status)}<small>${esc(v.over?v.over.reason:'Bàn cờ âm phủ · nghĩ kỹ, đi vui')}</small></div>${player(top)}<div class="gc-board" role="group" aria-label="Bàn cờ vua">${board}</div>${player(bottom)}${promo}<p class="gc-help">${selected?'Chọn ô có dấu tròn để đi. Bấm lại quân để bỏ chọn.':'Bấm quân của bạn để xem các nước đi hợp lệ.'}</p><details ${historyOpen?'open':''}><summary>Biên bản · ${v.moves.length} lượt đi</summary><div class="gc-moves">${v.moves.length?v.moves.map((m,i)=>`<span><i>${Math.floor(i/2)+1}${i%2?'…':'.'}</i>${esc(m)}</span>`).join(''):'Chưa có nước đi.'}</div></details>`;
+        if(promotion)root.querySelector('[data-promo]')?.focus();
+      }
+      function click(e) {
+        const b=e.target.closest('button');if(!b||!root.contains(b)||!view||pending)return;
+        if(b.hasAttribute('data-cancel')){promotion=null;render();return;}
+        if(b.hasAttribute('data-promo')){send(promotion&&promotion[Number(b.dataset.promo)]);return;}
+        if(promotion)return;
+        const square=b.dataset.square;if(!square)return;
+        const choices=acts.filter(a=>a.type==='move'&&a.from===selected&&a.to===square);
+        if(choices.length){if(choices.some(a=>a.promo)){promotion=choices;render();}else send(choices[0]);return;}
+        selected=selected===square?null:acts.some(a=>a.type==='move'&&a.from===square)?square:null;render();
+        root.querySelector(`[data-square="${square}"]`)?.focus({preventScroll:true});
+      }
+      function toggle(e){if(e.target.tagName==='DETAILS')historyOpen=e.target.open;}
+      root.addEventListener('click',click);root.addEventListener('toggle',toggle,true);
+      return {
+        update(v,a) {
+          if(dead)return;
+          if(view&&JSON.stringify(v.moves)!==JSON.stringify(view.moves)&&v.moves.length>view.moves.length) sound(v.captured.w.length+v.captured.b.length>view.captured.w.length+view.captured.b.length?'capture':'move');
+          view=v;acts=a||[];pending=false;
+          if(!acts.some(x=>x.type==='move'&&x.from===selected)){selected=null;promotion=null;}
+          if(promotion){promotion=acts.filter(x=>x.type==='move'&&x.from===promotion[0].from&&x.to===promotion[0].to);if(!promotion.length)promotion=null;}
+          render();
+        },
+        destroy(){dead=true;root.removeEventListener('click',click);root.removeEventListener('toggle',toggle,true);root.remove();view=null;acts=[];}
+      };
+    }
+  };
+})();
+
+;
+/* src/games/ui-oanquan.js */
+(function () {
+  'use strict';
+  const esc=s=>String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'})[c]);
+  const clone=c=>c.map(x=>({dan:x.dan,quan:x.quan}));
+  const css=`.gui-oq{font:700 15px/1.4 "Baloo 2",system-ui,sans-serif;color:#6a1414;max-width:720px;margin:auto;min-width:0}.gui-oq *{box-sizing:border-box}.gui-oq button{font:inherit;color:inherit;touch-action:manipulation;cursor:pointer}.gui-oq button:focus-visible{outline:3px solid #d63a1f;outline-offset:-3px}.gui-oq .go-status{background:#6a1414;color:#fdebc8;padding:10px 12px;border-radius:14px;overflow-wrap:anywhere;margin-bottom:12px}.gui-oq .go-status small{display:block;color:#ffdf7e;font-size:12px}.gui-oq .go-score{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:9px 10px;background:#fff4d9;border:2px solid #e8b765;border-radius:14px;margin:10px 0;overflow-wrap:anywhere}.gui-oq .go-score.go-turn{border-color:#d63a1f}.gui-oq .go-person{min-width:0;flex:1}.gui-oq .go-score small{display:block;font-size:12px}.gui-oq .go-points{font-size:25px;white-space:nowrap;line-height:1}.gui-oq .go-points small{font-size:11px;text-align:right}.gui-oq .go-board{display:grid;grid-template-columns:.85fr repeat(5,minmax(0,1fr)) .85fr;grid-template-rows:repeat(2,minmax(72px,1fr));gap:4px;padding:7px 4px;background:#b5653a;border:3px solid #6a1414;border-radius:46px;box-shadow:0 5px 0 #844024;min-width:0}.gui-oq .go-pit{min-width:0;position:relative;background:#f6d49a;border:2px solid #8b4c2b;border-radius:12px;min-height:72px;padding:5px 2px;display:flex;align-items:center;flex-direction:column;justify-content:center;gap:3px}.gui-oq .go-pit:disabled{cursor:default;color:#6a1414;opacity:1}.gui-oq .go-legal{background:#fff0cc;border-color:#fdebc8}.gui-oq .go-selected{border-color:#d63a1f;background:#ffdf7e;box-shadow:inset 0 0 0 2px #d63a1f}.gui-oq .go-quan-left{grid-column:1;grid-row:1 / 3;border-radius:60px 10px 10px 60px}.gui-oq .go-quan-right{grid-column:7;grid-row:1 / 3;border-radius:10px 60px 60px 10px}.gui-oq .go-stones{display:flex;flex-wrap:wrap;gap:2px;max-width:38px;justify-content:center;align-content:center;min-height:22px;pointer-events:none}.gui-oq .go-stone{width:6px;height:7px;display:block;border-radius:50%;background:#6b5142;box-shadow:inset 1px 1px #a8896a,0 1px 1px #6a141433;transform:rotate(18deg)}.gui-oq .go-lord{width:17px;height:21px;border-radius:50% 50% 40% 40%;background:#fff9e9;border:2px solid #b07634;box-shadow:0 2px 0 #a75d30;display:block;margin:2px}.gui-oq .go-count{font-size:15px;line-height:1}.gui-oq .go-label{font:10px/1 system-ui;color:#7b4b32}.gui-oq .go-active{outline:3px solid #f7c24a;outline-offset:-3px;background:#ffdf7e}.gui-oq .go-active .go-stones{animation:go-hop .18s ease-out}.gui-oq .go-capture{background:#ffc1a0}.gui-oq .go-controls{min-height:105px;margin-top:14px;background:#fff4d9;border:1px solid #e8b765;border-radius:14px;padding:10px;text-align:center}.gui-oq .go-arrows{display:flex;gap:8px;margin-top:7px}.gui-oq .go-arrows button{flex:1;min-height:44px;border:2px solid #8a2a17;border-radius:12px;background:#d63a1f;color:#fff6e3;box-shadow:0 3px 0 #8a2a17}.gui-oq .go-arrows button:disabled{opacity:.5;cursor:default}.gui-oq .go-help{font-size:12px;margin:12px 0 0}.gui-oq .go-cancel{border:0;background:transparent;text-decoration:underline;min-height:30px;margin-top:5px}@keyframes go-hop{50%{transform:translateY(-4px)}}@media(prefers-reduced-motion:reduce){.gui-oq .go-active .go-stones{animation:none}}`;
+  (window.GAME_UI=window.GAME_UI||{}).oanquan={mount(el,api){
+    if(!document.getElementById('gui-oq-style')){const s=document.createElement('style');s.id='gui-oq-style';s.textContent=css;document.head.appendChild(s);}
+    const root=document.createElement('section');root.className='gui-oq';el.appendChild(root);
+    let view=null,acts=[],shown=[],selected=null,pending=false,animating=false,timer=null,dead=false,active=null,stepNo=0,stepTotal=0,key=null;
+    function sound(n){if(api.sfx)api.sfx(n);}
+    function score(p){const s=view.score[p];return `<div class="go-score ${view.turn===p&&!view.over?'go-turn':''}"><span class="go-person">${esc(view.seats[p].n)}${view.you===p?' · Bạn':''}<small>${s.dan} dân · ${s.quan} quan${view.debt[p]?' · Nợ '+view.debt[p]+' dân':''}</small></span><span class="go-points">${s.points}<small>điểm</small></span></div>`;}
+    function pit(i,extra,style){const c=shown[i],legal=!animating&&!pending&&acts.some(a=>a.type==='sow'&&a.cell===i);return `<button type="button" data-cell="${i}" class="go-pit ${extra||''} ${legal?'go-legal':''} ${selected===i?'go-selected':''} ${active&&active.cell===i?'go-active '+(active.kind==='capture'?'go-capture':''):''}" ${style?`style="${style}"`:''} ${!legal?'disabled':''} aria-label="Ô ${i%6?i:'quan '+i}: ${c.dan} dân${c.quan?', 1 quan':''}${legal?', có thể chọn':''}" aria-pressed="${selected===i}"><span class="go-stones" aria-hidden="true">${c.quan?'<i class="go-lord"></i>':''}${Array.from({length:Math.min(12,c.dan)},()=>'<i class="go-stone"></i>').join('')}</span><b class="go-count">${c.dan}${c.quan?' + Q':''}</b><span class="go-label">${i%6?'Ô '+i:'QUAN'}</span></button>`;}
+    function render(){
+      if(!view||dead)return;const v=view,flip=v.you===1,bottom=flip?1:0,top=1-bottom;
+      const topCells=flip?[5,4,3,2,1]:[11,10,9,8,7],bottomCells=flip?[7,8,9,10,11]:[1,2,3,4,5];
+      const status=animating?'Đang rải… '+stepNo+'/'+stepTotal:v.over?(v.over.draw?'Hai nhà hòa nhau!':v.over.winners.includes(api.me)?'Bạn thắng rồi!':'Ván chơi kết thúc'):pending?'Đang gửi lượt rải…':v.you===null?'Bạn đang xem bàn chơi':v.turn===v.you?'Lượt của bạn':'Đối thủ đang tính…';
+      let board=pit(flip?6:0,'go-quan-left')+pit(flip?0:6,'go-quan-right');
+      topCells.forEach((i,j)=>board+=pit(i,'',`grid-row:1;grid-column:${j+2}`));bottomCells.forEach((i,j)=>board+=pit(i,'',`grid-row:2;grid-column:${j+2}`));
+      const leftDir=-1; // On either rotated board, bottom-row indices increase left → right.
+      const choices=selected!==null&&!animating&&!pending?`<b>Ô ${selected} · Bạn muốn rải hướng nào?</b><div class="go-arrows">${[leftDir,-leftDir].map((d,j)=>`<button type="button" data-dir="${d}" ${!acts.some(a=>a.type==='sow'&&a.cell===selected&&a.dir===d)?'disabled':''}>${j?'Sang phải →':'← Sang trái'}</button>`).join('')}</div><button type="button" class="go-cancel" data-cancel>Chọn ô khác</button>`:`<b>${animating?({pick:'Bốc dân',drop:'Rải một dân',capture:'Ăn quân!',refill:'Rải lại dân'}[active?.kind]||'Theo dõi đường rải'):v.over?esc(v.over.reason):v.you===null?'Một ván tuổi thơ, cả làng cùng xem.':v.turn===v.you?'Chọn một ô sáng ở hàng dưới':'Chờ đối thủ rải xong nhé.'}</b>`;
+      root.innerHTML=`<div class="go-status" role="status">${esc(status)}<small>Ô ăn quan · gom sỏi, góp niềm vui</small></div>${score(top)}<div class="go-board" role="group" aria-label="Bàn ô ăn quan, hàng của bạn ở dưới">${board}</div>${score(bottom)}<div class="go-controls" aria-live="polite">${choices}</div><p class="go-help">1 dân = 1 điểm · 1 quan = 10 điểm. Các ô sáng là ô có thể rải. Số dưới sỏi là tổng dân trong ô.</p>`;
+    }
+    function click(e){const b=e.target.closest('button');if(!b||!root.contains(b)||pending||animating||dead)return;if(b.hasAttribute('data-cancel')){selected=null;render();return;}if(b.hasAttribute('data-dir')){const a=acts.find(x=>x.type==='sow'&&x.cell===selected&&x.dir===Number(b.dataset.dir));if(a){pending=true;selected=null;render();api.act(a);}return;}if(b.hasAttribute('data-cell')){const i=Number(b.dataset.cell);if(acts.some(a=>a.type==='sow'&&a.cell===i)){selected=selected===i?null:i;render();root.querySelector('[data-dir]')?.focus({preventScroll:true});}}}
+    root.addEventListener('click',click);
+    return {update(v,a){
+      if(dead)return;const nextKey=JSON.stringify([v.cells,v.last,v.turn,v.score,v.debt,v.over]);
+      const previous=view;view=v;acts=a||[];pending=false;
+      if(nextKey===key){if(!animating)render();return;}
+      key=nextKey;clearTimeout(timer);animating=false;active=null;selected=null;
+      if(previous&&v.last&&JSON.stringify(v.last)!==JSON.stringify(previous.last)&&v.last.steps.length){
+        shown=clone(previous.cells);animating=true;let i=0;const steps=v.last.steps;stepTotal=steps.length;stepNo=0;
+        function advance(){if(dead)return;if(i>=steps.length){shown=clone(view.cells);animating=false;active=null;render();return;}
+          active=steps[i++];stepNo=i;const c=shown[active.cell];
+          if(active.kind==='pick')c.dan=0;else if(active.kind==='drop')c.dan++;else if(active.kind==='capture'){c.dan=0;c.quan=0;}else if(active.kind==='refill')c.dan=1;
+          sound(active.kind==='capture'?'capture':'move');render();timer=setTimeout(advance,180);
+        }advance();
+      }else{shown=clone(v.cells);render();}
+    },destroy(){dead=true;clearTimeout(timer);root.removeEventListener('click',click);root.remove();view=null;acts=[];}};
+  }};
+})();
+
+;
+/* src/games/ui-masoi.js */
+(function () {
+  'use strict';
+  const roles={wolf:['Ma Sói','Cùng bầy chọn một người để cắn mỗi đêm. Trao đổi với đồng đội trong kênh sói.'],seer:['Tiên Tri','Mỗi đêm soi một người để biết họ thuộc phe Sói hay phe Làng.'],guard:['Bảo Vệ','Mỗi đêm che chở một người, có thể tự che mình; không che cùng người hai đêm liền.'],villager:['Dân Làng','Lắng nghe ban ngày, tìm điểm đáng ngờ và bỏ phiếu tìm Sói.']};
+  const esc=s=>String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'})[c]);
+  // Original little paper-mask illustrations. Unknown roles always use the same back.
+  function icon(role){
+    const art={wolf:'<path d="M16 34 12 12 29 23Q36 20 43 23L60 12 56 34 52 51 36 61 20 51Z" fill="#9b91bc"/><path d="m23 35 9 4m17-4-9 4" stroke="#42234e" stroke-width="4"/><path d="m29 46 7 7 7-7" fill="#42234e"/>',seer:'<path d="m36 8 24 48H12Z" fill="#9d74c8"/><path d="M10 56h52" stroke="#4e2d79" stroke-width="5"/><path d="M22 40q14-17 28 0-14 17-28 0Z" fill="#fff3ce"/><circle cx="36" cy="40" r="5" fill="#6a1414"/><path d="m45 20 2 4 4 1-4 2-2 4-1-4-4-2 4-1Z" fill="#ffdf7e"/>',guard:'<path d="m36 10 23 9v19Q57 54 36 64 15 54 13 38V19Z" fill="#82aa9b" stroke="#375c59" stroke-width="3"/><path d="m23 36 9 10 18-22" fill="none" stroke="#fff3ce" stroke-width="6"/>',villager:'<path d="m10 35 26-23 26 23" fill="#cc7047" stroke="#7f3c32" stroke-width="3"/><path d="M17 35h38v27H17Z" fill="#f5d195"/><path d="M30 43h12v19H30Z" fill="#946947"/><path d="M20 39h7v9h-7m25-9h7v9h-7" fill="#fff6d8"/>',unknown:'<path d="M19 12h34v48H19Z" fill="#796298" stroke="#cbb8d9" stroke-width="2"/><path d="m36 21 12 15-12 15-12-15Z" fill="#e8b765"/><circle cx="36" cy="36" r="5" fill="#796298"/>'};
+    return `<svg viewBox="0 0 72 72" aria-hidden="true">${art[role]||art.unknown}</svg>`;
+  }
+  const css=`.gui-ms{font:700 15px/1.45 "Baloo 2",system-ui,sans-serif;color:#6a1414;max-width:720px;margin:auto;padding:12px;border:2px solid #e8b765;border-radius:20px;background:linear-gradient(155deg,#fff1cb,#f6d49a);min-width:0;transition:background .4s}.gui-ms *{box-sizing:border-box}.gui-ms button{font:inherit;touch-action:manipulation;cursor:pointer}.gui-ms button:focus-visible{outline:3px solid #d63a1f;outline-offset:2px}.gui-ms.gui-ms-night{background:radial-gradient(ellipse at top right,#594872,#29263f 70%);color:#fff0d7;border-color:#9d7d9b}.gui-ms .gm-header{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:10px}.gui-ms .gm-phase{font-size:21px}.gui-ms .gm-clock{padding:6px 10px;border-radius:12px;background:#6a1414;color:#ffdf7e;font:800 22px/1.1 ui-monospace,monospace;white-space:nowrap}.gui-ms .gm-clock.gm-urgent{background:#b92f26;color:#fff3db}.gui-ms .gm-role{display:flex;align-items:center;gap:10px;background:#fff4dd;color:#6a1414;border:2px solid #e8b765;border-radius:16px;padding:10px;margin-bottom:10px}.gui-ms .gm-role svg{width:65px;height:65px;flex:none}.gui-ms .gm-role b{font-size:20px}.gui-ms .gm-role p{font-size:12px;margin:2px 0 0}.gui-ms .gm-instruction{font-size:13px;min-height:38px;margin:8px 0}.gui-ms .gm-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}.gui-ms .gm-card{position:relative;min-width:0;min-height:133px;border:2px solid #e8b765;border-radius:14px;background:#fff2d4;color:#6a1414;padding:7px 3px;display:flex;align-items:center;flex-direction:column;box-shadow:0 3px 0 #b07634;transition:transform .15s}.gui-ms .gm-card:disabled{opacity:1;cursor:default;color:#6a1414}.gui-ms .gm-card svg{width:48px;height:48px;flex:none}.gui-ms .gm-card b{font-size:13px;overflow-wrap:anywhere;line-height:1.2;max-width:100%}.gui-ms .gm-card small{font-size:10px;display:block;line-height:1.3;margin-top:3px}.gui-ms .gm-card.gm-target{border-color:#d63a1f;box-shadow:0 3px 0 #992d24}.gui-ms .gm-card.gm-selected{background:#ffdf7e;outline:3px solid #d63a1f;outline-offset:-4px;transform:translateY(-2px)}.gui-ms .gm-card.gm-dead{background:#e0d3c5;box-shadow:0 3px 0 #a6988e}.gui-ms .gm-dead svg{opacity:.6;filter:grayscale(1)}.gui-ms .gm-revealed svg{animation:gm-flip .4s ease-out}.gui-ms .gm-count{position:absolute;right:4px;top:4px;background:#6a1414;color:#fff2d4;font:700 10px/1.4 system-ui;border-radius:10px;padding:1px 5px}.gui-ms .gm-actions{display:flex;flex-wrap:wrap;gap:7px;margin-top:12px}.gui-ms .gm-actions button{flex:1;min-height:44px;border:2px solid #8a2a17;border-radius:12px;background:#d63a1f;color:#fff3dd;padding:7px 10px;box-shadow:0 3px 0 #6a1414;overflow-wrap:anywhere}.gui-ms .gm-actions .gm-soft{background:#fff3dd;color:#6a1414;border-color:#e8b765;box-shadow:0 3px 0 #b07634}.gui-ms .gm-actions button:disabled{opacity:.55;cursor:default}.gui-ms .gm-private{background:#ffffff16;border:1px solid #b17b56;border-radius:12px;padding:8px 10px;font-size:12px;margin-top:12px;overflow-wrap:anywhere}.gui-ms .gm-private p{margin:3px 0}.gui-ms details{margin-top:12px;border-top:1px solid #b89471;padding-top:10px}.gui-ms summary{cursor:pointer}.gui-ms .gm-log{padding-left:21px;font-size:12px;max-height:180px;overflow:auto;overflow-wrap:anywhere}.gui-ms .gm-log li{margin:4px 0}.gui-ms .gm-composition{font-size:11px;opacity:.85;margin:10px 0 0}.gui-ms .gm-result{background:#ffdf7e;color:#6a1414;border-radius:12px;padding:10px;margin:10px 0;overflow-wrap:anywhere}@keyframes gm-flip{from{transform:rotateY(90deg)}to{transform:rotateY(0)}}@media(min-width:520px){.gui-ms .gm-grid{grid-template-columns:repeat(4,minmax(0,1fr))}.gui-ms .gm-card{min-height:145px}.gui-ms .gm-card svg{width:58px;height:58px}}@media(prefers-reduced-motion:reduce){.gui-ms,.gui-ms .gm-card{transition:none}.gui-ms .gm-revealed svg{animation:none}}`;
+  (window.GAME_UI=window.GAME_UI||{}).masoi={mount(el,api){
+    if(!document.getElementById('gui-ms-style')){const s=document.createElement('style');s.id='gui-ms-style';s.textContent=css;document.head.appendChild(s);}
+    const root=document.createElement('section');root.className='gui-ms';el.appendChild(root);
+    let view=null,acts=[],selected=null,pending=false,dead=false,logOpen=true,revealed=new Set(),lastSecond=null;
+    const verb={kill:'Cắn',see:'Soi',guard:'Che chở',vote:'Bỏ phiếu'};
+    function name(id){return view.players.find(p=>p.id===id)?.n||'Người chơi';}
+    function clock(){if(!view||dead)return;const node=root.querySelector('.gm-clock');if(!node)return;const sec=view.phase==='end'?0:Math.max(0,Math.ceil((view.deadline-Date.now())/1000));node.textContent=view.phase==='end'?'Hết ván':Math.floor(sec/60)+':'+String(sec%60).padStart(2,'0');node.classList.toggle('gm-urgent',sec<=10&&view.phase!=='end');node.setAttribute('aria-label',view.phase==='end'?'Ván đã kết thúc':'Còn '+sec+' giây');if(sec!==lastSecond&&sec>0&&sec<=5&&acts.length&&api.sfx)api.sfx('tick');lastSecond=sec;}
+    function render(){
+      if(!view||dead)return;const v=view,me=v.you,role=me&&roles[me.role],picked=acts.find(a=>a.target===selected),phase={night:'Đêm',day:'Ngày',vote:'Bỏ phiếu',end:'Hết ván'}[v.phase];
+      root.className='gui-ms'+(v.phase==='night'?' gui-ms-night':'');
+      let instruction=pending?'Đang gửi lựa chọn…':!me?'Bạn đang xem làng.':!me.alive?'Bạn đã rời cuộc chơi. Ngồi xem và giữ bí mật nhé.':v.phase==='day'?'Cùng làng bàn luận trong khung chat. Sẵn sàng khi muốn sang bỏ phiếu.':v.phase==='end'?'Cả làng mở bài!':acts.some(a=>a.target)?'Chọn một lá bài, rồi xác nhận hành động bên dưới.':v.phase==='night'?(me.role==='villager'?'Dân làng ngủ ngon, chờ trời sáng.':'Đã chọn xong. Chờ các vai còn lại nhé.'):'Đã bỏ phiếu. Chờ cả làng quyết định.';
+      const cards=v.players.map((p,i)=>{const action=acts.find(a=>a.target===p.id),votes=Object.values(v.votes||{}).filter(id=>id===p.id).length,wasSeen=v.seen&&v.seen[p.id];return `<button type="button" class="gm-card ${action?'gm-target':''} ${selected===p.id?'gm-selected':''} ${!p.alive?'gm-dead':''} ${p.role&&!revealed.has(p.id)?'gm-revealed':''}" data-player="${i}" ${!action||pending?'disabled':''} aria-pressed="${selected===p.id}" aria-label="${esc(p.n)}${me&&p.id===me.id?', bạn':''}, ${p.alive?'còn sống':'đã chết'}${p.role?', '+roles[p.role][0]:', chưa rõ vai'}${action?', có thể '+verb[action.type]:''}">${votes?`<span class="gm-count">${votes} phiếu</span>`:''}${icon(p.role)}<b>${esc(p.n)}${me&&p.id===me.id?' · Bạn':''}</b><small>${p.alive?'● Còn sống':'✝ Đã chết'}<br>${p.role?roles[p.role][0]:'Chưa rõ vai'}${wasSeen?'<br>Đã soi: '+(wasSeen==='wolf'?'Sói':'Phe Làng'):''}${v.myPick===p.id&&v.phase==='night'?'<br>✓ Đã chọn':''}</small></button>`;}).join('');
+      const buttons=(picked?`<button type="button" data-confirm ${pending?'disabled':''}>${verb[picked.type]} ${esc(name(selected))}</button><button type="button" class="gm-soft" data-cancel>Hủy chọn</button>`:'')+acts.map((a,i)=>!a.target?`<button type="button" class="gm-soft" data-action="${i}" ${pending?'disabled':''}>${a.type==='skip'?'Bỏ qua · không treo ai':a.type==='ready'?'Sẵn sàng bỏ phiếu':esc(a.label)}</button>`:'').join('');
+      let privateText='';
+      if(v.phase==='night'&&v.myPick)privateText+=`<p>✓ Bạn đã chọn: <b>${esc(name(v.myPick))}</b></p>`;
+      if(v.wolfPicks&&Object.keys(v.wolfPicks).length)privateText+='<p><b>Lựa chọn của bầy:</b> '+Object.entries(v.wolfPicks).map(([id,to])=>esc(name(id))+' → '+esc(name(to))).join(' · ')+'</p>';
+      if(v.seen&&Object.keys(v.seen).length)privateText+='<p><b>Sổ Tiên Tri:</b> '+Object.entries(v.seen).map(([id,r])=>esc(name(id))+': '+(r==='wolf'?'Sói':'Phe Làng')).join(' · ')+'</p>';
+      const votes=Object.entries(v.votes||{});
+      if(votes.length)privateText+='<p><b>Phiếu công khai:</b> '+votes.map(([id,to])=>esc(name(id))+' → '+(to==='skip'?'bỏ qua':esc(name(to)))).join(' · ')+'</p>';
+      root.innerHTML=`<div class="gm-header"><span class="gm-phase">${v.phase==='night'?'☾':'☀'} ${phase} ${v.day}</span><span class="gm-clock" role="timer"></span></div><div class="gm-role">${icon(me&&me.role)}<div><b>${role?role[0]:'Khách xem làng'}</b><p>${role?role[1]:'Theo dõi cuộc đấu trí. Vai bí mật chỉ được mở khi luật cho phép.'}</p></div></div>${v.over?`<div class="gm-result" role="status"><b>${v.over.team==='wolf'?'Ma Sói thắng!':'Dân Làng thắng!'}</b><br>${esc(v.over.reason)}</div>`:''}<p class="gm-instruction" role="status">${esc(instruction)}</p><div class="gm-grid" role="group" aria-label="Người chơi trong làng">${cards}</div><div class="gm-actions">${buttons}</div>${privateText?`<div class="gm-private">${privateText}</div>`:''}<p class="gm-composition">Trong làng: ${Object.entries(v.roleCount||{}).map(([r,n])=>n+' '+(roles[r]?.[0]||r)).join(' · ')}</p><details ${logOpen?'open':''}><summary>Nhật ký của làng · ${v.log.length} tin</summary><ol class="gm-log">${v.log.map(s=>`<li>${esc(s)}</li>`).join('')}</ol></details>`;
+      v.players.filter(p=>p.role).forEach(p=>revealed.add(p.id));clock();
+    }
+    function send(a){if(!a||pending)return;pending=true;selected=null;render();api.act(a);}
+    function click(e){const b=e.target.closest('button');if(!b||!root.contains(b)||pending||dead)return;if(b.hasAttribute('data-player')){const p=view.players[Number(b.dataset.player)];if(p&&acts.some(a=>a.target===p.id)){selected=selected===p.id?null:p.id;render();root.querySelector('[data-confirm]')?.focus({preventScroll:true});}}else if(b.hasAttribute('data-confirm'))send(acts.find(a=>a.target===selected));else if(b.hasAttribute('data-action'))send(acts[Number(b.dataset.action)]);else if(b.hasAttribute('data-cancel')){selected=null;render();}}
+    function toggle(e){if(e.target.tagName==='DETAILS')logOpen=e.target.open;}
+    root.addEventListener('click',click);root.addEventListener('toggle',toggle,true);const timer=setInterval(clock,1000);
+    return {update(v,a){if(dead)return;if(view&&(view.phase!==v.phase||view.day!==v.day||view.you?.id!==v.you?.id))selected=null;view=v;acts=a||[];pending=false;if(!acts.some(x=>x.target===selected))selected=null;render();},destroy(){dead=true;clearInterval(timer);root.removeEventListener('click',click);root.removeEventListener('toggle',toggle,true);root.remove();view=null;acts=[];}};
+  }};
+})();
+
 </script>
 <script>
 const $ = s => document.querySelector(s);
@@ -332,7 +476,7 @@ function onRoom(r) {
     return;
   }
   show("#s-play");
-  $("#p-title").textContent = r.name + " · " + r.players.map(p => p.n).join(" vs ").slice(0, 80);
+  $("#p-title").textContent = r.name + " · " + (r.players.length > 2 ? r.players.length + " người" : r.players.map(p => p.n).join(" vs ").slice(0, 80));
   if (r.status === "play") { $("#p-result").hidden = true; if (!wasPlaying) { $("#chat").innerHTML = ""; addChat({ sys: true, text: "Ván mới bắt đầu. Chúc may mắn!" }); } }
   mountUI(r.game);
 }

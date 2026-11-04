@@ -1,0 +1,78 @@
+<!doctype html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Bàn chơi thử · Địa Ngục Online</title>
+  <style>
+    *{box-sizing:border-box}body{margin:0;background:radial-gradient(ellipse at top,#a3282a,#4a0f14);color:#fdebc8;font:600 15px/1.5 "Baloo 2",system-ui,sans-serif;min-height:100vh}main{max-width:760px;margin:auto;padding:18px 12px 40px}h1{font-size:26px;margin:0}header p{font-size:13px;margin:4px 0 14px}nav,.controls{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:14px}button,select{font:inherit;min-height:44px;border:2px solid #e8b765;border-radius:12px;padding:7px 12px;background:#fdebc8;color:#6a1414;cursor:pointer;max-width:100%;touch-action:manipulation}nav button[aria-pressed=true]{background:#f7c24a;border-color:#fff3d6;box-shadow:0 3px 0 #c17b2b}button:focus-visible,select:focus-visible{outline:3px solid #f7c24a;outline-offset:3px}button:disabled{opacity:.5;cursor:default}.controls{background:#ffffff12;padding:10px;border:1px solid #b86951;border-radius:16px;align-items:center}.controls label{display:flex;align-items:center;gap:6px;font-size:13px;max-width:100%}.controls select{min-width:0}.controls label:first-child{flex:1}#stage{padding:12px;background:#fdebc8;border:3px solid #e8b765;border-radius:20px;box-shadow:0 6px 0 #7c2a12;min-width:0}#notice{min-height:24px;font-size:13px;overflow-wrap:anywhere;margin:10px 0}footer{font-size:12px;margin-top:16px;opacity:.9}.demo-options{margin-bottom:10px;font-size:13px}.demo-options summary{cursor:pointer}.demo-options button{margin:5px 3px 0 0;font-size:12px}#tests{white-space:pre-wrap;overflow-wrap:anywhere}input{accent-color:#d63a1f}
+  </style>
+</head>
+<body>
+<main>
+  <header><h1>Sòng nhỏ thử bàn</h1><p>Chơi tại máy này, không cần máy chủ. Đổi người điều khiển để thử hai phía hoặc từng vai bí mật.</p></header>
+  <nav aria-label="Chọn trò chơi"><button type="button" data-game="chess">♞ Cờ vua</button><button type="button" data-game="oanquan">● Ô ăn quan</button><button type="button" data-game="masoi">☾ Ma Sói</button></nav>
+  <div class="controls">
+    <label>Đang xem <select id="seat" aria-label="Người đang điều khiển"></select></label>
+    <button type="button" id="new">Ván mới</button>
+    <label><input type="checkbox" id="follow" checked> Tự đổi bên khi hết lượt</label>
+    <button type="button" id="bot">Máy đi một nước</button>
+    <button type="button" id="phase" hidden>Hết giờ pha này</button>
+  </div>
+  <details class="demo-options"><summary>Tình huống kiểm thử</summary><div id="fixtures"></div><button type="button" id="selftest">Chạy self-test luật</button><pre id="tests"></pre></details>
+  <div id="notice" role="status"></div>
+  <div id="stage"></div>
+  <footer>Ma Sói: đổi người để chọn từng vai; “Hết giờ pha này” bỏ qua thời gian chờ. Chế độ thử cho phép bạn xem từng người, nên chỉ dùng trên máy cá nhân.</footer>
+</main>
+<script src="rules-chess.js"></script>
+<script src="rules-oanquan.js"></script>
+<script src="rules-masoi.js"></script>
+<script src="ui-chess.js"></script>
+<script src="ui-oanquan.js"></script>
+<script src="ui-masoi.js"></script>
+<script>
+(function(){
+  'use strict';
+  const $=s=>document.querySelector(s),ps=Array.from({length:8},(_,i)=>({id:'p'+i,n:['Mạnh Bà','Quỷ Sứ','Bé Bóng','Hồn Mơ','Ngưu Đầu','Mã Diện','Tiểu Linh','Đèn Lồng'][i]}));
+  let game='chess',rules,state,ui,me='p0',offset=0,seed=42,lastPaint='',audio=null,followTimer=null;
+  const now=()=>Date.now()+offset;
+  function sfx(name){try{audio=audio||new(window.AudioContext||window.webkitAudioContext)();const o=audio.createOscillator(),g=audio.createGain(),t=audio.currentTime;o.type='triangle';o.frequency.value={move:480,capture:280,tick:800}[name]||660;g.gain.setValueAtTime(.035,t);g.gain.exponentialRampToValueAtTime(.001,t+.08);o.connect(g).connect(audio.destination);o.start();o.stop(t+.09);}catch(_){}}
+  function status(text){$('#notice').textContent=text;}
+  function playerList(){return game==='masoi'?state.players:game==='chess'?[state.players.w,state.players.b]:state.seats;}
+  function mount(){clearTimeout(followTimer);if(ui)ui.destroy();ui=window.GAME_UI[game].mount($('#stage'),{me,act,sfx});lastPaint='';paint();}
+  function options(){const seat=$('#seat');seat.replaceChildren();playerList().forEach(p=>{const o=document.createElement('option');o.value=p.id;o.textContent=p.n;seat.appendChild(o);});const guest=document.createElement('option');guest.value='';guest.textContent='Khách xem';seat.appendChild(guest);seat.value=me||'';}
+  function paint(){const v=rules.view(state,me),a=rules.actions(state,me);
+    // UI countdown uses wall time; keep demo's accelerated clock in the same origin.
+    if(game==='masoi')v.deadline-=offset;
+    const k=JSON.stringify([v,a]);if(k!==lastPaint){lastPaint=k;ui.update(v,a);}
+    $('#bot').hidden=game==='masoi';$('#phase').hidden=game!=='masoi';$('#bot').disabled=!!state.over||me===null;$('#phase').disabled=!!state.over;
+    if(state.over)status('Kết quả: '+state.over.reason);
+  }
+  function follow(){if(!$('#follow').checked||game==='masoi'||state.over)return;const next=game==='chess'?state.players[state.turn].id:state.seats[state.turn].id;if(next!==me){me=next;$('#seat').value=me;mount();}}
+  function act(a){const r=rules.apply(state,me,a,now());if(r.error){status(r.error);lastPaint='';paint();return;}state=r.state;status((a.label||'Đã gửi hành động')+' · '+(playerList().find(p=>p.id===me)?.n||''));paint();
+    if(game==='chess')follow();
+    // Let the current side finish watching every sowing step before rotating the board.
+    if(game==='oanquan'){const played=state;clearTimeout(followTimer);followTimer=setTimeout(()=>{if(state===played)follow();},(state.last?.steps.length||0)*180+100);}
+  }
+  function start(){offset=0;rules=window.GAME_RULES[game];state=rules.setup(ps.slice(0,game==='masoi'?8:2),{seed:seed++,now:now()});me=game==='chess'?state.players.w.id:'p0';options();mount();status('Ván mới · '+rules.name);document.querySelectorAll('[data-game]').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.game===game)));$('#follow').parentElement.hidden=game==='masoi';$('#fixtures').replaceChildren();
+    const list=game==='chess'?['Phong cấp','Nhập thành','Chiếu']:game==='masoi'?['Pha bỏ phiếu','Đêm 12 người']:['Ăn liên hoàn'];
+    list.forEach(label=>{const b=document.createElement('button');b.type='button';b.textContent=label;b.onclick=()=>fixture(label);$('#fixtures').appendChild(b);});
+  }
+  function fixture(label){
+    if(game==='chess'){state=rules.setup(ps.slice(0,2),{seed:0,now:now()});state.board.fill('');state.castle={};const map=label==='Phong cấp'?{h1:'wK',h8:'bK',a7:'wP'}:label==='Nhập thành'?{e1:'wK',a1:'wR',h1:'wR',e8:'bK'}:{e1:'wK',e8:'bK',e7:'bR',a1:'wR'};Object.entries(map).forEach(([s,p])=>state.board[(8-Number(s[1]))*8+s.charCodeAt(0)-97]=p);if(label==='Nhập thành')state.castle={wK:true,wQ:true};me='p0';}
+    else if(game==='oanquan'){state=rules.setup(ps.slice(0,2),{});state.cells.forEach(c=>c.dan=0);state.cells[1].dan=1;state.cells[4].dan=3;state.cells[6].dan=2;state.cells[9].dan=1;state.score[1]={dan:43,quan:0,points:43};me='p0';}
+    else if(label==='Đêm 12 người'){state=rules.setup(Array.from({length:12},(_,i)=>({id:'p'+i,n:ps[i]?.n||'Vong '+(i+1)})),{seed:42,now:now()});me='p0';}
+    else {state=rules.setup(ps,{seed:42,now:now()});state=rules.tick(state,state.deadline);state=rules.tick(state,state.deadline);offset=state.deadline-Date.now()-30000;me=state.players.find(p=>p.alive).id;}
+    options();mount();status('Đang thử: '+label);
+  }
+  document.querySelectorAll('[data-game]').forEach(b=>b.onclick=()=>{game=b.dataset.game;start();});
+  $('#new').onclick=start;$('#seat').onchange=()=>{me=$('#seat').value||null;mount();status(me?'Đang điều khiển '+playerList().find(p=>p.id===me).n:'Đang xem với quyền khách.');};
+  $('#bot').onclick=()=>{const id=game==='chess'?state.players[state.turn].id:state.seats[state.turn].id;const a=rules.bot(state,id);if(a){if(me!==id){me=id;$('#seat').value=me;mount();}act(a);}};
+  $('#phase').onclick=()=>{offset=Math.max(offset,state.deadline-Date.now());state=rules.tick(state,now());paint();};
+  $('#selftest').onclick=()=>{const results=Object.values(window.GAME_RULES).map(r=>({game:r.name,...r.selfTest()}));$('#tests').textContent=JSON.stringify(results,null,2);};
+  setInterval(()=>{if(game==='masoi'){state=rules.tick(state,now());paint();}},250);
+  start();
+})();
+</script>
+</body>
+</html>

@@ -61,7 +61,7 @@ Xong thì sửa trạng thái việc 4b và 9 trong `BANG-PHAN-CONG.md` và ghi 
 
 ---
 
-## Việc 13: Giao diện 3 trò chơi bàn (Cờ vua, Ô ăn quan, Ma Sói)
+## Việc 13: Giao diện 3 trò chơi bàn (ĐÃ CHUYỂN SANG CODEX, không cần làm)
 
 Dán đoạn này vào Antigravity:
 

@@ -87,3 +87,25 @@ Kiểm tra: `node build.js` phải báo ghép xong, không lỗi cú pháp. Xong
 - Ma Sói: chia vai đúng số lượng với 5, 8, 12 người; `view` không lộ vai người khác; bảo vệ che đúng người bị cắn thì không ai chết; vote treo cổ; điều kiện thắng hai phe; pha tự chuyển khi hết giờ qua `tick`.
 
 Xong thì sửa trạng thái việc 12 trong `BANG-PHAN-CONG.md` thành `Xong` (hoặc `Cần sửa` nếu chưa chạy được kiểm tra) và ghi một dòng nhật ký nêu kết quả `selfTest`.
+
+## Việc 13: Giao diện 3 trò chơi bàn (chuyển từ Antigravity sang)
+
+Đọc `phan-cong/tro-choi-hop-dong.md` phần 2. Viết 3 file:
+
+- `src/games/ui-chess.js`
+- `src/games/ui-oanquan.js`
+- `src/games/ui-masoi.js`
+
+Mỗi file đăng ký `window.GAME_UI[id] = { mount(el, api) → { update(view, actions), destroy() } }`, đọc đúng hình dạng `view` trong hợp đồng phần 1 (chính là `view()` trong `rules-*.js` bạn đã viết). Thêm `src/games/ui-demo.html` để tự thử: nạp `rules-*.js` + `ui-*.js` qua thẻ `<script src>`, tự chơi 2 bên bằng `GAME_RULES` (không cần máy chủ).
+
+Yêu cầu:
+
+- Phong cách trang chủ Địa Ngục Online: thẻ kem `#fdebc8`/`#f6d49a`, viền `#e8b765`, nâu đỏ `#6a1414`, đỏ `#d63a1f`, vàng `#f7c24a`, font `"Baloo 2"` (trang đã nạp sẵn). Dễ thương, hoạt hình nhẹ.
+- CSS tự chèn một thẻ `<style>` với tiền tố riêng (`.gui-chess`, `.gui-oq`, `.gui-ms`). Không ảnh/font ngoài; vẽ bằng SVG/CSS.
+- Chạy bằng chuột và chạm; điện thoại dọc 360px chơi được không cuộn ngang (bàn co theo bề rộng `el`).
+- Không tự mở mạng, không đọc `localStorage`. Nút "Đầu hàng" trang ngoài đã có, không cần vẽ.
+- **Cờ vua**: bàn 8×8 (ô sáng `#f6d49a`, ô tối `#b5653a` hoặc tương tự), quân là SVG tự vẽ hoặc ký tự ♔♕♖♗♘♙/♚♛♜♝♞♟ cỡ lớn có viền để thấy rõ trên cả hai màu ô; xoay bàn theo `view.you` (đen ở dưới nếu mình cầm đen); bấm quân → sáng ô đi được (lọc từ `actions`), bấm ô đích → `api.act(action)`; phong cấp hiện bảng chọn 4 quân; tô nước vừa đi (`view.last`) và vua đang bị chiếu; dòng trạng thái "Lượt của bạn / Đối thủ đang nghĩ…"; hai dải quân đã ăn; danh sách nước đi `view.moves` gọn.
+- **Ô ăn quan**: bàn 2 hàng × 5 ô, hai đầu 2 ô quan hình bán nguyệt; dân là hạt sỏi tròn nhỏ (vẽ tối đa ~12 hạt rồi hiện số), quan là viên to; hàng của mình luôn ở dưới (nếu `view.you === 1` thì đảo hiển thị); bấm ô bên mình → hiện 2 mũi tên trái/phải để chọn `dir` (nhớ quy đổi đúng chiều khi bàn bị đảo) → `api.act`; chạy hoạt ảnh lần lượt theo `view.last.steps` (~180ms mỗi bước, gọi `api.sfx("move")`, ăn thì `api.sfx("capture")`); bảng điểm hai bên, nợ dân nếu có.
+- **Ma Sói**: các lá bài người chơi xếp lưới/vòng (tên, còn sống/đã chết, vai nếu được thấy); thẻ vai của mình to ở trên kèm mô tả ngắn vai làm gì; đồng hồ đếm ngược theo `view.deadline` (tự chạy mỗi giây); nền đổi đêm (xanh tím đậm, trăng) / ngày (vàng cam); bấm lá bài để chọn mục tiêu khi có action tương ứng (`kill`/`see`/`guard`/`vote`), nút "Bỏ qua" (`skip`) và "Sẵn sàng" (`ready`) khi có; hiện `myPick`, `wolfPicks` cho sói, `seen` cho tiên tri, phiếu bầu `votes`; khung `log` các thông báo; hết ván lật hết bài.
+
+Xong thì sửa trạng thái việc 13 trong `BANG-PHAN-CONG.md` và ghi nhật ký. Claude sẽ ghép và thử trên trình duyệt.
