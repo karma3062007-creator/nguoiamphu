@@ -14,6 +14,8 @@
       bowl: new T.CylinderGeometry(1, 0.62, 1, 12),
       cone: new T.ConeGeometry(1, 1, 8),
       ring: new T.TorusGeometry(1, 0.09, 4, 12),
+      banana: new T.TorusGeometry(1, 0.18, 5, 12, Math.PI * 0.85),
+      halfBall: new T.SphereGeometry(1, 12, 6, 0, Math.PI * 2, 0, Math.PI / 2),
       plane: new T.PlaneGeometry(1, 1)
     };
     var mats = Object.create(null), labels = Object.create(null);
@@ -59,7 +61,12 @@
         ctx.lineTo(96, 0); ctx.lineTo(0, 96); ctx.fill();
       } else {
         ctx.fillStyle = '#ffe7a2'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
-        ctx.font = 'bold 76px "Arial", sans-serif'; ctx.fillText(text, 512, 132, 950);
+        if (text === 'BUFFET RAU CỦ QUẢ') {
+          ctx.font = 'bold 76px "Arial", sans-serif'; ctx.fillText(text, 512, 100, 950);
+          ctx.font = '42px "Arial", sans-serif'; ctx.fillText('Ăn chay tích phước', 512, 191, 950);
+        } else {
+          ctx.font = 'bold 76px "Arial", sans-serif'; ctx.fillText(text, 512, 132, 950);
+        }
       }
       var tex = new T.CanvasTexture(canvas); tex.encoding = T.sRGBEncoding;
       labels[key] = new T.MeshStandardMaterial({ map: tex, roughness: 0.9, emissive: '#ffffff', emissiveMap: tex, emissiveIntensity: 0.18 });
@@ -201,10 +208,105 @@
 
   var stallInfo = {
     xoi: ['XÔI CÚNG', '#cf6547'], banhbao: ['BÁNH BAO', '#729d90'],
-    comchay: ['CƠM CHAY', '#89a25b'], che: ['CHÈ NGỌT', '#ba83a3'], trasua: ['TRÀ SỮA ÂM PHỦ', '#9781b2']
+    comchay: ['CƠM CHAY', '#89a25b'], che: ['CHÈ NGỌT', '#ba83a3'], trasua: ['TRÀ SỮA ÂM PHỦ', '#9781b2'],
+    buffet: ['BUFFET RAU CỦ QUẢ', '#e95e46']
   };
+
+  function buffet(T, k) {
+    var g = new T.Group(), a = k.add, next = clock(), dancing = [];
+    g.name = 'food-stall-buffet';
+    [-1, 1].forEach(function (s) {
+      [-1, 1].forEach(function (z) { a(g, 'box', '#78442d', s * 2.12, 0.43, z * 0.46, 0.13, 0.86, 0.13); });
+      a(g, 'box', '#966038', s * 2.08, 1.30, -0.49, 0.07, 1.0, 0.07);
+    });
+    a(g, 'box', '#d59a56', 0, 0.85, 0, 4.8, 0.10, 1.3);
+    a(g, 'box', '#cb3545', 0, 0.91, 0, 4.8, 0.025, 1.3);
+    a(g, 'box', '#cb3545', 0, 0.68, 0.62, 4.8, 0.46, 0.035);
+    a(g, 'box', '#ffd46c', 0, 0.48, 0.644, 4.8, 0.055, 0.018);
+    [-1, 1].forEach(function (s) { a(g, 'box', '#cb3545', s * 2.38, 0.68, 0, 0.035, 0.46, 1.3); });
+    a(g, 'box', '#edba72', 0, 1.12, -0.33, 4.18, 0.07, 0.53);
+    a(g, 'box', '#edba72', 0, 1.38, -0.45, 4.18, 0.07, 0.31);
+    [-1, 1].forEach(function (s) { a(g, 'box', '#966038', s * 1.73, 1.91, -0.53, 0.065, 1.08, 0.065); });
+    a(g, 'box', '#ffd46c', 0, 2.24, -0.53, 3.32, 0.57, 0.08);
+    a(g, 'plane', k.label(stallInfo.buffet[0]), 0, 2.24, -0.483, 3.23, 0.49, 1);
+
+    // Each tray is its own small still life; a name also makes previews inspectable.
+    function dish(name, x, y, z) {
+      var p = k.pivot(g, x, y, z); p.name = 'buffet-' + name;
+      a(p, 'cyl', '#fff5df', 0, 0, 0, 0.265, 0.035, 0.21);
+      return p;
+    }
+    function leaf(p, x, y, z, w, h, d) {
+      return a(p, 'ball', '#54b83f', x, y, z, w, h, d);
+    }
+    var p = dish('watermelon', -1.72, 1.44, -0.43);
+    a(p, 'halfBall', '#228c44', 0, 0.23, 0, 0.25, 0.22, 0.21).rotation.z = Math.PI;
+    a(p, 'cyl', '#e2ef9c', 0, 0.23, 0, 0.242, 0.018, 0.202);
+    a(p, 'cyl', '#ff4d59', 0, 0.242, 0, 0.217, 0.012, 0.18);
+    for (var i = 0; i < 3; i++) {
+      a(p, 'ball', '#382632', (i - 1) * 0.105, 0.252, i % 2 ? -0.075 : 0.055, 0.014, 0.006, 0.025).rotation.y = i * 0.7;
+    }
+    p = dish('banana', -1.02, 1.44, -0.43);
+    for (i = 0; i < 3; i++) {
+      var b = a(p, 'banana', i % 2 ? '#ffe875' : '#ffc82f', -0.09, 0.07 + i * 0.046, -0.025 + i * 0.045, 0.22, 0.15, 0.20);
+      b.rotation.set(-Math.PI / 2, 0, -0.4 + i * 0.18);
+    }
+    a(p, 'box', '#7d8535', 0.11, 0.18, 0.04, 0.09, 0.065, 0.07);
+    p = dish('grape', -0.34, 1.44, -0.43);
+    for (i = 0; i < 7; i++) a(p, 'ball', i % 2 ? '#9b4bd1' : '#6932af', (i % 3 - 1) * 0.11, 0.10 + Math.floor(i / 3) * 0.085, (i % 2 - 0.5) * 0.10, 0.078, 0.078, 0.078);
+    leaf(p, 0.07, 0.30, -0.02, 0.11, 0.025, 0.06).rotation.z = 0.35;
+    dancing.push(p);
+    p = dish('orange', 0.34, 1.44, -0.43);
+    a(p, 'ball', '#ff951f', 0, 0.16, 0, 0.16, 0.15, 0.15);
+    leaf(p, 0.07, 0.30, 0, 0.10, 0.025, 0.045).rotation.z = -0.35;
+    p = dish('dragonfruit', 1.02, 1.44, -0.43);
+    a(p, 'ball', '#f8328b', 0, 0.16, 0, 0.17, 0.18, 0.14);
+    a(p, 'ball', '#fff8ee', 0, 0.17, 0.11, 0.126, 0.14, 0.035);
+    for (i = 0; i < 3; i++) {
+      a(p, 'cone', '#80cf42', (i - 1) * 0.125, 0.25 + (i % 2) * 0.11, 0, 0.045, 0.14, 0.035).rotation.z = (1 - i) * 0.65;
+      a(p, 'puff', '#382632', (i - 1) * 0.06, 0.16 + (i % 2) * 0.07, 0.146, 0.012, 0.015, 0.005);
+    }
+    p = dish('mango', 1.72, 1.44, -0.43);
+    a(p, 'ball', '#ffc338', 0, 0.16, 0, 0.14, 0.21, 0.12).rotation.z = -0.5;
+    leaf(p, 0.07, 0.34, 0, 0.11, 0.025, 0.045);
+
+    p = dish('carrot', -1.72, 0.955, 0.30);
+    a(p, 'cone', '#ff8629', 0, 0.10, 0, 0.095, 0.40, 0.09).rotation.z = -Math.PI / 2;
+    for (i = 0; i < 2; i++) leaf(p, -0.22, 0.15, (i - 0.5) * 0.07, 0.12, 0.025, 0.035).rotation.z = -0.35 + i * 0.7;
+    p = dish('cabbage', -1.02, 0.955, 0.30);
+    a(p, 'ball', '#b7e875', 0, 0.15, 0, 0.18, 0.16, 0.16);
+    for (i = 0; i < 3; i++) {
+      var angle = i * Math.PI * 2 / 3;
+      leaf(p, Math.cos(angle) * 0.10, 0.095, Math.sin(angle) * 0.09, 0.13, 0.11, 0.12).rotation.z = Math.cos(angle) * 0.5;
+    }
+    p = dish('tomato', -0.34, 0.955, 0.30);
+    a(p, 'ball', '#f23c36', 0, 0.13, 0, 0.16, 0.13, 0.15);
+    for (i = 0; i < 2; i++) leaf(p, 0, 0.26, 0, 0.115, 0.015, 0.025).rotation.y = i * Math.PI / 2;
+    p = dish('cucumber', 0.34, 0.955, 0.30);
+    a(p, 'ball', '#238e49', 0, 0.09, 0, 0.23, 0.085, 0.085).rotation.y = 0.35;
+    for (i = 0; i < 2; i++) a(p, 'ball', '#91cb57', 0, 0.115, (i - 0.5) * 0.075, 0.20, 0.018, 0.012).rotation.y = 0.35;
+    p = dish('pumpkin', 1.02, 0.955, 0.30);
+    for (i = 0; i < 3; i++) a(p, 'ball', i % 2 ? '#ffa02c' : '#ef7b23', (i - 1) * 0.075, 0.13, 0, 0.10, 0.14, 0.15);
+    a(p, 'cyl', '#63883c', 0, 0.30, 0, 0.033, 0.10, 0.033).rotation.z = -0.2;
+    dancing.push(p);
+    p = dish('corn', 1.72, 0.955, 0.30);
+    a(p, 'ball', '#ffe04b', 0, 0.12, 0, 0.09, 0.23, 0.09).rotation.z = -0.9;
+    for (i = 0; i < 2; i++) leaf(p, (i - 0.5) * 0.10, 0.09, 0.015, 0.045, 0.19, 0.045).rotation.z = -0.6 + i * 0.8;
+    a(p, 'ring', '#eab52a', 0, 0.12, 0, 0.092, 0.08, 0.092).rotation.set(Math.PI / 2, 0.9, 0);
+    for (i = 0; i < 3; i++) a(g, 'cyl', '#fff5df', 2.18, 0.96 + i * 0.045, 0.26, 0.16, 0.035, 0.16);
+    [-1, 1].forEach(function (s) {
+      a(g, 'box', '#c6dce0', s * 2.13, 0.953, -0.03, 0.028, 0.025, 0.27).rotation.y = s * 0.22;
+      a(g, 'ball', '#e3eef0', s * 2.16, 0.958, 0.12, 0.065, 0.018, 0.085);
+    });
+    dancing.forEach(function (o) { o.userData.restY = o.position.y; });
+    return { group: g, update: function (dt, time) {
+      var t = next(dt, time);
+      dancing.forEach(function (o, j) { o.position.y = o.userData.restY + (1 + Math.sin(t * 2 + j * 2)) * 0.012; });
+    } };
+  }
   root.makeFoodStall = function (T, type) {
     if (!Object.prototype.hasOwnProperty.call(stallInfo, type)) type = 'xoi';
+    if (type === 'buffet') return buffet(T, kit(T));
     var k = kit(T), a = k.add, g = new T.Group(), next = clock(), animations = [];
     g.name = 'food-stall-' + type;
     var info = stallInfo[type], top = 1.08;
@@ -331,11 +433,25 @@
       Object.keys(stallInfo).forEach(function (type) {
         var stall = track(root.makeFoodStall(T, type)), lamp;
         stall.group.traverse(function (o) { if (o.name === 'lantern') lamp = o; });
-        stall.update(0, 0); var old = lamp.rotation.z; stall.update(0, 1);
-        assert(lamp.rotation.z !== old, type + ' lantern frozen');
+        if (type === 'buffet') {
+          var foods = ['watermelon', 'banana', 'grape', 'orange', 'dragonfruit', 'mango',
+            'carrot', 'cabbage', 'tomato', 'cucumber', 'pumpkin', 'corn'];
+          foods.forEach(function (food) { assert(stall.group.getObjectByName('buffet-' + food), 'buffet missing ' + food); });
+          var grape = stall.group.getObjectByName('buffet-grape');
+          stall.update(0, 0); var gy = grape.position.y; stall.update(0, 1);
+          assert(grape.position.y !== gy, 'buffet animation frozen');
+          assert(!stall.group.getObjectByName('steam-0'), 'fresh buffet should not steam');
+        } else {
+          stall.update(0, 0); var old = lamp.rotation.z; stall.update(0, 1);
+          assert(lamp.rotation.z !== old, type + ' lantern frozen');
+        }
         var bounds = new T.Box3().setFromObject(stall.group), size = bounds.getSize(new T.Vector3());
-        assert(Math.abs(bounds.min.y) < 0.001 && size.x <= 2.5 && size.z <= 1.6 && size.y >= 2.4 && size.y <= 2.7, type + ' dimensions');
-        inspect(stall, type, 60);
+        if (type === 'buffet') {
+          assert(Math.abs(bounds.min.y) < 0.001 && size.x >= 4.7 && size.x <= 4.9 && size.z <= 1.4 && size.y >= 2.3 && size.y <= 2.7, 'buffet dimensions');
+        } else {
+          assert(Math.abs(bounds.min.y) < 0.001 && size.x <= 2.5 && size.z <= 1.6 && size.y >= 2.4 && size.y <= 2.7, type + ' dimensions');
+        }
+        inspect(stall, type, type === 'buffet' ? 90 : 60);
       });
       assert(track(root.makeFoodStall(T, 'unknown')).group.name === 'food-stall-xoi', 'fallback');
       return { ok: true, rows: rows };

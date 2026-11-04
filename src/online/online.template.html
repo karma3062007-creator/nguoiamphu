@@ -715,7 +715,8 @@ const STALLS = [
   { id: "an_comchay", type: "comchay", ang: -60, label: "Ăn cơm chay", verb: "ăn một suất cơm chay", ic: "🥢", gain: 6, sign: "CƠM CHAY", col: 0x4f9a4a },
   { id: "an_banhbao", type: "banhbao", ang: 50, label: "Ăn bánh bao", verb: "ăn một cái bánh bao nóng", ic: "🥟", gain: 3, sign: "BÁNH BAO", col: 0xe8d9b0 },
   { id: "an_che", type: "che", ang: 80, label: "Ăn chè ngọt", verb: "ăn một cốc chè", ic: "🍧", gain: 3, sign: "CHÈ NGỌT", col: 0x9a4ad9 },
-  { id: "an_trasua", type: "trasua", ang: 110, label: "Uống trà sữa âm phủ", verb: "uống một ly trà sữa âm phủ", ic: "🧋", gain: 2, sign: "TRÀ SỮA", col: 0x8a5a3a }
+  { id: "an_trasua", type: "trasua", ang: 110, label: "Uống trà sữa âm phủ", verb: "uống một ly trà sữa âm phủ", ic: "🧋", gain: 2, sign: "TRÀ SỮA", col: 0x8a5a3a },
+  { id: "an_buffet", type: "buffet", ang: -135, rad: 15, wide: true, cd: 8000, label: "Ăn buffet rau củ quả", verb: "ăn một đĩa buffet rau củ quả", ic: "🥗", gain: 8, sign: "BUFFET RAU CỦ", col: 0x3f9b2f }
 ];
 function fallbackStall(st) {
   const g = new THREE.Group();
@@ -727,14 +728,16 @@ function fallbackStall(st) {
 }
 const stallUpdates = [];
 for (const st of STALLS) {
-  const th = st.ang * Math.PI / 180, x = Math.sin(th) * 14.5, z = 4 + Math.cos(th) * 14.5;
+  const rad = st.rad || 14.5, th = st.ang * Math.PI / 180, x = Math.sin(th) * rad, z = 4 + Math.cos(th) * rad;
   let made = null;
   try { if (window.makeFoodStall) made = window.makeFoodStall(THREE, st.type); } catch (e) { console.warn("stall", e); }
-  if (!made) made = fallbackStall(st);
+  if (!made) { made = fallbackStall(st); if (st.wide) made.group.scale.x = 2; }
   made.group.position.set(x, 0, z); made.group.rotation.y = Math.atan2(-x, 4 - z); scene.add(made.group);
   made.group.traverse(m => { if (m.isMesh) m.castShadow = true; });
   if (made.update) stallUpdates.push(made.update);
   solids.push({ x, z, r: 1.4 });
+  // the buffet is a long table: block its two ends too (tangent to the courtyard circle)
+  if (st.wide) for (const k of [-1.7, 1.7]) solids.push({ x: x + Math.cos(th) * k, z: z - Math.sin(th) * k, r: 1 });
   // stand spot: in front of the counter, toward the middle of the courtyard
   const d = Math.hypot(x, z - 4); st.x = x - x / d * 2.2; st.z = z - (z - 4) / d * 2.2;
 }
@@ -762,7 +765,7 @@ const ACTS = {
   vang:   { label: "Đốt vàng mã", gain: 5, cd: 4000, verb: "đốt vàng mã", x: -6.5, z: 9, r: 3.4 },
   den:    { label: "Thả đèn hoa đăng", gain: 4, cd: 1200, verb: "thả đèn hoa đăng", x: 7, z: -8.4, r: 2.8 }
 };
-for (const st of STALLS) ACTS[st.id] = { label: st.label + " (tích phước)", gain: st.gain, cd: 5000, verb: st.verb, x: st.x, z: st.z, r: 2.6, eat: st.ic };
+for (const st of STALLS) ACTS[st.id] = { label: st.label + " (tích phước)", gain: st.gain, cd: st.cd || 5000, verb: st.verb, x: st.x, z: st.z, r: 2.6, eat: st.ic };
 function playEffect(kind, from) {
   const now = performance.now();
   if (ACTS[kind] && ACTS[kind].eat) { const w = from || player; floatText(ACTS[kind].eat + " Ngon!", w.x !== undefined ? w.x : player.x, 3.1, w.z !== undefined ? w.z : player.z, "#ffe9a8"); }

@@ -180,3 +180,14 @@ Quầy đồ ăn đặt trong sân Điện Diêm La. Ăn ở đây được tíc
 `update`: hơi nóng bay, đèn lồng đung đưa nhẹ.
 
 Thêm `window.__scenesSelfTest(THREE)` tạo thử phòng thờ và 5 quầy, trả `{ ok, rows: [{name, meshes, tris}] }`.
+
+## Việc 19: Bàn buffet rau củ quả
+
+Thêm loại mới `"buffet"` vào `window.makeFoodStall(THREE, type)` trong `src/online/scenes.js` (giữ nguyên 5 loại cũ, không đổi API). **Không sửa file nào khác**, kể cả `BANG-PHAN-CONG.md` (Claude cập nhật).
+
+- Một **bàn buffet dài** kiểu tiệc chay: rộng khoảng **4.8 m** (theo trục X), sâu 1.3 m, mặt bàn cao ~0.9 m, khăn trải bàn đỏ hoặc vàng có diềm, phía sau có giá kệ 2 tầng thấp. Mặt trước nhìn hướng **+Z**, gốc ở đất (y = 0), tâm bàn ở x = 0.
+- Bày nhiều **trái cây**: dưa hấu bổ đôi ruột đỏ, nải chuối vàng, chùm nho tím, cam, thanh long hồng, xoài. Và **rau củ**: cà rốt, bắp cải, cà chua, dưa leo, bí ngô nhỏ, ngô. Đặt trên khay hoặc đĩa tròn, nhiều màu tươi.
+- Bảng hiệu phía trên (CanvasTexture): **BUFFET RAU CỦ QUẢ**, chữ to dễ đọc, có thêm dòng nhỏ "Ăn chay tích phước".
+- Chồng đĩa sạch ở một đầu bàn, vài cái muỗng gắp.
+- `update(dt, time)`: vài món nhún nhẹ hoặc lấp lánh cho vui mắt.
+- Tối đa **90 mesh**; dùng chung geometry/material (nhiều quả giống nhau thì dùng chung). Cập nhật `__scenesSelfTest` thêm dòng `buffet`.
