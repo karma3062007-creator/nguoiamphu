@@ -48,6 +48,8 @@ Ai cũng được sửa file này (`BANG-PHAN-CONG.md`) để cập nhật trạ
 | 19 | Bàn buffet rau củ quả (`makeFoodStall("buffet")`) | Codex | Xong | [codex.md](codex.md) |
 | 20 | Trò chơi công viên: xích đu, đu quay, tàu lượn + cổng (`src/online/rides.js`) | Codex | Xong | [codex.md](codex.md) |
 | 21 | Mở rộng bản đồ: Công viên Âm Phủ phía nam, lên/xuống trò chơi, camera, đồng bộ người ngồi | Claude | Xong | |
+| 22 | Quầy bắn súng hội chợ: quầy, bia di động, súng (`src/online/booth.js`) | Codex | Xong | [codex.md](codex.md) |
+| 23 | Chơi bắn súng: ngắm, bắn, tính điểm, cộng công đức | Claude | Xong | |
 | 11 | Máy chủ riêng (server.js) để đưa lên web ngoài Claude, giao diện điện thoại dọc/ngang | Claude | Xong | [../DUA-LEN-WEB.md](../DUA-LEN-WEB.md) |
 
 ## Quy tắc chung
@@ -87,3 +89,5 @@ Ai cũng được sửa file này (`BANG-PHAN-CONG.md`) để cập nhật trạ
 - 2026-11-04 · Claude · Ghép `scenes.js` của Codex (việc 17): self-test trong trình duyệt đạt (phòng 127 mesh, quầy 35–45 mesh), xem tận mắt phòng thờ và quầy ăn. Giảm độ sáng đèn phòng thờ cho màu ấm hơn.
 - 2026-11-04 · Claude · Ghép bàn buffet của Codex (việc 19, 88 mesh): đặt cạnh Vọng Hương Đài, ăn +8 công đức, chờ 8 giây. Thêm ảnh `14-kiep-dau-thai.jpg` để xem trước 14 hình đầu thai.
 - 2026-11-04 · Claude · Ghép `rides.js` của Codex (việc 20): self-test r128 đạt (xích đu 41, đu quay 121, tàu lượn 138, cổng 28 mesh). Xong việc 21: khu Công viên Âm Phủ 60×47 m phía nam (san phẳng đất, dọn dung nham/núi đao, lối đi qua Quỷ Môn Quan), bấm E để lên/xuống trò, +2 công đức mỗi lần lên (chờ 8 giây), camera đi theo, người khác thấy mình ngồi đúng ghế.
+- 2026-11-05 · Codex · Xong việc 22: `booth.js` quầy bắn súng hội chợ (14 bia: 5 bia tròn, 5 vịt chạy ngang, 4 đầu lâu nhô lên), súng ngắm theo chuột, 104 mesh.
+- 2026-11-05 · Claude · Ghép `booth.js` (self-test đạt, 104 mesh, 4.570 tam giác). Xong việc 23: quầy đặt giữa công viên, bấm E cầm súng, 12 viên / 30 giây, bấm hoặc chạm vào bia để bắn, hồng tâm ×3, vòng giữa ×2; hết đạn/giờ được +1 công đức mỗi 25 điểm (tối đa 15), lưu kỷ lục. Đã thử bắn trúng hồng tâm +90, kết thúc được +7.

@@ -26,6 +26,10 @@ button { font-family: var(--body); }
 
 /* HUD */
 .hud { position: absolute; z-index: 3; }
+.shoot { left: 50%; transform: translateX(-50%); bottom: calc(26px + env(safe-area-inset-bottom, 0px)); display: flex; flex-wrap: wrap; justify-content: center; align-items: center; gap: 6px 14px; max-width: calc(100vw - 32px); border-radius: 16px; font-size: .92rem; white-space: nowrap; }
+.shoot #sh-ammo { font-style: normal; letter-spacing: 1px; color: #ff6a4a; }
+.shoot .btn { padding: 4px 12px; }
+@media (pointer: coarse) { .shoot { bottom: calc(132px + env(safe-area-inset-bottom, 0px)); } }
 .tl { top: calc(10px + env(safe-area-inset-top, 0px)); left: max(10px, env(safe-area-inset-left, 0px)); width: min(270px, calc(100% - 20px)); }
 .tr { top: calc(10px + env(safe-area-inset-top, 0px)); right: max(10px, env(safe-area-inset-right, 0px)); display: flex; gap: 6px; flex-wrap: wrap; justify-content: flex-end; max-width: 50%; }
 .tr .btn { padding: 7px 10px; font-size: .78rem; }
@@ -280,6 +284,7 @@ h2 { font-size: 1.8rem; color: var(--gold); }
   </div>
   <div class="hud prompt" id="prompt" hidden></div>
   <div class="hud toast" id="toast" hidden></div>
+  <div class="hud shoot card" id="shoot" hidden><b>Bắn súng trúng tâm</b><span>Đạn <i id="sh-ammo"></i></span><span>Điểm <b id="sh-score">0</b></span><span id="sh-time"></span><button class="btn ghost" type="button" id="sh-quit">Thôi</button></div>
   <div class="hud help" id="help" hidden>WASD / mũi tên: đi · Kéo chuột: xoay góc nhìn · Lăn chuột: gần xa · E: tương tác · Space: nhảy · G: cầm gậy</div>
   <div class="hud stick" id="stick" hidden><i id="knob"></i></div>
   <button class="hud actbtn" id="actbtn" type="button" hidden>Tương tác</button>
@@ -2177,6 +2182,247 @@ h2 { font-size: 1.8rem; color: var(--gold); }
   };
 })(typeof window !== 'undefined' ? window : globalThis);
 
+;
+(function (root) {
+  'use strict';
+
+  // Three r128. Metres, front = +Z; resources are shared per Three runtime.
+  var caches = new WeakMap(), TAU = Math.PI * 2;
+  var red = '#b52e35', gold = '#efbd59', dark = '#302937', cream = '#fff0cb';
+  function kit(T) {
+    if (caches.has(T)) return caches.get(T);
+    var triangle = new T.BufferGeometry();
+    triangle.setAttribute('position', new T.Float32BufferAttribute([-0.5, 0, 0, 0, -1, 0, 0.5, 0, 0], 3));
+    triangle.computeVertexNormals();
+    var geo = {
+      box: new T.BoxGeometry(1, 1, 1), ball: new T.SphereGeometry(1, 8, 6),
+      cyl: new T.CylinderGeometry(1, 1, 1, 8), cone: new T.ConeGeometry(1, 1, 8),
+      disc: new T.CircleGeometry(1, 32), plane: new T.PlaneGeometry(1, 1), triangle: triangle
+    }, mats = Object.create(null);
+    function mat(color, glow) {
+      var key = color + ':' + !!glow;
+      if (!mats[key]) mats[key] = glow ? new T.MeshBasicMaterial({ color: color }) :
+        new T.MeshStandardMaterial({ color: color, roughness: 0.7,
+          metalness: color === gold ? 0.45 : 0.08, flatShading: true });
+      return mats[key];
+    }
+    function add(p, shape, color, x, y, z, w, h, d) {
+      var m = new T.Mesh(geo[shape], typeof color === 'string' ? mat(color) : color);
+      m.position.set(x, y, z); m.scale.set(w, h, d);
+      m.castShadow = !m.material.isMeshBasicMaterial; m.receiveShadow = m.castShadow;
+      p.add(m); return m;
+    }
+    function pivot(p, x, y, z) {
+      var g = new T.Group(); g.position.set(x, y, z); p.add(g); return g;
+    }
+    function paint(kind) {
+      if (mats[kind]) return mats[kind];
+      var c = typeof document !== 'undefined' ? document.createElement('canvas') : null;
+      var ctx = c && c.getContext ? c.getContext('2d') : null;
+      if (!ctx) return mat(kind === 'rings' ? cream : red);
+      c.width = kind === 'sign' ? 1024 : 512;
+      c.height = kind === 'sign' ? 192 : 512;
+      if (kind === 'rings') {
+        [cream, red, cream, red, gold].forEach(function (color, i) {
+          ctx.fillStyle = color; ctx.beginPath();
+          ctx.arc(256, 256, 256 - i * 50, 0, TAU); ctx.fill();
+        });
+        ctx.strokeStyle = dark; ctx.lineWidth = 5;
+        ctx.beginPath(); ctx.moveTo(256, 10); ctx.lineTo(256, 54); ctx.stroke();
+      } else if (kind === 'sign') {
+        ctx.fillStyle = red; ctx.fillRect(0, 0, 1024, 192);
+        ctx.strokeStyle = gold; ctx.lineWidth = 10; ctx.strokeRect(8, 8, 1008, 176);
+        ctx.fillStyle = cream; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+        ctx.font = 'bold 64px Arial, sans-serif'; ctx.fillText('BẮN SÚNG TRÚNG TÂM', 512, 72, 960);
+        ctx.fillStyle = gold; ctx.font = '30px Arial, sans-serif';
+        ctx.fillText('Trúng hồng tâm, tích công đức', 512, 139, 960);
+      } else {
+        ctx.fillStyle = dark; ctx.fillRect(0, 0, 512, 512);
+        ctx.strokeStyle = '#58404a'; ctx.lineWidth = 3;
+        for (var y = 0; y < 576; y += 64) {
+          for (var x = 0; x < 576; x += 64) {
+            ctx.beginPath(); ctx.moveTo(x, y - 22); ctx.lineTo(x + 22, y);
+            ctx.lineTo(x, y + 22); ctx.lineTo(x - 22, y); ctx.closePath(); ctx.stroke();
+          }
+        }
+      }
+      var tex = new T.CanvasTexture(c); tex.encoding = T.sRGBEncoding;
+      mats[kind] = new T.MeshBasicMaterial({ map: tex }); return mats[kind];
+    }
+    var k = { geo: geo, mat: mat, add: add, pivot: pivot, paint: paint };
+    caches.set(T, k); return k;
+  }
+
+  root.makeShootingBooth = function (T) {
+    var k = kit(T), g = new T.Group(), targets = [], states = [], bulbs = [], solids = [];
+    var clock = 0, travel = 0, flashLeft = 0, recoilLeft = 0;
+    g.name = 'shooting-booth';
+    k.add(g, 'box', dark, 0, 0.06, -0.25, 7, 0.12, 4.5);
+    k.add(g, 'box', red, 0, 0.51, 1.5, 6.8, 1.02, 0.7);
+    k.add(g, 'box', '#794439', 0, 1.08, 1.5, 7, 0.16, 0.95);
+    k.add(g, 'box', gold, 0, 0.85, 1.86, 6.8, 0.07, 0.035);
+    // Overlapping collision circles cover the counter and the back wall.
+    for (var i = 0; i < 9; i++) {
+      solids.push({ x: -3.1 + i * 0.775, z: 1.5, r: 0.57 });
+      solids.push({ x: -3.1 + i * 0.775, z: -2.27, r: 0.5 });
+    }
+    [-1, 1].forEach(function (s) {
+      [-2.2, 1.65].forEach(function (z) {
+        k.add(g, 'box', red, s * 3.3, 1.9, z, 0.16, 3.8, 0.16);
+        solids.push({ x: s * 3.3, z: z, r: 0.26 });
+      });
+      // Gold bottle and red lantern prizes, outside the target lanes.
+      k.add(g, 'ball', gold, s * 2.96, 1.8, -1.95, 0.18, 0.27, 0.17);
+      k.add(g, 'cyl', gold, s * 2.96, 2.1, -1.95, 0.08, 0.18, 0.08);
+      k.add(g, 'ball', red, s * 2.98, 2.85, -1.95, 0.21, 0.29, 0.18);
+      k.add(g, 'cone', gold, s * 2.98, 2.47, -1.95, 0.05, 0.22, 0.05);
+    });
+    k.add(g, 'plane', k.paint('wall'), 0, 1.94, -2.34, 6.55, 3.62, 1);
+    for (i = 0; i < 3; i++) {
+      k.add(g, 'box', gold, 0, 0.77 + i * 0.93, -1.91, 5.55, 0.06, 0.19);
+    }
+    for (i = 0; i < 10; i++) {
+      var color = i % 2 ? gold : red, x = -3.24 + i * 0.72;
+      k.add(g, 'box', color, x, 3.83, -0.25, 0.72, 0.15, 4.5);
+      k.add(g, 'triangle', color, x, 3.76, 2.01, 0.72, 0.25, 1);
+    }
+    k.add(g, 'plane', k.paint('sign'), 0, 4.12, 1.99, 5.7, 0.88, 1);
+    for (i = 0; i < 16; i++) {
+      // String of bulbs continues around both side edges of the canopy.
+      var bx = i < 10 ? -3.24 + i * 0.72 : (i < 13 ? -3.5 : 3.5);
+      var bz = i < 10 ? 2.04 : 0.9 - (i % 3) * 1.35;
+      bulbs.push(k.add(g, 'ball', k.mat(i % 2 ? cream : gold, true), bx, 3.73, bz, 0.06, 0.06, 0.06));
+    }
+    function target(kind, x, y, r, points) {
+      var obj = k.pivot(g, x, y, -1.72);
+      obj.name = 'booth-' + kind + '-' + targets.length;
+      targets.push({ obj: obj, kind: kind, points: points, r: r });
+      states.push({ x: x, y: y, cooldown: 0, up: true });
+      return obj;
+    }
+    for (i = 0; i < 5; i++) {
+      var ring = target('ring', (i - 2) * 1.08, 3.02, 0.37, 30);
+      k.add(ring, 'disc', k.paint('rings'), 0, 0, 0, 0.37, 0.37, 1);
+    }
+    for (i = 0; i < 5; i++) {
+      var duck = target('duck', (i - 2) * 0.97, 2.07, 0.29, 20);
+      k.add(duck, 'ball', i % 2 ? cream : gold, 0, -0.035, 0, 0.28, 0.19, 0.10);
+      k.add(duck, 'ball', gold, 0.12, 0.17, 0.015, 0.14, 0.14, 0.10);
+      k.add(duck, 'cone', red, 0.29, 0.14, 0.02, 0.08, 0.18, 0.07).rotation.z = -Math.PI / 2;
+      k.add(duck, 'ball', dark, 0.14, 0.19, 0.11, 0.025, 0.032, 0.015);
+    }
+    for (i = 0; i < 4; i++) {
+      var skull = target('skull', (i - 1.5) * 1.3, 1.2, 0.27, 50);
+      k.add(skull, 'ball', cream, 0, 0.02, 0, 0.27, 0.25, 0.13);
+      k.add(skull, 'ball', dark, -0.095, 0.045, 0.12, 0.055, 0.065, 0.025);
+      k.add(skull, 'ball', dark, 0.095, 0.045, 0.12, 0.055, 0.065, 0.025);
+      k.add(skull, 'box', red, 0, -0.11, 0.13, 0.12, 0.035, 0.025);
+    }
+    // Gun's local forward axis is -Z. Recoil lives below the aiming pivot.
+    var gun = k.pivot(g, 0, 1.37, 1.65), body = k.pivot(gun, 0, 0, 0);
+    gun.name = 'booth-rifle';
+    k.add(body, 'box', '#794439', 0, -0.045, 0.19, 0.15, 0.18, 0.64);
+    k.add(body, 'box', '#794439', 0, -0.07, -0.26, 0.12, 0.13, 0.48);
+    k.add(body, 'cyl', dark, 0, 0, -0.42, 0.045, 0.92, 0.045).rotation.x = Math.PI / 2;
+    k.add(body, 'box', gold, 0, 0.07, -0.78, 0.035, 0.08, 0.035);
+    k.add(body, 'box', dark, 0, -0.16, 0, 0.055, 0.15, 0.10);
+    var flash = k.add(body, 'cone', k.mat('#ffe59a', true), 0, 0, -0.99, 0.12, 0.25, 0.12);
+    flash.rotation.x = -Math.PI / 2; flash.visible = false;
+    var aimPoint = new T.Vector3(), forward = new T.Vector3(0, 0, -1);
+    function isUp(i) { return !!(states[i] && states[i].up); }
+    function hit(i, local) {
+      if (!isUp(i)) return;
+      states[i].cooldown = 1.2; states[i].up = false;
+    }
+    function update(dt, time, active) {
+      var step = Number.isFinite(dt) ? Math.max(0, dt) : 0;
+      clock = Number.isFinite(time) ? time : clock + step;
+      travel = (travel + step * (active ? 1.25 : 0.85)) % (TAU * 10);
+      flashLeft = Math.max(0, flashLeft - step); recoilLeft = Math.max(0, recoilLeft - step);
+      flash.visible = flashLeft > 0;
+      body.position.z = 0.11 * recoilLeft / 0.16;
+      for (var j = 0; j < targets.length; j++) {
+        var t = targets[j], s = states[j], tilt = 0;
+        if (s.cooldown > 0) {
+          s.cooldown = Math.max(0, s.cooldown - step);
+          tilt = Math.min(1, (1.2 - s.cooldown) / 0.14, s.cooldown / 0.2) * Math.PI * 0.55;
+        }
+        t.obj.rotation.x = -tilt; t.obj.rotation.z = 0;
+        t.obj.position.y = s.y; t.obj.visible = true;
+        if (t.kind === 'ring') {
+          t.obj.rotation.z = j % 2 ? Math.sin(clock * 0.7 + j) * 0.18 : clock * 0.18;
+        } else if (t.kind === 'duck') {
+          // A whole row shuttles along the rail without crossing or teleporting.
+          t.obj.position.x = s.x + Math.sin(travel) * 0.48;
+        } else {
+          var lift = Math.max(0, Math.min(1, (Math.sin(travel * 0.9 + j * 1.7) + 0.15) * 3));
+          t.obj.position.y = s.y - (1 - lift) * 0.51;
+          t.obj.visible = lift > 0.01;
+          s.up = s.cooldown === 0 && lift > 0.95;
+        }
+        if (t.kind !== 'skull') s.up = s.cooldown === 0;
+      }
+      for (j = 0; j < bulbs.length; j++) {
+        bulbs[j].scale.setScalar(active && (j + Math.floor(clock * 7)) % 3 === 0 ? 0.085 : 0.06);
+      }
+    }
+    update(0, 0, false);
+    return {
+      group: g, name: 'Bắn súng hội chợ', board: [{ x: 0, z: 2.8 }], solids: solids,
+      view: { pos: { x: 0, y: 1.65, z: 3.45 }, look: { x: 0, y: 2.12, z: -1.72 } },
+      gun: gun, targets: targets,
+      aim: function (x, y, z) {
+        if (!Number.isFinite(x) || !Number.isFinite(y) || !Number.isFinite(z)) return;
+        // Updating ancestors is necessary when the caller moved/rotated the booth.
+        g.updateWorldMatrix(true, false);
+        aimPoint.set(x, y, z); g.worldToLocal(aimPoint); aimPoint.sub(gun.position);
+        if (aimPoint.lengthSq() > 1e-12) gun.quaternion.setFromUnitVectors(forward, aimPoint.normalize());
+      },
+      shoot: function () { flashLeft = 0.08; recoilLeft = 0.16; flash.visible = true; body.position.z = 0.11; },
+      hit: hit, isUp: isUp, update: update
+    };
+  };
+
+  root.__boothSelfTest = function (T) {
+    var booth = root.makeShootingBooth(T), meshes = 0, tris = 0, lights = 0;
+    function assert(ok, msg) { if (!ok) throw new Error('Booth self-test: ' + msg); }
+    assert(booth.group.isGroup && booth.gun.isObject3D && booth.targets.length >= 12, 'API');
+    assert(booth.isUp(0), 'ring initially down');
+    booth.hit(0); assert(!booth.isUp(0), 'hit did not disable target');
+    booth.update(0.1, 0.1, true); assert(!booth.isUp(0), 'target recovered early');
+    booth.update(1.9, 2, true); assert(booth.isUp(0), 'target did not recover');
+    booth.group.position.set(3, 0, -7); booth.group.rotation.y = 0.4;
+    var point = new T.Vector3(0, 2.1, -1.72);
+    booth.group.updateWorldMatrix(true, false); booth.group.localToWorld(point);
+    booth.aim(point.x, point.y, point.z); booth.shoot();
+    for (var frame = 0; frame < 240; frame++) {
+      booth.update(1 / 60, 2 + frame / 60, true);
+      booth.targets.forEach(function (t, i) {
+        assert(t.obj.isObject3D && t.obj.parent === booth.group && t.r > 0 && Number.isFinite(t.points), 'target ' + i);
+        assert(typeof booth.isUp(i) === 'boolean', 'isUp ' + i);
+      });
+    }
+    booth.hit(-1); booth.hit(999); booth.update(); booth.update(NaN, NaN); booth.aim(NaN, 0, 0);
+    booth.group.updateMatrixWorld(true);
+    booth.group.traverse(function (o) {
+      assert(o.matrixWorld.elements.every(Number.isFinite), 'nonfinite transform');
+      if (o.isPointLight) lights++;
+      if (!o.isMesh) return;
+      meshes++; var p = o.geometry.attributes.position;
+      assert(p && p.array.every(Number.isFinite), 'nonfinite vertices');
+      tris += (o.geometry.index ? o.geometry.index.count : p.count) / 3;
+    });
+    booth.board.forEach(function (b) {
+      booth.solids.forEach(function (s) {
+        assert(Number.isFinite(s.x + s.z + s.r) && s.r > 0, 'invalid solid');
+        assert(Math.hypot(b.x - s.x, b.z - s.z) > s.r + 0.3, 'boarding obstructed');
+      });
+    });
+    assert(meshes <= 110 && lights <= 2, 'budget exceeded: ' + meshes);
+    return { ok: true, meshes: meshes, tris: Math.round(tris), targets: booth.targets.length };
+  };
+})(typeof window !== 'undefined' ? window : globalThis);
+
 </script>
 <script>
 /* Cảnh trang trí dùng three.js r128; không tải tài nguyên bên ngoài. */
@@ -2784,6 +3030,77 @@ const rideOf = i => rides.find(r => r.idx === i);
 const seatPos = new THREE.Vector3(), seatQ = new THREE.Quaternion(), seatS = new THREE.Vector3();
 function seatWorld(ride, i) { const st = ride.r.seats[i]; st.updateWorldMatrix(true, false); st.matrixWorld.decompose(seatPos, seatQ, seatS); return seatPos; }
 let riding = null;   // { ride, seat } while sitting on a ride
+// Quầy bắn súng hội chợ (booth.js của Codex): đứng trước quầy bấm E, bấm hoặc chạm vào bia để bắn
+const BOOTH_SPOT = { x: 0, z: 53, ry: Math.PI };   // mặt quầy nhìn về phía cổng công viên
+let booth = null, boothBoard = [], boothObjs = [];
+try {
+  if (window.makeShootingBooth) {
+    const b = window.makeShootingBooth(THREE);
+    if (b && b.group && Array.isArray(b.targets) && b.targets.length && b.view) {
+      booth = b; b.group.position.set(BOOTH_SPOT.x, 0, BOOTH_SPOT.z); b.group.rotation.y = BOOTH_SPOT.ry; scene.add(b.group); b.group.updateMatrixWorld(true);
+      const c = Math.cos(BOOTH_SPOT.ry), sn = Math.sin(BOOTH_SPOT.ry), toW = o => ({ x: BOOTH_SPOT.x + o.x * c + o.z * sn, z: BOOTH_SPOT.z - o.x * sn + o.z * c });
+      (b.solids || []).forEach(o => { const w = toW(o); solids.push({ x: w.x, z: w.z, r: o.r }); });
+      boothBoard = (b.board && b.board.length ? b.board : [{ x: 0, z: 2.4 }]).map(toW);
+      boothObjs = b.targets.map(tg => tg.obj);
+    }
+  }
+} catch (e) { console.warn("booth", e); booth = null; }
+const SHOOT_AMMO = 12, SHOOT_TIME = 30000;
+let shooting = null;   // { end, ammo, shots, score, hits, last } while holding the gun
+const shootRay = new THREE.Raycaster(), shootNdc = new THREE.Vector2(), shootV = new THREE.Vector3(), shootL = new THREE.Vector3(), shootCam = new THREE.Vector3();
+function startShoot() {
+  if (!booth || shooting || riding) return;
+  const b = boothBoard[0]; player.x = b.x; player.z = b.z; player.ry = BOOTH_SPOT.ry + Math.PI;
+  for (const k in keys) keys[k] = false;
+  shooting = { end: performance.now() + SHOOT_TIME, ammo: SHOOT_AMMO, shots: 0, score: 0, hits: 0, last: 0 };
+  if (myAv) myAv.root.visible = false;   // camera đứng ở chỗ nhân vật, giấu đi cho khỏi che bia
+  canvas.style.cursor = "crosshair"; $("#shoot").hidden = false; renderShoot(); sfx("up"); presenceNow(true);
+  addLog(`Bạn cầm súng ở <b>${esc(booth.name || "Bắn súng hội chợ")}</b>: ${SHOOT_AMMO} viên, ${SHOOT_TIME / 1000} giây. Bấm hoặc chạm vào bia để bắn, trúng hồng tâm được gấp ba.`);
+}
+function endShoot() {
+  if (!shooting) return; const s = shooting; shooting = null;
+  $("#shoot").hidden = true; canvas.style.cursor = ""; if (myAv) myAv.root.visible = true;
+  const best = Math.max(s.score, +store.get("apo-shoot-best", 0) || 0); store.set("apo-shoot-best", best);
+  const g = Math.min(15, Math.floor(s.score / 25));
+  if (g > 0) { gain(g); floatText(`+${g} công đức`, player.x, 2.7, player.z); sfx("up"); }
+  toast(s.shots ? `Bắn được ${s.score} điểm${g ? ` · +${g} công đức` : ""}` : "Cất súng");
+  if (s.shots) addLog(`Bắn xong: <b>${s.score}</b> điểm, trúng ${s.hits}/${s.shots} viên${g ? `, được <b>+${g}</b> công đức` : ""}. Kỷ lục của bạn: ${best} điểm.`);
+}
+let shootShown = "";
+function renderShoot() {
+  const s = shooting; if (!s) return;
+  const txt = [s.ammo, s.score, Math.max(0, Math.ceil((s.end - performance.now()) / 1000))];
+  const key = txt.join("|"); if (key === shootShown) return; shootShown = key;
+  $("#sh-ammo").textContent = "●".repeat(s.ammo) + "○".repeat(SHOOT_AMMO - s.ammo);
+  $("#sh-score").textContent = txt[1]; $("#sh-time").textContent = txt[2] + " giây";
+}
+function aimRay(cx, cy) {
+  const r = canvas.getBoundingClientRect();
+  shootNdc.set((cx - r.left) / r.width * 2 - 1, -((cy - r.top) / r.height) * 2 + 1);
+  shootRay.setFromCamera(shootNdc, camera);
+}
+function aimAt(cx, cy) { if (!shooting || !booth.aim) return; aimRay(cx, cy); shootRay.ray.at(5, shootV); try { booth.aim(shootV.x, shootV.y, shootV.z); } catch (e) {} }
+function shootAt(cx, cy) {
+  const s = shooting; if (!s || s.ammo <= 0) return; const now = performance.now();
+  if (now - s.last < 250) return; s.last = now;
+  aimAt(cx, cy); aimRay(cx, cy); s.ammo--; s.shots++;
+  try { booth.shoot && booth.shoot(); } catch (e) {}
+  sfx("bang");
+  for (const h of shootRay.intersectObjects(boothObjs, true)) {
+    let o = h.object, i = -1; while (o && (i = boothObjs.indexOf(o)) < 0) o = o.parent;
+    if (i < 0 || (booth.isUp && !booth.isUp(i))) continue;
+    const tg = booth.targets[i]; shootL.copy(h.point); tg.obj.worldToLocal(shootL);
+    const d = Math.hypot(shootL.x, shootL.y) / (tg.r || 1);
+    let pts = tg.points || 20, label = "";
+    if (tg.kind === "ring") { if (d < .25) { pts *= 3; label = "Hồng tâm! "; } else if (d < .6) pts *= 2; }
+    s.score += pts; s.hits++;
+    try { booth.hit(i, shootL); } catch (e) {}
+    floatText(`${label}+${pts}`, h.point.x, h.point.y + .25, h.point.z, label ? "#ffe066" : "#fff4e0");
+    sfx(label ? "up" : "ting");
+    break;
+  }
+  renderShoot(); if (s.ammo <= 0) setTimeout(endShoot, 800);
+}
 function inHall(x, z) { return Math.abs(x) < 12.6 && z < -18 && z > -32; }
 function walkable(x, z) {
   const onBridge = Math.abs(x) < 1.9 && z > -15.6 && z < -8.4;
@@ -2844,6 +3161,8 @@ function sfx(kind, vol = 1) {
   if (kind === "den") { tone(523, .5, "sine", .1 * vol); tone(784, .7, "sine", .08 * vol, .12); }
   if (kind === "bonk") { tone(340, .14, "square", .22 * vol, 0, 90); noise(.09, .45 * vol, 2600); }
   if (kind === "jump") tone(300, .18, "triangle", .12 * vol, 0, 640);
+  if (kind === "bang") { noise(.16, .55 * vol, 1700); tone(160, .12, "square", .12 * vol, 0, 55); }
+  if (kind === "ting") { tone(1320, .25, "triangle", .14 * vol); tone(1760, .3, "sine", .09 * vol, .06); }
   if (kind.startsWith("an_")) { tone(420, .08, "square", .08 * vol); tone(520, .08, "square", .08 * vol, .14); tone(660, .2, "triangle", .1 * vol, .3); }
   if (kind === "up") { [523, 659, 784, 1046].forEach((f, i) => tone(f, .5, "triangle", .12, i * .1)); }
 }
@@ -3138,7 +3457,7 @@ $("#charf").addEventListener("submit", e => {
 });
 function enterWorld() {
   const was = playing; playing = true; show(null); setHud(true); renderMerit(); renderServers();
-  if (!was) { player.x = (Math.random() - .5) * 4; player.z = 13; player.ry = Math.PI; cam.yaw = cam.tYaw = 0; addLog(`Chào <b>${esc(me.name)}</b>! Bạn đang ở ${esc(svName(sv))}. Lại gần mõ, đỉnh hương, chuông, lò vàng mã hoặc bến đèn rồi bấm E. Đi thẳng qua Quỷ Môn Quan về phía nam là tới <b>Công viên Âm Phủ</b> có xích đu, đu quay, tàu lượn.`, true); }
+  if (!was) { player.x = (Math.random() - .5) * 4; player.z = 13; player.ry = Math.PI; cam.yaw = cam.tYaw = 0; addLog(`Chào <b>${esc(me.name)}</b>! Bạn đang ở ${esc(svName(sv))}. Lại gần mõ, đỉnh hương, chuông, lò vàng mã hoặc bến đèn rồi bấm E. Đi thẳng qua Quỷ Môn Quan về phía nam là tới <b>Công viên Âm Phủ</b> có xích đu, đu quay, tàu lượn và quầy bắn súng.`, true); }
   others.forEach(o => o.av.dispose()); others.clear(); syncPeers();
   presenceNow(true); canvas.focus({ preventScroll: true });
 }
@@ -3231,6 +3550,7 @@ addEventListener("keydown", e => {
   if (!playing || (e.target.closest && e.target.closest("input, textarea"))) { if (e.key === "Escape") e.target.blur && e.target.blur(); return; }
   if (KM[e.code]) { keys[KM[e.code]] = true; e.preventDefault(); }
   if (e.code === "KeyE" && !e.repeat) { e.preventDefault(); interact(); }
+  if (e.code === "Escape" && shooting) { e.preventDefault(); endShoot(); }
   if (e.code === "Space") { e.preventDefault(); if (!e.repeat) jump(); }
   if (e.code === "Enter") { e.preventDefault(); $("#chat-in").focus(); }
   if (e.code === "KeyG" && !e.repeat) { e.preventDefault(); setArmed(!armed); }
@@ -3238,8 +3558,8 @@ addEventListener("keydown", e => {
 addEventListener("keyup", e => { if (KM[e.code]) keys[KM[e.code]] = false; });
 addEventListener("blur", () => { for (const k in keys) keys[k] = false; });
 let drag = null;
-canvas.addEventListener("pointerdown", e => { canvas.focus({ preventScroll: true }); drag = { x: e.clientX, y: e.clientY, id: e.pointerId }; canvas.setPointerCapture(e.pointerId); });
-canvas.addEventListener("pointermove", e => { if (!drag || drag.id !== e.pointerId) return; cam.tYaw -= (e.clientX - drag.x) * .006; cam.pitch = clamp(cam.pitch + (e.clientY - drag.y) * .004, .12, 1.2); drag.x = e.clientX; drag.y = e.clientY; });
+canvas.addEventListener("pointerdown", e => { canvas.focus({ preventScroll: true }); if (shooting) { shootAt(e.clientX, e.clientY); return; } drag = { x: e.clientX, y: e.clientY, id: e.pointerId }; canvas.setPointerCapture(e.pointerId); });
+canvas.addEventListener("pointermove", e => { if (shooting) { aimAt(e.clientX, e.clientY); return; } if (!drag || drag.id !== e.pointerId) return; cam.tYaw -= (e.clientX - drag.x) * .006; cam.pitch = clamp(cam.pitch + (e.clientY - drag.y) * .004, .12, 1.2); drag.x = e.clientX; drag.y = e.clientY; });
 canvas.addEventListener("pointerup", () => drag = null); canvas.addEventListener("pointercancel", () => drag = null);
 canvas.addEventListener("wheel", e => { e.preventDefault(); cam.dist = clamp(cam.dist + e.deltaY * .01, 4, 18); }, { passive: false });
 // joystick
@@ -3250,9 +3570,10 @@ const endJoy = () => { joy = null; knob.style.transform = ""; };
 stick.addEventListener("pointerup", endJoy); stick.addEventListener("pointercancel", endJoy);
 function moveJoy(e) { const r = stick.getBoundingClientRect(); let dx = (e.clientX - r.left - r.width / 2) / (r.width / 2), dy = (e.clientY - r.top - r.height / 2) / (r.height / 2); const l = Math.hypot(dx, dy); if (l > 1) { dx /= l; dy /= l; } joy.x = dx; joy.y = dy; knob.style.transform = `translate(${dx * 36}px, ${dy * 36}px)`; }
 $("#actbtn").addEventListener("click", () => interact());
+$("#sh-quit").addEventListener("click", () => endShoot());
 $("#b-jump").addEventListener("pointerdown", e => { e.preventDefault(); jump(); });
 function jump() {
-  if (!playing || riding) return; const now = performance.now();
+  if (!playing || riding || shooting) return; const now = performance.now();
   if (now - jumpT0 < JUMP_T * 1000) return; // already in the air
   jumpT0 = now; myJump = ++actSeq; sfx("jump"); presenceNow(true);
 }
@@ -3275,12 +3596,14 @@ function leaveRide() {
 }
 function findNear() {
   if (riding) return { type: "leave", ride: riding.ride };
+  if (shooting) return { type: "shootEnd" };
   let best = null, bd = 1e9;
   // holding the stick: another player close by takes priority over everything else
   if (armed && !inHall(player.x, player.z)) {
     for (const [peer, o] of others) { const d = Math.hypot(player.x - o.x, player.z - o.z); if (d < 2.4 && d - 100 < bd && !inHall(o.x, o.z)) { bd = d - 100; best = { type: "bonk", peer, o }; } }
     if (best) return best;
   }
+  for (const b of boothBoard) { const d = Math.hypot(player.x - b.x, player.z - b.z); if (d < 2.6 && d < bd) { bd = d; best = { type: "shoot" }; } }
   for (const rd of rides) for (const b of rd.board) { const d = Math.hypot(player.x - b.x, player.z - b.z); if (d < 2.8 && d < bd) { bd = d; best = { type: "ride", ride: rd }; } }
   for (const k in ACTS) { const a = ACTS[k], d = Math.hypot(player.x - a.x, player.z - a.z); if (d < a.r && d < bd) { bd = d; best = { type: "act", k }; } }
   npcs.forEach(h => { const d = Math.hypot(player.x - h.x, player.z - h.z); const r = h === NPC_KING ? 6.5 : 2.6; if (d < r && d < bd) { bd = d; best = { type: "npc", h }; } });
@@ -3290,6 +3613,8 @@ function findNear() {
 function promptText(n) {
   if (!n) return "";
   if (n.type === "leave") return `<kbd>E</kbd>Xuống ${esc(n.ride.name)}`;
+  if (n.type === "shootEnd") return "";
+  if (n.type === "shoot") return `<kbd>E</kbd>Chơi bắn súng trúng tâm · ${SHOOT_AMMO} viên, càng trúng càng nhiều công đức`;
   if (n.type === "ride") return `<kbd>E</kbd>Lên ${esc(n.ride.name)} · +2 công đức`;
   if (n.type === "bonk") return `<kbd>E</kbd>Gõ đầu ${esc(n.o.name || "vong hồn")} · cả hai cùng mất 2 công đức`;
   if (n.type === "act") { const a = ACTS[n.k]; return `<kbd>E</kbd>${a.label} · +${a.gain} công đức`; }
@@ -3300,6 +3625,8 @@ function interact() {
   if (!playing) return; const n = nearT; const now = performance.now();
   if (n && n.type === "leave") { leaveRide(); return; }
   if (n && n.type === "ride") { boardRide(n.ride); return; }
+  if (n && n.type === "shootEnd") { endShoot(); return; }
+  if (n && n.type === "shoot") { startShoot(); return; }
   if (!n) { toast(armed ? "Lại gần một vong hồn khác để gõ đầu (trong Điện Diêm La thì cấm đánh nhau)" : "Lại gần mõ, đỉnh hương, chuông, lò vàng mã, bến đèn hoặc một nhân vật"); return; }
   if (n.type === "bonk") {
     if (now - lastBonk < 1000) return; lastBonk = now;
@@ -3335,7 +3662,7 @@ function interact() {
 const clock = new THREE.Clock(); let t = 0;
 const actBtn = $("#actbtn");
 // test hook, only when running on this computer
-if (location.hostname === "localhost") window.__apo = { player, others, interact, findNear, setArmed, reborn, endIntro, STALLS, walkable, cam, rides, boardRide, leaveRide, get riding() { return riding; }, get intro() { return intro; }, get merit() { return merit; } };
+if (location.hostname === "localhost") window.__apo = { player, others, interact, findNear, setArmed, reborn, endIntro, STALLS, walkable, cam, rides, boardRide, leaveRide, get riding() { return riding; }, booth, startShoot, endShoot, shootAt, get shooting() { return shooting; }, get intro() { return intro; }, get merit() { return merit; } };
 // big static meshes that can block the camera (collected once, after extras are built)
 const camRay = new THREE.Raycaster(), camDir = new THREE.Vector3(), camFrom = new THREE.Vector3();
 let camD = 9;
@@ -3356,11 +3683,13 @@ function frame() {
     rides.forEach(rd => { try { rd.r.update && rd.r.update(dt, t, rd.occ); } catch (e) {} });
   }
   if (parkGate && parkGate.update) parkGate.update(dt, t);
+  if (booth && booth.update) { try { booth.update(dt, t, !!shooting); } catch (e) {} }
+  if (shooting) { renderShoot(); if (now > shooting.end) endShoot(); }
   // player move
   if (playing && myAv) {
     let ix = (keys.r ? 1 : 0) - (keys.l ? 1 : 0), iz = (keys.f ? 1 : 0) - (keys.b ? 1 : 0);
     if (joy) { ix = joy.x; iz = -joy.y; }
-    if (riding) { ix = 0; iz = 0; }
+    if (riding || shooting) { ix = 0; iz = 0; }
     const il = Math.hypot(ix, iz);
     player.moving = il > .1;
     if (player.moving) {
@@ -3376,7 +3705,7 @@ function frame() {
     myAv.root.position.set(player.x, groundY(player.x, player.z) + jumpH((now - jumpT0) / 1000), player.z); myAv.root.rotation.set(0, player.ry, 0);
     if (riding) { const sp = seatWorld(riding.ride, riding.seat); myAv.root.position.copy(sp); myAv.root.quaternion.copy(seatQ); player.x = sp.x; player.z = sp.z; myAv.moving = false; }
     const n = findNear(); nearT = n; const pt = promptText(n); const pe = $("#prompt");
-    const al = n && n.type === "bonk" ? "Gõ!" : n && n.type === "leave" ? "Xuống" : n && n.type === "ride" ? "Lên" : "Tương tác"; if (actBtn.textContent !== al) actBtn.textContent = al;
+    const al = n && n.type === "bonk" ? "Gõ!" : n && n.type === "leave" ? "Xuống" : n && n.type === "ride" ? "Lên" : n && n.type === "shootEnd" ? "Thôi" : n && n.type === "shoot" ? "Bắn súng" : "Tương tác"; if (actBtn.textContent !== al) actBtn.textContent = al;
     if (pt !== pe.dataset.t) { pe.dataset.t = pt; pe.innerHTML = pt; } pe.hidden = !pt;
     presenceNow(false);
   }
@@ -3413,6 +3742,11 @@ function frame() {
   camera.position.set(fx + Math.sin(yaw) * Math.cos(pitch) * camD, fy + Math.sin(pitch) * camD, fz + Math.cos(yaw) * Math.cos(pitch) * camD);
   if (now < shakeUntil) { camera.position.x += (Math.random() - .5) * .3; camera.position.y += (Math.random() - .5) * .2; }
   camera.lookAt(fx, fy, fz);
+  if (shooting && booth) {
+    // camera ngay sau khẩu súng, nhìn thẳng vào vách bia
+    const v = booth.view; camera.position.copy(booth.group.localToWorld(shootCam.set(v.pos.x, v.pos.y, v.pos.z)));
+    booth.group.localToWorld(shootCam.set(v.look.x, v.look.y, v.look.z)); camera.lookAt(shootCam);
+  }
   if (intro && altar) {
     const k = (now - intro.t0) / 1000;
     myAv.root.position.copy(altar.seat).add(ALTAR); myAv.root.position.y += Math.sin(t * 2) * .04; myAv.root.rotation.y = 0;

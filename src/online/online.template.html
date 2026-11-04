@@ -26,6 +26,10 @@ button { font-family: var(--body); }
 
 /* HUD */
 .hud { position: absolute; z-index: 3; }
+.shoot { left: 50%; transform: translateX(-50%); bottom: calc(26px + env(safe-area-inset-bottom, 0px)); display: flex; flex-wrap: wrap; justify-content: center; align-items: center; gap: 6px 14px; max-width: calc(100vw - 32px); border-radius: 16px; font-size: .92rem; white-space: nowrap; }
+.shoot #sh-ammo { font-style: normal; letter-spacing: 1px; color: #ff6a4a; }
+.shoot .btn { padding: 4px 12px; }
+@media (pointer: coarse) { .shoot { bottom: calc(132px + env(safe-area-inset-bottom, 0px)); } }
 .tl { top: calc(10px + env(safe-area-inset-top, 0px)); left: max(10px, env(safe-area-inset-left, 0px)); width: min(270px, calc(100% - 20px)); }
 .tr { top: calc(10px + env(safe-area-inset-top, 0px)); right: max(10px, env(safe-area-inset-right, 0px)); display: flex; gap: 6px; flex-wrap: wrap; justify-content: flex-end; max-width: 50%; }
 .tr .btn { padding: 7px 10px; font-size: .78rem; }
@@ -280,6 +284,7 @@ h2 { font-size: 1.8rem; color: var(--gold); }
   </div>
   <div class="hud prompt" id="prompt" hidden></div>
   <div class="hud toast" id="toast" hidden></div>
+  <div class="hud shoot card" id="shoot" hidden><b>Bắn súng trúng tâm</b><span>Đạn <i id="sh-ammo"></i></span><span>Điểm <b id="sh-score">0</b></span><span id="sh-time"></span><button class="btn ghost" type="button" id="sh-quit">Thôi</button></div>
   <div class="hud help" id="help" hidden>WASD / mũi tên: đi · Kéo chuột: xoay góc nhìn · Lăn chuột: gần xa · E: tương tác · Space: nhảy · G: cầm gậy</div>
   <div class="hud stick" id="stick" hidden><i id="knob"></i></div>
   <button class="hud actbtn" id="actbtn" type="button" hidden>Tương tác</button>
@@ -780,6 +785,77 @@ const rideOf = i => rides.find(r => r.idx === i);
 const seatPos = new THREE.Vector3(), seatQ = new THREE.Quaternion(), seatS = new THREE.Vector3();
 function seatWorld(ride, i) { const st = ride.r.seats[i]; st.updateWorldMatrix(true, false); st.matrixWorld.decompose(seatPos, seatQ, seatS); return seatPos; }
 let riding = null;   // { ride, seat } while sitting on a ride
+// Quầy bắn súng hội chợ (booth.js của Codex): đứng trước quầy bấm E, bấm hoặc chạm vào bia để bắn
+const BOOTH_SPOT = { x: 0, z: 53, ry: Math.PI };   // mặt quầy nhìn về phía cổng công viên
+let booth = null, boothBoard = [], boothObjs = [];
+try {
+  if (window.makeShootingBooth) {
+    const b = window.makeShootingBooth(THREE);
+    if (b && b.group && Array.isArray(b.targets) && b.targets.length && b.view) {
+      booth = b; b.group.position.set(BOOTH_SPOT.x, 0, BOOTH_SPOT.z); b.group.rotation.y = BOOTH_SPOT.ry; scene.add(b.group); b.group.updateMatrixWorld(true);
+      const c = Math.cos(BOOTH_SPOT.ry), sn = Math.sin(BOOTH_SPOT.ry), toW = o => ({ x: BOOTH_SPOT.x + o.x * c + o.z * sn, z: BOOTH_SPOT.z - o.x * sn + o.z * c });
+      (b.solids || []).forEach(o => { const w = toW(o); solids.push({ x: w.x, z: w.z, r: o.r }); });
+      boothBoard = (b.board && b.board.length ? b.board : [{ x: 0, z: 2.4 }]).map(toW);
+      boothObjs = b.targets.map(tg => tg.obj);
+    }
+  }
+} catch (e) { console.warn("booth", e); booth = null; }
+const SHOOT_AMMO = 12, SHOOT_TIME = 30000;
+let shooting = null;   // { end, ammo, shots, score, hits, last } while holding the gun
+const shootRay = new THREE.Raycaster(), shootNdc = new THREE.Vector2(), shootV = new THREE.Vector3(), shootL = new THREE.Vector3(), shootCam = new THREE.Vector3();
+function startShoot() {
+  if (!booth || shooting || riding) return;
+  const b = boothBoard[0]; player.x = b.x; player.z = b.z; player.ry = BOOTH_SPOT.ry + Math.PI;
+  for (const k in keys) keys[k] = false;
+  shooting = { end: performance.now() + SHOOT_TIME, ammo: SHOOT_AMMO, shots: 0, score: 0, hits: 0, last: 0 };
+  if (myAv) myAv.root.visible = false;   // camera đứng ở chỗ nhân vật, giấu đi cho khỏi che bia
+  canvas.style.cursor = "crosshair"; $("#shoot").hidden = false; renderShoot(); sfx("up"); presenceNow(true);
+  addLog(`Bạn cầm súng ở <b>${esc(booth.name || "Bắn súng hội chợ")}</b>: ${SHOOT_AMMO} viên, ${SHOOT_TIME / 1000} giây. Bấm hoặc chạm vào bia để bắn, trúng hồng tâm được gấp ba.`);
+}
+function endShoot() {
+  if (!shooting) return; const s = shooting; shooting = null;
+  $("#shoot").hidden = true; canvas.style.cursor = ""; if (myAv) myAv.root.visible = true;
+  const best = Math.max(s.score, +store.get("apo-shoot-best", 0) || 0); store.set("apo-shoot-best", best);
+  const g = Math.min(15, Math.floor(s.score / 25));
+  if (g > 0) { gain(g); floatText(`+${g} công đức`, player.x, 2.7, player.z); sfx("up"); }
+  toast(s.shots ? `Bắn được ${s.score} điểm${g ? ` · +${g} công đức` : ""}` : "Cất súng");
+  if (s.shots) addLog(`Bắn xong: <b>${s.score}</b> điểm, trúng ${s.hits}/${s.shots} viên${g ? `, được <b>+${g}</b> công đức` : ""}. Kỷ lục của bạn: ${best} điểm.`);
+}
+let shootShown = "";
+function renderShoot() {
+  const s = shooting; if (!s) return;
+  const txt = [s.ammo, s.score, Math.max(0, Math.ceil((s.end - performance.now()) / 1000))];
+  const key = txt.join("|"); if (key === shootShown) return; shootShown = key;
+  $("#sh-ammo").textContent = "●".repeat(s.ammo) + "○".repeat(SHOOT_AMMO - s.ammo);
+  $("#sh-score").textContent = txt[1]; $("#sh-time").textContent = txt[2] + " giây";
+}
+function aimRay(cx, cy) {
+  const r = canvas.getBoundingClientRect();
+  shootNdc.set((cx - r.left) / r.width * 2 - 1, -((cy - r.top) / r.height) * 2 + 1);
+  shootRay.setFromCamera(shootNdc, camera);
+}
+function aimAt(cx, cy) { if (!shooting || !booth.aim) return; aimRay(cx, cy); shootRay.ray.at(5, shootV); try { booth.aim(shootV.x, shootV.y, shootV.z); } catch (e) {} }
+function shootAt(cx, cy) {
+  const s = shooting; if (!s || s.ammo <= 0) return; const now = performance.now();
+  if (now - s.last < 250) return; s.last = now;
+  aimAt(cx, cy); aimRay(cx, cy); s.ammo--; s.shots++;
+  try { booth.shoot && booth.shoot(); } catch (e) {}
+  sfx("bang");
+  for (const h of shootRay.intersectObjects(boothObjs, true)) {
+    let o = h.object, i = -1; while (o && (i = boothObjs.indexOf(o)) < 0) o = o.parent;
+    if (i < 0 || (booth.isUp && !booth.isUp(i))) continue;
+    const tg = booth.targets[i]; shootL.copy(h.point); tg.obj.worldToLocal(shootL);
+    const d = Math.hypot(shootL.x, shootL.y) / (tg.r || 1);
+    let pts = tg.points || 20, label = "";
+    if (tg.kind === "ring") { if (d < .25) { pts *= 3; label = "Hồng tâm! "; } else if (d < .6) pts *= 2; }
+    s.score += pts; s.hits++;
+    try { booth.hit(i, shootL); } catch (e) {}
+    floatText(`${label}+${pts}`, h.point.x, h.point.y + .25, h.point.z, label ? "#ffe066" : "#fff4e0");
+    sfx(label ? "up" : "ting");
+    break;
+  }
+  renderShoot(); if (s.ammo <= 0) setTimeout(endShoot, 800);
+}
 function inHall(x, z) { return Math.abs(x) < 12.6 && z < -18 && z > -32; }
 function walkable(x, z) {
   const onBridge = Math.abs(x) < 1.9 && z > -15.6 && z < -8.4;
@@ -840,6 +916,8 @@ function sfx(kind, vol = 1) {
   if (kind === "den") { tone(523, .5, "sine", .1 * vol); tone(784, .7, "sine", .08 * vol, .12); }
   if (kind === "bonk") { tone(340, .14, "square", .22 * vol, 0, 90); noise(.09, .45 * vol, 2600); }
   if (kind === "jump") tone(300, .18, "triangle", .12 * vol, 0, 640);
+  if (kind === "bang") { noise(.16, .55 * vol, 1700); tone(160, .12, "square", .12 * vol, 0, 55); }
+  if (kind === "ting") { tone(1320, .25, "triangle", .14 * vol); tone(1760, .3, "sine", .09 * vol, .06); }
   if (kind.startsWith("an_")) { tone(420, .08, "square", .08 * vol); tone(520, .08, "square", .08 * vol, .14); tone(660, .2, "triangle", .1 * vol, .3); }
   if (kind === "up") { [523, 659, 784, 1046].forEach((f, i) => tone(f, .5, "triangle", .12, i * .1)); }
 }
@@ -1134,7 +1212,7 @@ $("#charf").addEventListener("submit", e => {
 });
 function enterWorld() {
   const was = playing; playing = true; show(null); setHud(true); renderMerit(); renderServers();
-  if (!was) { player.x = (Math.random() - .5) * 4; player.z = 13; player.ry = Math.PI; cam.yaw = cam.tYaw = 0; addLog(`Chào <b>${esc(me.name)}</b>! Bạn đang ở ${esc(svName(sv))}. Lại gần mõ, đỉnh hương, chuông, lò vàng mã hoặc bến đèn rồi bấm E. Đi thẳng qua Quỷ Môn Quan về phía nam là tới <b>Công viên Âm Phủ</b> có xích đu, đu quay, tàu lượn.`, true); }
+  if (!was) { player.x = (Math.random() - .5) * 4; player.z = 13; player.ry = Math.PI; cam.yaw = cam.tYaw = 0; addLog(`Chào <b>${esc(me.name)}</b>! Bạn đang ở ${esc(svName(sv))}. Lại gần mõ, đỉnh hương, chuông, lò vàng mã hoặc bến đèn rồi bấm E. Đi thẳng qua Quỷ Môn Quan về phía nam là tới <b>Công viên Âm Phủ</b> có xích đu, đu quay, tàu lượn và quầy bắn súng.`, true); }
   others.forEach(o => o.av.dispose()); others.clear(); syncPeers();
   presenceNow(true); canvas.focus({ preventScroll: true });
 }
@@ -1227,6 +1305,7 @@ addEventListener("keydown", e => {
   if (!playing || (e.target.closest && e.target.closest("input, textarea"))) { if (e.key === "Escape") e.target.blur && e.target.blur(); return; }
   if (KM[e.code]) { keys[KM[e.code]] = true; e.preventDefault(); }
   if (e.code === "KeyE" && !e.repeat) { e.preventDefault(); interact(); }
+  if (e.code === "Escape" && shooting) { e.preventDefault(); endShoot(); }
   if (e.code === "Space") { e.preventDefault(); if (!e.repeat) jump(); }
   if (e.code === "Enter") { e.preventDefault(); $("#chat-in").focus(); }
   if (e.code === "KeyG" && !e.repeat) { e.preventDefault(); setArmed(!armed); }
@@ -1234,8 +1313,8 @@ addEventListener("keydown", e => {
 addEventListener("keyup", e => { if (KM[e.code]) keys[KM[e.code]] = false; });
 addEventListener("blur", () => { for (const k in keys) keys[k] = false; });
 let drag = null;
-canvas.addEventListener("pointerdown", e => { canvas.focus({ preventScroll: true }); drag = { x: e.clientX, y: e.clientY, id: e.pointerId }; canvas.setPointerCapture(e.pointerId); });
-canvas.addEventListener("pointermove", e => { if (!drag || drag.id !== e.pointerId) return; cam.tYaw -= (e.clientX - drag.x) * .006; cam.pitch = clamp(cam.pitch + (e.clientY - drag.y) * .004, .12, 1.2); drag.x = e.clientX; drag.y = e.clientY; });
+canvas.addEventListener("pointerdown", e => { canvas.focus({ preventScroll: true }); if (shooting) { shootAt(e.clientX, e.clientY); return; } drag = { x: e.clientX, y: e.clientY, id: e.pointerId }; canvas.setPointerCapture(e.pointerId); });
+canvas.addEventListener("pointermove", e => { if (shooting) { aimAt(e.clientX, e.clientY); return; } if (!drag || drag.id !== e.pointerId) return; cam.tYaw -= (e.clientX - drag.x) * .006; cam.pitch = clamp(cam.pitch + (e.clientY - drag.y) * .004, .12, 1.2); drag.x = e.clientX; drag.y = e.clientY; });
 canvas.addEventListener("pointerup", () => drag = null); canvas.addEventListener("pointercancel", () => drag = null);
 canvas.addEventListener("wheel", e => { e.preventDefault(); cam.dist = clamp(cam.dist + e.deltaY * .01, 4, 18); }, { passive: false });
 // joystick
@@ -1246,9 +1325,10 @@ const endJoy = () => { joy = null; knob.style.transform = ""; };
 stick.addEventListener("pointerup", endJoy); stick.addEventListener("pointercancel", endJoy);
 function moveJoy(e) { const r = stick.getBoundingClientRect(); let dx = (e.clientX - r.left - r.width / 2) / (r.width / 2), dy = (e.clientY - r.top - r.height / 2) / (r.height / 2); const l = Math.hypot(dx, dy); if (l > 1) { dx /= l; dy /= l; } joy.x = dx; joy.y = dy; knob.style.transform = `translate(${dx * 36}px, ${dy * 36}px)`; }
 $("#actbtn").addEventListener("click", () => interact());
+$("#sh-quit").addEventListener("click", () => endShoot());
 $("#b-jump").addEventListener("pointerdown", e => { e.preventDefault(); jump(); });
 function jump() {
-  if (!playing || riding) return; const now = performance.now();
+  if (!playing || riding || shooting) return; const now = performance.now();
   if (now - jumpT0 < JUMP_T * 1000) return; // already in the air
   jumpT0 = now; myJump = ++actSeq; sfx("jump"); presenceNow(true);
 }
@@ -1271,12 +1351,14 @@ function leaveRide() {
 }
 function findNear() {
   if (riding) return { type: "leave", ride: riding.ride };
+  if (shooting) return { type: "shootEnd" };
   let best = null, bd = 1e9;
   // holding the stick: another player close by takes priority over everything else
   if (armed && !inHall(player.x, player.z)) {
     for (const [peer, o] of others) { const d = Math.hypot(player.x - o.x, player.z - o.z); if (d < 2.4 && d - 100 < bd && !inHall(o.x, o.z)) { bd = d - 100; best = { type: "bonk", peer, o }; } }
     if (best) return best;
   }
+  for (const b of boothBoard) { const d = Math.hypot(player.x - b.x, player.z - b.z); if (d < 2.6 && d < bd) { bd = d; best = { type: "shoot" }; } }
   for (const rd of rides) for (const b of rd.board) { const d = Math.hypot(player.x - b.x, player.z - b.z); if (d < 2.8 && d < bd) { bd = d; best = { type: "ride", ride: rd }; } }
   for (const k in ACTS) { const a = ACTS[k], d = Math.hypot(player.x - a.x, player.z - a.z); if (d < a.r && d < bd) { bd = d; best = { type: "act", k }; } }
   npcs.forEach(h => { const d = Math.hypot(player.x - h.x, player.z - h.z); const r = h === NPC_KING ? 6.5 : 2.6; if (d < r && d < bd) { bd = d; best = { type: "npc", h }; } });
@@ -1286,6 +1368,8 @@ function findNear() {
 function promptText(n) {
   if (!n) return "";
   if (n.type === "leave") return `<kbd>E</kbd>Xuống ${esc(n.ride.name)}`;
+  if (n.type === "shootEnd") return "";
+  if (n.type === "shoot") return `<kbd>E</kbd>Chơi bắn súng trúng tâm · ${SHOOT_AMMO} viên, càng trúng càng nhiều công đức`;
   if (n.type === "ride") return `<kbd>E</kbd>Lên ${esc(n.ride.name)} · +2 công đức`;
   if (n.type === "bonk") return `<kbd>E</kbd>Gõ đầu ${esc(n.o.name || "vong hồn")} · cả hai cùng mất 2 công đức`;
   if (n.type === "act") { const a = ACTS[n.k]; return `<kbd>E</kbd>${a.label} · +${a.gain} công đức`; }
@@ -1296,6 +1380,8 @@ function interact() {
   if (!playing) return; const n = nearT; const now = performance.now();
   if (n && n.type === "leave") { leaveRide(); return; }
   if (n && n.type === "ride") { boardRide(n.ride); return; }
+  if (n && n.type === "shootEnd") { endShoot(); return; }
+  if (n && n.type === "shoot") { startShoot(); return; }
   if (!n) { toast(armed ? "Lại gần một vong hồn khác để gõ đầu (trong Điện Diêm La thì cấm đánh nhau)" : "Lại gần mõ, đỉnh hương, chuông, lò vàng mã, bến đèn hoặc một nhân vật"); return; }
   if (n.type === "bonk") {
     if (now - lastBonk < 1000) return; lastBonk = now;
@@ -1331,7 +1417,7 @@ function interact() {
 const clock = new THREE.Clock(); let t = 0;
 const actBtn = $("#actbtn");
 // test hook, only when running on this computer
-if (location.hostname === "localhost") window.__apo = { player, others, interact, findNear, setArmed, reborn, endIntro, STALLS, walkable, cam, rides, boardRide, leaveRide, get riding() { return riding; }, get intro() { return intro; }, get merit() { return merit; } };
+if (location.hostname === "localhost") window.__apo = { player, others, interact, findNear, setArmed, reborn, endIntro, STALLS, walkable, cam, rides, boardRide, leaveRide, get riding() { return riding; }, booth, startShoot, endShoot, shootAt, get shooting() { return shooting; }, get intro() { return intro; }, get merit() { return merit; } };
 // big static meshes that can block the camera (collected once, after extras are built)
 const camRay = new THREE.Raycaster(), camDir = new THREE.Vector3(), camFrom = new THREE.Vector3();
 let camD = 9;
@@ -1352,11 +1438,13 @@ function frame() {
     rides.forEach(rd => { try { rd.r.update && rd.r.update(dt, t, rd.occ); } catch (e) {} });
   }
   if (parkGate && parkGate.update) parkGate.update(dt, t);
+  if (booth && booth.update) { try { booth.update(dt, t, !!shooting); } catch (e) {} }
+  if (shooting) { renderShoot(); if (now > shooting.end) endShoot(); }
   // player move
   if (playing && myAv) {
     let ix = (keys.r ? 1 : 0) - (keys.l ? 1 : 0), iz = (keys.f ? 1 : 0) - (keys.b ? 1 : 0);
     if (joy) { ix = joy.x; iz = -joy.y; }
-    if (riding) { ix = 0; iz = 0; }
+    if (riding || shooting) { ix = 0; iz = 0; }
     const il = Math.hypot(ix, iz);
     player.moving = il > .1;
     if (player.moving) {
@@ -1372,7 +1460,7 @@ function frame() {
     myAv.root.position.set(player.x, groundY(player.x, player.z) + jumpH((now - jumpT0) / 1000), player.z); myAv.root.rotation.set(0, player.ry, 0);
     if (riding) { const sp = seatWorld(riding.ride, riding.seat); myAv.root.position.copy(sp); myAv.root.quaternion.copy(seatQ); player.x = sp.x; player.z = sp.z; myAv.moving = false; }
     const n = findNear(); nearT = n; const pt = promptText(n); const pe = $("#prompt");
-    const al = n && n.type === "bonk" ? "Gõ!" : n && n.type === "leave" ? "Xuống" : n && n.type === "ride" ? "Lên" : "Tương tác"; if (actBtn.textContent !== al) actBtn.textContent = al;
+    const al = n && n.type === "bonk" ? "Gõ!" : n && n.type === "leave" ? "Xuống" : n && n.type === "ride" ? "Lên" : n && n.type === "shootEnd" ? "Thôi" : n && n.type === "shoot" ? "Bắn súng" : "Tương tác"; if (actBtn.textContent !== al) actBtn.textContent = al;
     if (pt !== pe.dataset.t) { pe.dataset.t = pt; pe.innerHTML = pt; } pe.hidden = !pt;
     presenceNow(false);
   }
@@ -1409,6 +1497,11 @@ function frame() {
   camera.position.set(fx + Math.sin(yaw) * Math.cos(pitch) * camD, fy + Math.sin(pitch) * camD, fz + Math.cos(yaw) * Math.cos(pitch) * camD);
   if (now < shakeUntil) { camera.position.x += (Math.random() - .5) * .3; camera.position.y += (Math.random() - .5) * .2; }
   camera.lookAt(fx, fy, fz);
+  if (shooting && booth) {
+    // camera ngay sau khẩu súng, nhìn thẳng vào vách bia
+    const v = booth.view; camera.position.copy(booth.group.localToWorld(shootCam.set(v.pos.x, v.pos.y, v.pos.z)));
+    booth.group.localToWorld(shootCam.set(v.look.x, v.look.y, v.look.z)); camera.lookAt(shootCam);
+  }
   if (intro && altar) {
     const k = (now - intro.t0) / 1000;
     myAv.root.position.copy(altar.seat).add(ALTAR); myAv.root.position.y += Math.sin(t * 2) * .04; myAv.root.rotation.y = 0;

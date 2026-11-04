@@ -247,3 +247,54 @@ window.__ridesSelfTest = function (THREE) { /* tạo 3 trò + cổng, trả { ok
 - Phong cách hội chợ âm phủ vui nhộn: đỏ son, đen, vàng kim, đèn lồng, đầu lâu chibi, không ghê rợn.
 - Nhẹ cho điện thoại: swing ≤ 45 mesh, wheel ≤ 150 mesh, coaster ≤ 220 mesh, cổng ≤ 40 mesh; dùng chung geometry/material; hạn chế `PointLight` (tối đa 2 mỗi trò).
 - `update` không được tạo object mới mỗi khung hình (tái sử dụng vector).
+
+## Việc 22: Quầy bắn súng hội chợ (bắn trúng tâm)
+
+Thêm một **quầy bắn súng kiểu hội chợ** vào Công viên Âm Phủ: người chơi đứng trước quầy, bấm E là vào chế độ bắn, camera đặt sau khẩu súng nhìn vào vách bia, người chơi bấm chuột / chạm màn hình vào bia để bắn. Claude lo phần chơi (ngắm, đạn, điểm, công đức, camera). Bạn lo **hình và chuyển động** của quầy, bia và súng.
+
+Tạo file mới `src/online/booth.js` (JavaScript thuần, three.js **r128**, không `import`/`export`, không ảnh ngoài; `CanvasTexture` vẽ chữ/vòng bia bằng code được; không `CapsuleGeometry`). **Chỉ tạo/sửa đúng file này** (Claude cập nhật bảng phân công).
+
+### API
+
+```js
+window.makeShootingBooth = function (THREE) {
+  return {
+    group,          // THREE.Group, gốc ở mặt đất (y = 0). Mặt trước quầy (chỗ người đứng bắn) nhìn về +Z, vách bia ở phía -Z.
+    name,           // "Bắn súng hội chợ"
+    board: [{ x, z }],      // chỗ đứng bấm E, trước quầy (ví dụ { x: 0, z: 2.4 }), ngoài vật cản
+    solids: [{ x, z, r }],  // vật cản tròn (quầy, cột) để người chơi không đi xuyên
+    view: { pos: { x, y, z }, look: { x, y, z } }, // camera khi bắn: ngay sau súng, ngang tầm mắt, nhìn vào giữa vách bia (toạ độ trong group)
+    gun,            // Object3D khẩu súng trường đặt trên quầy; game gọi aim(...) để xoay nòng theo điểm ngắm
+    targets: [ { obj, kind, points, r } ],
+      // obj: Object3D của bia (game raycast vào các mesh con của obj; tâm bia là gốc obj, mặt bia nhìn +Z)
+      // kind: "ring" (bia tròn nhiều vòng) | "duck" (vịt/đèn lồng chạy ngang) | "skull" (đầu lâu chibi bật lên)
+      // points: điểm cơ bản; r: bán kính mặt bia (để tính bắn gần tâm)
+    aim(x, y, z),   // điểm ngắm toàn cục (THREE world): xoay súng nhìn về điểm đó (chỉ xoay, không tạo object mới)
+    shoot(),        // hiệu ứng bắn: giật súng + chớp lửa đầu nòng ngắn (~0.08 s)
+    hit(i, local),  // bia i bị trúng: bia đổ / lật ra sau, ~1.2 s sau dựng lại. local = điểm trúng trong toạ độ obj (có thể bỏ qua)
+    isUp(i),        // bia i đang dựng (bắn được) hay không
+    update(dt, time, active) // active: có người đang bắn → đèn quầy nhấp nháy, bia chạy nhanh hơn chút
+  };
+};
+window.__boothSelfTest = function (THREE) { /* trả { ok, meshes, tris, targets } , kiểm tra hit/isUp/update không lỗi */ };
+```
+
+### Hình dáng
+
+- Quầy rộng **~7 m** (trục X), sâu **~4.5 m**, cao **~4 m**: mái che sọc **đỏ son – vàng kim**, diềm tam giác rủ, bảng hiệu lớn **"BẮN SÚNG TRÚNG TÂM"** (dòng nhỏ "Trúng hồng tâm, tích công đức") trên đỉnh, dây bóng đèn quanh mép mái.
+- Mặt quầy gỗ ở phía trước (cao ~1.1 m), 1–2 khẩu súng trường gỗ đặt trên quầy (khẩu chính là `gun`, đặt giữa, gần mép trước, nòng hướng -Z).
+- Vách bia ở sâu bên trong (cách mặt quầy ~3.5 m), nền tối có hoa văn, gồm 3 tầng:
+  - Tầng trên: **4–5 bia tròn** ("ring") trắng đỏ nhiều vòng, hồng tâm vàng, một số bia **xoay tròn chậm** hoặc lắc qua lại.
+  - Tầng giữa: **hàng vịt / đèn lồng** ("duck") chạy ngang trên ray rồi quay lại (băng chuyền), 5–6 con.
+  - Tầng dưới: **3–4 đầu lâu chibi** ("skull") lúc nhô lên lúc thụt xuống (ẩn thì `isUp` = false).
+- Hai bên vách treo **giải thưởng**: gấu bông, đèn lồng, bình vàng mã… cho vui mắt.
+- Điểm gợi ý: ring 30, duck 20, skull 50.
+- Phong cách giống các trò công viên đã làm: vui nhộn, đỏ son, đen, vàng kim, không ghê rợn.
+- `view.pos` để camera thấy trọn vách bia (khoảng FOV dọc 55°); bia không bị mái hay cột che.
+
+### Yêu cầu chung
+
+- Nhẹ cho điện thoại: tối đa **110 mesh**, tối đa 2 `PointLight`; dùng chung geometry/material.
+- `update`/`aim`/`hit` không tạo object mới mỗi khung hình (tái sử dụng vector).
+- Bia ngã thì vẫn ở trong `obj` (game kiểm `isUp(i)` trước khi tính trúng).
+- `__boothSelfTest`: đếm mesh/tam giác, kiểm số hữu hạn, gọi `hit(0)`, `update` 2 giây, kiểm `isUp(0)` false rồi true lại, `targets.length >= 12`.
