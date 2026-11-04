@@ -191,3 +191,59 @@ Thêm loại mới `"buffet"` vào `window.makeFoodStall(THREE, type)` trong `sr
 - Chồng đĩa sạch ở một đầu bàn, vài cái muỗng gắp.
 - `update(dt, time)`: vài món nhún nhẹ hoặc lấp lánh cho vui mắt.
 - Tối đa **90 mesh**; dùng chung geometry/material (nhiều quả giống nhau thì dùng chung). Cập nhật `__scenesSelfTest` thêm dòng `buffet`.
+
+## Việc 20: Trò chơi công viên âm phủ: xích đu, tàu lượn, đu quay (+ cổng công viên)
+
+Bản đồ được mở rộng thêm **Công viên Âm Phủ** phía nam sân Điện Diêm La. Người chơi lại gần trò chơi, bấm E là **lên ngồi**: game đặt nhân vật theo một "ghế" (seat) mà bạn cung cấp, trò chơi chạy thì nhân vật chạy theo. Tạo file mới `src/online/rides.js` (JavaScript thuần, three.js **r128**, không `import`/`export`, không ảnh ngoài; `CanvasTexture` vẽ chữ bằng code được; không `CapsuleGeometry`). **Chỉ tạo/sửa đúng file này**, không sửa `BANG-PHAN-CONG.md` (Claude cập nhật).
+
+### API
+
+```js
+window.makeRide = function (THREE, type) {
+  // type: "swing" | "wheel" | "coaster"
+  return {
+    group,                    // THREE.Group, gốc ở mặt đất (y = 0), tâm trò chơi ở x = z = 0
+    seats: [THREE.Object3D],  // mỗi ghế là một Object3D con trong group, chuyển động cùng trò chơi
+    board: [{ x, z }],        // 1–3 chỗ đứng để lên trò chơi (toạ độ trong group, trên mặt đất, ngoài vật cản)
+    solids: [{ x, z, r }],    // vật cản hình tròn trên mặt đất (toạ độ trong group) để người chơi không đi xuyên chân cột
+    name,                     // "Xích đu" | "Đu quay" | "Tàu lượn"
+    update(dt, time, occupied) // occupied: mảng boolean, ghế i có người ngồi không
+  };
+};
+window.makeParkGate = function (THREE) { return { group, solids: [{x,z,r}], update(dt, time) }; };
+window.__ridesSelfTest = function (THREE) { /* tạo 3 trò + cổng, trả { ok, rows: [{name, meshes, tris, seats}] } */ };
+```
+
+**Quy ước ghế (seat):** gốc của Object3D là chỗ **bàn chân** nhân vật khi ngồi (nhân vật cao ~1.6, đứng thẳng, không có tư thế ngồi nên đặt gốc sao cho thân người trông như đang ngồi trên ghế, chân hơi lún vào ghế cũng được). Trục **+Z của ghế là hướng mặt nhìn**, trục +Y là phía trên đầu. Game sẽ copy vị trí + hướng toàn cục của ghế cho nhân vật mỗi khung hình.
+
+### 1. `"swing"`: Xích đu
+
+- Khung xích đu gỗ đỏ son hoặc sắt đen viền vàng, cao ~3.4 m, rộng ~7 m, có **3 ghế** treo bằng xích (hai sợi xích mỗi ghế, có thể là các mắt xích nhỏ hoặc thanh mảnh).
+- Ghế có người (`occupied[i]`) thì đung đưa mạnh (biên độ ~0.9 rad, chu kỳ ~2.6 s). Không ai ngồi thì gần như đứng yên, chỉ khẽ lắc. Chuyển đổi mượt (biên độ tăng/giảm dần).
+- Trang trí: đầu lâu nhỏ dễ thương ở hai đỉnh cột, dây đèn lồng.
+- `board`: 1 chỗ phía trước giữa khung.
+
+### 2. `"wheel"`: Đu quay
+
+- Vòng quay lớn **bán kính ~8 m**, trục cao ~9.5 m trên hai chân chữ A, tổng cao ~18 m. Nan hoa và vành có **bóng đèn phát sáng** (MeshBasicMaterial màu vàng cam, thưa thôi để nhẹ), giữa trục có mặt quỷ hoặc đầu lâu cười.
+- **8 cabin** treo ở vành, luôn **thẳng đứng** khi vòng quay (bù góc quay). Mỗi cabin 1 ghế, ghế nhìn ra ngoài phía +Z của trò chơi.
+- Quay chậm liên tục (~1 vòng / 50 giây).
+- Có bục lên xuống ở đáy. `board`: 1 chỗ trước bục.
+
+### 3. `"coaster"`: Tàu lượn
+
+- Đường ray khép kín (dùng `CatmullRomCurve3` closed), có dốc cao ~8 m, đổ dốc, một đoạn lượn sóng và cua nghiêng; chiếm khoảng **34 m × 16 m** (trục X dài), trụ đỡ đen thưa. Ray: 2 ống (`TubeGeometry`) + vài thanh ngang thưa.
+- **Đoàn tàu 3 toa**, mỗi toa 2 ghế (tổng **6 ghế**), đầu toa trước hình đầu rồng hoặc đầu quỷ. Toa nghiêng theo đường ray (hướng theo tiếp tuyến).
+- Chạy liên tục quanh đường ray; tốc độ nhanh khi xuống dốc, chậm khi lên dốc (ví dụ v = sqrt(v0² + 2g(hMax − h)) với v0 nhỏ), có một đoạn ga bằng phẳng chạy chậm.
+- Ga có mái che nhỏ + bảng "TÀU LƯỢN ĐỊA PHỦ". `board`: 1 chỗ cạnh ga.
+
+### 4. `makeParkGate`
+
+- Cổng chào **"CÔNG VIÊN ÂM PHỦ"** (bảng chữ CanvasTexture), rộng ~9 m, cao ~6 m, cột đỏ, đèn lồng, bóng đèn chạy. Lối đi ở giữa rộng ≥ 4.5 m, mặt cổng nhìn **−Z** và **+Z** đều được (chữ hai mặt hoặc mặt −Z).
+- `solids`: chân cột.
+
+### Yêu cầu chung
+
+- Phong cách hội chợ âm phủ vui nhộn: đỏ son, đen, vàng kim, đèn lồng, đầu lâu chibi, không ghê rợn.
+- Nhẹ cho điện thoại: swing ≤ 45 mesh, wheel ≤ 150 mesh, coaster ≤ 220 mesh, cổng ≤ 40 mesh; dùng chung geometry/material; hạn chế `PointLight` (tối đa 2 mỗi trò).
+- `update` không được tạo object mới mỗi khung hình (tái sử dụng vector).

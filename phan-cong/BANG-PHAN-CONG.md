@@ -46,6 +46,8 @@ Ai cũng được sửa file này (`BANG-PHAN-CONG.md`) để cập nhật trạ
 | 17 | Phòng thờ cảnh mở đầu + 5 quầy đồ ăn tích phước (`src/online/scenes.js`) | Codex | Xong | [codex.md](codex.md) |
 | 18 | Cảnh mở đầu ngồi bàn thờ → nút "Xuống âm phủ"; đặt 5 quầy ăn trong sân, ăn được cộng công đức | Claude | Xong | |
 | 19 | Bàn buffet rau củ quả (`makeFoodStall("buffet")`) | Codex | Xong | [codex.md](codex.md) |
+| 20 | Trò chơi công viên: xích đu, đu quay, tàu lượn + cổng (`src/online/rides.js`) | Codex | Xong | [codex.md](codex.md) |
+| 21 | Mở rộng bản đồ: Công viên Âm Phủ phía nam, lên/xuống trò chơi, camera, đồng bộ người ngồi | Claude | Xong | |
 | 11 | Máy chủ riêng (server.js) để đưa lên web ngoài Claude, giao diện điện thoại dọc/ngang | Claude | Xong | [../DUA-LEN-WEB.md](../DUA-LEN-WEB.md) |
 
 ## Quy tắc chung
@@ -84,3 +86,4 @@ Ai cũng được sửa file này (`BANG-PHAN-CONG.md`) để cập nhật trạ
 - 2026-11-04 · Claude · Ghép `reborn.js` của Codex: self-test trong trình duyệt 28/28 đạt (tối đa 27 mesh, 2.484 tam giác), xem tận mắt cả 14 hình. Xong việc 16 (quay kiếp 45% người / 45% con giáp / 10% tiên, 3 màn công bố) và việc 18 (cảnh bàn thờ, 5 quầy ăn, đang dùng hình tạm chờ `scenes.js`).
 - 2026-11-04 · Claude · Ghép `scenes.js` của Codex (việc 17): self-test trong trình duyệt đạt (phòng 127 mesh, quầy 35–45 mesh), xem tận mắt phòng thờ và quầy ăn. Giảm độ sáng đèn phòng thờ cho màu ấm hơn.
 - 2026-11-04 · Claude · Ghép bàn buffet của Codex (việc 19, 88 mesh): đặt cạnh Vọng Hương Đài, ăn +8 công đức, chờ 8 giây. Thêm ảnh `14-kiep-dau-thai.jpg` để xem trước 14 hình đầu thai.
+- 2026-11-04 · Claude · Ghép `rides.js` của Codex (việc 20): self-test r128 đạt (xích đu 41, đu quay 121, tàu lượn 138, cổng 28 mesh). Xong việc 21: khu Công viên Âm Phủ 60×47 m phía nam (san phẳng đất, dọn dung nham/núi đao, lối đi qua Quỷ Môn Quan), bấm E để lên/xuống trò, +2 công đức mỗi lần lên (chờ 8 giây), camera đi theo, người khác thấy mình ngồi đúng ghế.

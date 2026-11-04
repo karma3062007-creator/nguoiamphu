@@ -35,11 +35,11 @@ const avatarFile = fs.existsSync(path.join(root, "src/online/avatars-gen.js")) ?
 const avatars = readOpt(avatarFile);
 const extras = readOpt("src/online/extras.js");
 // Hình kiếp sau khi đầu thai (Codex, việc 15) và phòng thờ + quầy ăn (Codex, việc 17); chưa có thì game dùng hình tạm
-const reborn = readOpt("src/online/reborn.js"), scenesJs = readOpt("src/online/scenes.js");
+const reborn = readOpt("src/online/reborn.js"), scenesJs = readOpt("src/online/scenes.js"), ridesJs = readOpt("src/online/rides.js");
 const online = read("src/online/online.template.html")
   .replace("__DATA__", () => levels)
   .replace("<!--__LOGO__-->", () => logo)
-  .replace("/*__AVATARS__*/", () => (safe(avatars) || "/* chưa có avatars.js: game dùng hình nhân vật đơn giản */") + "\n;\n" + safe(reborn) + "\n;\n" + safe(scenesJs))
+  .replace("/*__AVATARS__*/", () => (safe(avatars) || "/* chưa có avatars.js: game dùng hình nhân vật đơn giản */") + "\n;\n" + safe(reborn) + "\n;\n" + safe(scenesJs) + "\n;\n" + safe(ridesJs))
   .replace("/*__EXTRAS__*/", () => safe(extras) || "/* chưa có extras.js */");
 fs.writeFileSync(path.join(root, "dist/am-phu-online.html"), wrap(online));
 // Bản không có khung, dùng để xuất bản lên Claude Artifact
