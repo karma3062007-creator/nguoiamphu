@@ -138,6 +138,8 @@ function clean(p) {
     if (Array.isArray(p.c)) out.c = p.c.slice(0, 3).map(v => str(v, 7));
     if (Array.isArray(p.a)) out.a = [str(p.a[0], 10), Math.floor(+p.a[1] || 0)];
     if (Array.isArray(p.s)) out.s = [str(p.s[0], 100), Math.floor(+p.s[1] || 0)];
+    out.w = p.w ? 1 : 0;                                    // đang cầm gậy
+    if (Array.isArray(p.h)) out.h = [str(p.h[0], 40), Math.floor(+p.h[1] || 0)]; // lần gõ đầu gần nhất [người bị gõ, số thứ tự]
   }
   return out;
 }
@@ -153,6 +155,13 @@ function onMessage(c, text) {
     sendBoard(c);
   } else if (m.t === "p") {
     const p = clean(m.p); if (!p) return;
+    // Kiểm tra cú gõ đầu mới: phải cầm gậy, cùng cõi, đứng gần (< 3.5), mỗi giây tối đa 1 lần
+    const prevH = c.p && c.p.h;
+    if (p.h && (!prevH || prevH[1] !== p.h[1])) {
+      const tgt = clients.get(p.h[0]);
+      const ok = p.w && tgt && tgt !== c && tgt.p && tgt.p.sv === p.sv && Math.hypot(tgt.p.x - p.x, tgt.p.z - p.z) < 3.5 && now - (c.lastHit || 0) > 800;
+      if (ok) c.lastHit = now; else if (prevH) p.h = prevH; else delete p.h;
+    }
     c.p = p; broadcast({ t: "p", id: c.id, p }, c);
   } else if (m.t === "m" && c.key) {
     const old = merits[c.key] || { m: 0, n: "Vong hồn" };

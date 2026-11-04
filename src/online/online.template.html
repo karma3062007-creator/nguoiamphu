@@ -56,11 +56,14 @@ button { font-family: var(--body); }
 .stick { left: max(18px, env(safe-area-inset-left, 0px)); bottom: calc(18px + env(safe-area-inset-bottom, 0px)); width: 120px; height: 120px; border-radius: 50%; background: rgba(28,10,10,.55); border: 1px solid var(--line); touch-action: none; display: none; }
 .stick i { position: absolute; left: 50%; top: 50%; width: 48px; height: 48px; margin: -24px 0 0 -24px; border-radius: 50%; background: var(--gold); opacity: .85; }
 .actbtn { right: max(18px, env(safe-area-inset-right, 0px)); bottom: calc(30px + env(safe-area-inset-bottom, 0px)); width: 84px; height: 84px; border-radius: 50%; background: var(--cinnabar); border: 2px solid var(--gold); color: #fff4e0; font: 700 .85rem var(--body); display: none; touch-action: none; }
+.gaybtn { right: max(10px, env(safe-area-inset-right, 0px)); bottom: calc(46px + env(safe-area-inset-bottom, 0px)); font: 700 .85rem var(--body); color: var(--ink); background: var(--panel); border: 1px solid var(--gold); padding: 8px 14px; border-radius: 3px; cursor: pointer; }
+.gaybtn[aria-pressed="true"] { background: #7a4520; color: #fff4e0; }
 .menu-btn { display: none; }
 @media (pointer: coarse) {
   .stick, .actbtn { display: block; }
   .help { display: none; }
-  .chat { bottom: calc(150px + env(safe-area-inset-bottom, 0px)); }
+  .chat { bottom: calc(164px + env(safe-area-inset-bottom, 0px)); }
+  .gaybtn { right: max(18px, env(safe-area-inset-right, 0px)); bottom: calc(122px + env(safe-area-inset-bottom, 0px)); padding: 7px 10px; font-size: .78rem; }
   .log { max-height: 72px; font-size: .75rem; }
   .log li { padding: 2px 6px; }
   .chatf input { font-size: 16px; padding: 6px 8px; }
@@ -86,6 +89,7 @@ button { font-family: var(--body); }
   .actbtn { width: 70px; height: 70px; bottom: calc(22px + env(safe-area-inset-bottom, 0px)); }
   .chat { left: calc(130px + env(safe-area-inset-left, 0px)); right: calc(110px + env(safe-area-inset-right, 0px)); width: auto; bottom: calc(8px + env(safe-area-inset-bottom, 0px)); }
   .log { max-height: 46px; }
+  .gaybtn { bottom: calc(98px + env(safe-area-inset-bottom, 0px)); }
   .prompt { bottom: auto; top: calc(10px + env(safe-area-inset-top, 0px)); }
   .toast { top: calc(48px + env(safe-area-inset-top, 0px)); }
 }
@@ -145,7 +149,6 @@ h2 { font-size: 1.8rem; color: var(--gold); }
     <button class="btn ghost" type="button" id="b-full" hidden>Toàn màn hình</button>
     <button class="btn ghost" type="button" id="b-board">Bảng công đức</button>
     <button class="btn ghost" type="button" id="b-char">Nhân vật</button>
-    <button class="btn ghost" type="button" id="b-sv">Đổi cõi</button>
     <button class="btn ghost" type="button" id="b-mute" aria-pressed="false">Âm thanh: bật</button>
   </div>
   <div class="hud chat" id="chat" hidden>
@@ -157,6 +160,7 @@ h2 { font-size: 1.8rem; color: var(--gold); }
   <div class="hud help" id="help" hidden>WASD / mũi tên: đi · Kéo chuột: xoay góc nhìn · Lăn chuột: gần xa · E: tương tác</div>
   <div class="hud stick" id="stick" hidden><i id="knob"></i></div>
   <button class="hud actbtn" id="actbtn" type="button" hidden>Tương tác</button>
+  <button class="hud gaybtn" id="b-gay" type="button" aria-pressed="false" hidden>Cầm gậy (G)</button>
 
   <!-- server select -->
   <div class="ov" id="ov-sv">
@@ -164,7 +168,7 @@ h2 { font-size: 1.8rem; color: var(--gold); }
       <div class="eyebrow">Tour địa ngục nhiều người chơi</div>
       <h1>Âm Phủ <em>Online</em></h1>
       <p class="sub">Đi lại trong sân Điện Diêm La cùng các vong hồn khác, gõ mõ, thắp hương, đốt vàng mã, thả đèn trên sông Huyết Hà để tích công đức, giảm án dần từ B18 cho tới lúc được đầu thai.</p>
-      <div class="field"><span class="lbl">Chọn cõi (máy chủ)</span><div class="servers" id="servers"></div></div>
+      <div class="field"><span class="lbl">Bấm để vào cõi</span><div class="servers" id="servers"></div></div>
       <p class="sub" id="sv-note">Số người online cập nhật trực tiếp.</p>
     </div>
   </div>
@@ -180,7 +184,7 @@ h2 { font-size: 1.8rem; color: var(--gold); }
       <div class="field"><span class="lbl">Màu da</span><div class="sw" id="c-skin"></div></div>
       <div class="field"><span class="lbl">Màu áo</span><div class="sw" id="c-robe"></div></div>
       <div class="field"><span class="lbl">Màu tóc</span><div class="sw" id="c-hair"></div></div>
-      <div class="row2"><button class="btn ghost" type="button" id="c-back">Đổi cõi</button><button class="btn" type="submit">Vào âm phủ</button></div>
+      <div class="row2"><button class="btn ghost" type="button" id="c-back">Quay lại</button><button class="btn" type="submit">Vào âm phủ</button></div>
     </form>
   </div>
 
@@ -216,10 +220,7 @@ if (!window.THREE) { $("#loading").innerHTML = "<div><b>Không tải được th
 
 /* ---------- data ---------- */
 const SERVERS = [
-  { id: "vogian", name: "Cõi Vô Gián", desc: "Lửa cháy cả ngày lẫn đêm", fog: 0x3a0a06, sky: 0xff8a50, lava: 0xff5a1a },
-  { id: "huyetha", name: "Cõi Huyết Hà", desc: "Sát sông máu, ngắm cầu Nại Hà", fog: 0x2a0410, sky: 0xff5a6a, lava: 0xd0102a },
-  { id: "hanbang", name: "Cõi Hàn Băng", desc: "Mát lạnh, hợp vong hồn sợ nóng", fog: 0x0e2030, sky: 0x9fd0ff, lava: 0x58b8ff },
-  { id: "daoson", name: "Cõi Đao Sơn", desc: "Mới mở, còn rộng chỗ", fog: 0x1e1418, sky: 0xffd0a0, lava: 0xff8a2a }
+  { id: "vogian", name: "Cõi Vô Gián", desc: "Sân Điện Diêm La, cầu Nại Hà, 18 bia tầng", fog: 0x3a0a06, sky: 0xff8a50, lava: 0xff5a1a }
 ];
 const SKINS = ["#f1c9a5", "#e0a97e", "#c68a5e", "#8d5a3b", "#cfe0e8"];
 const ROBES = ["#8a1a12", "#2c3e66", "#e2b23a", "#5b3a7a", "#2f5d3a", "#e8e2d6", "#1d1414"];
@@ -484,11 +485,34 @@ class Avatar {
     this.bubble = textSprite(text, { size: 28, maxW: 380, bg: "rgba(250,236,210,.94)", color: color || "#2a0f0d", scale: .006 });
     this.bubble.position.y = 2.15; this.root.add(this.bubble); this.bubbleUntil = performance.now() + 5500;
   }
+  setArmed(on) {
+    on = !!on; if (on === !!this.stick) return;
+    if (on) { this.stick = makeStick(); this.root.add(this.stick); } else { this.root.remove(this.stick); this.stick = null; }
+  }
+  swing() { this.swingT = performance.now(); }
+  hitFx() {
+    this.hitT = performance.now();
+    if (!this.stars) { this.stars = new THREE.Group(); for (let i = 0; i < 4; i++) { const s = new THREE.Mesh(STAR_GEO, STAR_MAT); s.position.set(Math.cos(i * 1.57) * .4, 0, Math.sin(i * 1.57) * .4); this.stars.add(s); } this.stars.position.y = 1.62; this.root.add(this.stars); }
+  }
   update(dt, t) {
+    const now = performance.now();
     this.av.update && this.av.update(dt, this.moving, t);
-    if (this.bubble && performance.now() > this.bubbleUntil) { disposeSprite(this.bubble); this.bubble = null; }
+    if (this.bubble && now > this.bubbleUntil) { disposeSprite(this.bubble); this.bubble = null; }
+    if (this.stick) { const k = (now - (this.swingT || -1e9)) / 320; this.stick.rotation.x = -.5 + (k < 1 ? Math.sin(k * Math.PI) * 2.1 : 0); }
+    if (this.stars) { const on = now - this.hitT < 1300; this.stars.visible = on; if (on) this.stars.rotation.y += dt * 8; }
   }
   dispose() { disposeSprite(this.tag); disposeSprite(this.bubble); scene.remove(this.root); }
+}
+// the bonking stick, held in the right hand (avatars face +Z, so right is -X)
+const STICK_GEO = new THREE.CylinderGeometry(.045, .065, 1.05, 6), KNOB_GEO = new THREE.SphereGeometry(.12, 8, 6);
+const STICK_MAT = M(0x7a4520), KNOB_MAT = M(0x4a2410);
+const STAR_GEO = new THREE.OctahedronGeometry(.09), STAR_MAT = new THREE.MeshBasicMaterial({ color: 0xffe066 });
+function makeStick() {
+  const pivot = new THREE.Group(); pivot.position.set(-.42, .72, .08);
+  const s = new THREE.Mesh(STICK_GEO, STICK_MAT); s.position.y = .45;
+  const k = new THREE.Mesh(KNOB_GEO, KNOB_MAT); k.position.y = .97;
+  s.castShadow = k.castShadow = true; pivot.add(s, k); pivot.rotation.x = -.5;
+  return pivot;
 }
 
 // NPCs
@@ -574,6 +598,7 @@ function sfx(kind, vol = 1) {
   if (kind === "huong") tone(880, .3, "sine", .08 * vol, 0, 1320);
   if (kind === "vang") noise(1.6, .35 * vol, 900);
   if (kind === "den") { tone(523, .5, "sine", .1 * vol); tone(784, .7, "sine", .08 * vol, .12); }
+  if (kind === "bonk") { tone(340, .14, "square", .22 * vol, 0, 90); noise(.09, .45 * vol, 2600); }
   if (kind === "up") { [523, 659, 784, 1046].forEach((f, i) => tone(f, .5, "triangle", .12, i * .1)); }
 }
 
@@ -607,13 +632,15 @@ function gain(n) {
 }
 
 /* ---------- multiplayer (room presence) ---------- */
-let room = null, lastSent = 0, sentKey = "", actSeq = 0, myAct = null, mySay = null;
+let room = null, lastSent = 0, sentKey = "", actSeq = 0, myAct = null, mySay = null, myHit = null;
+let armed = !!store.get("apo-armed", false), lastBonk = 0, lastHitTaken = 0, shakeUntil = 0;
+const myPeer = () => (peersSnap.find(p => p.sameTab) || {}).peer;
 const others = new Map(); // peer -> {av, x, z, ry, tx, tz, tr, aat, sat}
 let peersSnap = [];
 function presenceNow(force) {
   if (!room) return;
   const now = performance.now();
-  const p = playing ? { sv, n: me.name, k: me.k, g: me.g, c: [me.skin, me.robe, me.hair], m: merit, x: +player.x.toFixed(2), z: +player.z.toFixed(2), r: +player.ry.toFixed(2), mv: player.moving ? 1 : 0, a: myAct, s: mySay }
+  const p = playing ? { sv, n: me.name, k: me.k, g: me.g, c: [me.skin, me.robe, me.hair], m: merit, x: +player.x.toFixed(2), z: +player.z.toFixed(2), r: +player.ry.toFixed(2), mv: player.moving ? 1 : 0, a: myAct, s: mySay, w: armed ? 1 : 0, h: myHit }
     : { sv: null, browsing: 1 };
   const key = JSON.stringify(p);
   if (key === sentKey || (!force && now - lastSent < 120)) return;
@@ -642,7 +669,7 @@ function syncPeers() {
     ["skin", "robe", "hair"].forEach(f => { if (!/^#[0-9a-f]{6}$/i.test(look[f])) look[f] = "#888888"; });
     let o = others.get(p.peer);
     if (!o) {
-      o = { av: new Avatar(Object.assign({ m: +q.m || 0 }, look), false), x: q.x, z: q.z, ry: q.r || 0, aat: q.a && q.a[1], sat: q.s && q.s[1] };
+      o = { av: new Avatar(Object.assign({ m: +q.m || 0 }, look), false), x: q.x, z: q.z, ry: q.r || 0, aat: q.a && q.a[1], sat: q.s && q.s[1], hat: Array.isArray(q.h) ? q.h[1] : null };
       others.set(p.peer, o); o.av.root.position.set(q.x, groundY(q.x, q.z), q.z);
       if (o.aat || o.sat) {} // ignore actions that happened before we arrived
       addLog(`<b>${esc(look.name)}</b> vừa vào ${esc(svName(sv))}.`, true);
@@ -651,10 +678,34 @@ function syncPeers() {
     o.tx = clamp(+q.x || 0, -60, 60); o.tz = clamp(+q.z || 0, -60, 60); o.tr = +q.r || 0; o.av.moving = !!q.mv;
     if (Array.isArray(q.a) && q.a[1] !== o.aat) { o.aat = q.a[1]; if (ACTS[q.a[0]]) { playEffect(q.a[0], o); floatText(`+${ACTS[q.a[0]].gain}`, o.tx, 2.6, o.tz); if (q.a[0] !== "mo") addLog(`<b>${esc(look.name)}</b> vừa ${ACTS[q.a[0]].verb}.`); } }
     if (Array.isArray(q.s) && q.s[1] !== o.sat) { o.sat = q.s[1]; const t = String(q.s[0] || "").slice(0, 100); if (t) { o.av.say(t); addLog(`<b>${esc(look.name)}:</b> ${esc(t)}`); } }
+    o.av.setArmed(q.w);
+    if (Array.isArray(q.h) && q.h[1] !== o.hat) { o.hat = q.h[1]; if (q.w) onBonkSeen(o, String(q.h[0] || "")); }
   });
   for (const [k, o] of others) if (!seen.has(k)) { addLog(`<b>${esc(o.name || "Một vong hồn")}</b> đã rời đi.`, true); o.av.dispose(); others.delete(k); }
 }
 const svName = id => (SERVERS.find(s => s.id === id) || SERVERS[0]).name;
+// someone (o) swung their stick at targetPeer
+function onBonkSeen(o, targetPeer) {
+  o.av.swing();
+  sfx("bonk", clamp(1 - Math.hypot(o.tx - player.x, o.tz - player.z) / 25, 0, 1));
+  if (targetPeer && targetPeer === myPeer()) {
+    const now = performance.now();
+    if (inHall(player.x, player.z) || now - lastHitTaken < 800) return; // safe inside the hall, short immunity
+    lastHitTaken = now; shakeUntil = now + 320;
+    merit = Math.max(0, merit - 2); renderMerit(); saveSoon();
+    myAv && myAv.hitFx(); floatText("-2 công đức", player.x, 2.4, player.z, "#ff6a4a");
+    toast(`${o.name || "Ai đó"} gõ đầu bạn! -2 công đức`);
+    addLog(`<b>${esc(o.name || "Ai đó")}</b> gõ đầu <b>bạn</b>, mất 2 công đức.`, true);
+    return;
+  }
+  const tgt = others.get(targetPeer);
+  if (tgt) { tgt.av.hitFx(); floatText("-2", tgt.tx, 2.4, tgt.tz, "#ff6a4a"); addLog(`<b>${esc(o.name || "Ai đó")}</b> gõ đầu <b>${esc(tgt.name || "ai đó")}</b>.`); }
+}
+function setArmed(on) {
+  armed = !!on; store.set("apo-armed", armed); myAv && myAv.setArmed(armed);
+  const b = $("#b-gay"); b.textContent = armed ? "Cất gậy (G)" : "Cầm gậy (G)"; b.setAttribute("aria-pressed", armed);
+  presenceNow(true);
+}
 /* Own-server mode: outside Claude the page talks to server.js over WebSocket (/ws). */
 function clientKey() {
   let k = store.get("apo-key", null);
@@ -750,7 +801,7 @@ async function startDb() {
 
 /* ---------- UI: servers, character ---------- */
 function show(id) { ["#ov-sv", "#ov-char", "#ov-board"].forEach(s => $(s).hidden = s !== id); }
-function setHud(on) { ["#hud", "#hud2", "#chat", "#help", "#stick", "#actbtn"].forEach(s => $(s).hidden = !on); if (!on) $("#prompt").hidden = true; }
+function setHud(on) { ["#hud", "#hud2", "#chat", "#help", "#stick", "#actbtn", "#b-gay"].forEach(s => $(s).hidden = !on); if (!on) $("#prompt").hidden = true; }
 $("#servers").addEventListener("click", e => { const b = e.target.closest("[data-sv]"); if (!b) return; sv = b.dataset.sv; applyServerLook(); fillChar(); show("#ov-char"); ensureMyAv(); });
 function applyServerLook() {
   const s = SERVERS.find(s => s.id === sv) || SERVERS[0];
@@ -782,8 +833,7 @@ $("#charf").addEventListener("submit", e => {
   others.forEach(o => o.av.dispose()); others.clear(); syncPeers();
   presenceNow(true); canvas.focus({ preventScroll: true });
 });
-function ensureMyAv() { if (!myAv) { myAv = new Avatar(Object.assign({ m: merit }, me), true); myAv.root.position.set(player.x, 0, player.z); } }
-$("#b-sv").addEventListener("click", () => { playing = false; setHud(false); others.forEach(o => o.av.dispose()); others.clear(); presenceNow(true); renderServers(); show("#ov-sv"); });
+function ensureMyAv() { if (!myAv) { myAv = new Avatar(Object.assign({ m: merit }, me), true); myAv.root.position.set(player.x, 0, player.z); setArmed(armed); } }
 $("#b-char").addEventListener("click", () => { fillChar(); show("#ov-char"); });
 $("#b-board").addEventListener("click", () => show("#ov-board"));
 const hud2 = $("#hud2");
@@ -822,6 +872,7 @@ addEventListener("keydown", e => {
   if (KM[e.code]) { keys[KM[e.code]] = true; e.preventDefault(); }
   if ((e.code === "KeyE" || e.code === "Space") && !e.repeat) { e.preventDefault(); interact(); }
   if (e.code === "Enter") { e.preventDefault(); $("#chat-in").focus(); }
+  if (e.code === "KeyG" && !e.repeat) { e.preventDefault(); setArmed(!armed); }
 });
 addEventListener("keyup", e => { if (KM[e.code]) keys[KM[e.code]] = false; });
 addEventListener("blur", () => { for (const k in keys) keys[k] = false; });
@@ -838,11 +889,17 @@ const endJoy = () => { joy = null; knob.style.transform = ""; };
 stick.addEventListener("pointerup", endJoy); stick.addEventListener("pointercancel", endJoy);
 function moveJoy(e) { const r = stick.getBoundingClientRect(); let dx = (e.clientX - r.left - r.width / 2) / (r.width / 2), dy = (e.clientY - r.top - r.height / 2) / (r.height / 2); const l = Math.hypot(dx, dy); if (l > 1) { dx /= l; dy /= l; } joy.x = dx; joy.y = dy; knob.style.transform = `translate(${dx * 36}px, ${dy * 36}px)`; }
 $("#actbtn").addEventListener("click", () => interact());
+$("#b-gay").addEventListener("click", () => { setArmed(!armed); canvas.focus({ preventScroll: true }); });
 
 /* ---------- interact ---------- */
 let nearT = null; const lastAct = {};
 function findNear() {
   let best = null, bd = 1e9;
+  // holding the stick: another player close by takes priority over everything else
+  if (armed && !inHall(player.x, player.z)) {
+    for (const [peer, o] of others) { const d = Math.hypot(player.x - o.x, player.z - o.z); if (d < 2.4 && d - 100 < bd && !inHall(o.x, o.z)) { bd = d - 100; best = { type: "bonk", peer, o }; } }
+    if (best) return best;
+  }
   for (const k in ACTS) { const a = ACTS[k], d = Math.hypot(player.x - a.x, player.z - a.z); if (d < a.r && d < bd) { bd = d; best = { type: "act", k }; } }
   npcs.forEach(h => { const d = Math.hypot(player.x - h.x, player.z - h.z); const r = h === NPC_KING ? 6.5 : 2.6; if (d < r && d < bd) { bd = d; best = { type: "npc", h }; } });
   steles.forEach(s => { const d = Math.hypot(player.x - s.x, player.z - s.z); if (d < 2.6 && d < bd) { bd = d; best = { type: "stele", s }; } });
@@ -850,13 +907,22 @@ function findNear() {
 }
 function promptText(n) {
   if (!n) return "";
+  if (n.type === "bonk") return `<kbd>E</kbd>Gõ đầu ${esc(n.o.name || "vong hồn")} · trừ 2 công đức của họ`;
   if (n.type === "act") { const a = ACTS[n.k]; return `<kbd>E</kbd>${a.label} · +${a.gain} công đức`; }
   if (n.type === "npc") return `<kbd>E</kbd>Nói chuyện với ${esc(n.h.name)}`;
   const L = LEVELS.find(l => +l.n === n.s.n) || {}; return `<kbd>E</kbd>Đọc bia B${n.s.n} · ${esc(L.name || "")}`;
 }
 function interact() {
   if (!playing) return; const n = nearT; const now = performance.now();
-  if (!n) { toast("Lại gần mõ, đỉnh hương, chuông, lò vàng mã, bến đèn hoặc một nhân vật"); return; }
+  if (!n) { toast(armed ? "Lại gần một vong hồn khác để gõ đầu (trong Điện Diêm La thì cấm đánh nhau)" : "Lại gần mõ, đỉnh hương, chuông, lò vàng mã, bến đèn hoặc một nhân vật"); return; }
+  if (n.type === "bonk") {
+    if (now - lastBonk < 1000) return; lastBonk = now;
+    myAv.swing(); sfx("bonk"); n.o.av.hitFx();
+    floatText("Bốp!", n.o.x, 2.5, n.o.z, "#ff6a4a");
+    myHit = [n.peer, ++actSeq]; presenceNow(true);
+    addLog(`<b>Bạn</b> gõ đầu <b>${esc(n.o.name || "vong hồn")}</b>. Họ mất 2 công đức.`);
+    return;
+  }
   if (n.type === "act") {
     const a = ACTS[n.k]; if (now - (lastAct[n.k] || -1e9) < a.cd) return; lastAct[n.k] = now;
     playEffect(n.k); gain(a.gain); floatText(`+${a.gain} công đức`, player.x, 2.7, player.z);
@@ -879,6 +945,9 @@ function interact() {
 
 /* ---------- loop ---------- */
 const clock = new THREE.Clock(); let t = 0;
+const actBtn = $("#actbtn");
+// test hook, only when running on this computer
+if (location.hostname === "localhost") window.__apo = { player, others, interact, findNear, setArmed, get merit() { return merit; } };
 // big static meshes that can block the camera (collected once, after extras are built)
 const camRay = new THREE.Raycaster(), camDir = new THREE.Vector3(), camFrom = new THREE.Vector3();
 let camD = 9;
@@ -909,6 +978,7 @@ function frame() {
     myAv.moving = player.moving;
     myAv.root.position.set(player.x, groundY(player.x, player.z), player.z); myAv.root.rotation.y = player.ry;
     const n = findNear(); nearT = n; const pt = promptText(n); const pe = $("#prompt");
+    const al = n && n.type === "bonk" ? "Gõ!" : "Tương tác"; if (actBtn.textContent !== al) actBtn.textContent = al;
     if (pt !== pe.dataset.t) { pe.dataset.t = pt; pe.innerHTML = pt; } pe.hidden = !pt;
     presenceNow(false);
   }
@@ -941,6 +1011,7 @@ function frame() {
   }
   camD += (d2 - camD) * Math.min(1, dt * (d2 < camD ? 20 : 4));
   camera.position.set(fx + Math.sin(yaw) * Math.cos(pitch) * camD, fy + Math.sin(pitch) * camD, fz + Math.cos(yaw) * Math.cos(pitch) * camD);
+  if (now < shakeUntil) { camera.position.x += (Math.random() - .5) * .3; camera.position.y += (Math.random() - .5) * .2; }
   camera.lookAt(fx, fy, fz);
   // props animation
   const mt = (now - props.mo.t) / 140; props.mo.mo.scale.y = .8 - (mt < 1 ? .12 * (1 - mt) : 0); props.mo.mallet.rotation.z = mt < 1 ? -.3 : .5;

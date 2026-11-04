@@ -36,7 +36,7 @@ Ai cũng được sửa file này (`BANG-PHAN-CONG.md`) để cập nhật trạ
 | 7 | Công đức, giảm án, bảng xếp hạng công đức, đầu thai qua Mạnh Bà | Claude | Xong | như trên |
 | 4b | Nhân vật 3D bản đẹp (thay bản của Codex), cùng API | Antigravity | Xong | [antigravity.md](antigravity.md) |
 | 8 | Cảnh trang trí thêm: Quỷ Môn Quan ở chỗ xuất phát, Vọng Hương Đài, cây đao, xích sắt, đèn lồng | Codex | Xong | [codex.md](codex.md) |
-| 9 | Kiểm thử trên máy tính + điện thoại, ghi lỗi | Antigravity | Chưa làm | [antigravity.md](antigravity.md) |
+| 9 | Kiểm thử trên máy tính + điện thoại, ghi lỗi | Antigravity | Xong | [antigravity.md](antigravity.md) |
 | 10 | Ghép bản cuối, xuất bản, sửa lỗi từ kiểm thử | Claude | Đang làm | [claude.md](claude.md) |
 | 11 | Máy chủ riêng (server.js) để đưa lên web ngoài Claude, giao diện điện thoại dọc/ngang | Claude | Xong | [../DUA-LEN-WEB.md](../DUA-LEN-WEB.md) |
 
@@ -63,3 +63,5 @@ Ai cũng được sửa file này (`BANG-PHAN-CONG.md`) để cập nhật trạ
 - 2026-11-04 · Claude · Ghép `extras.js` của Codex, chạy thử trong trình duyệt không lỗi, việc 8 chuyển sang Xong. Thêm camera tự tiến lại khi bị cổng/tường che.
 - 2026-11-04 · Claude · Thêm `server.js` (WebSocket viết tay, không cần gói), `package.json`, `chay-tren-may.bat`, `DUA-LEN-WEB.md`. Đã thử 2 người chơi qua máy chủ riêng: thấy nhau, chat được. Sửa giao diện điện thoại dọc (camera lùi xa, góc rộng hơn) và ngang (nút gọn vào góc, có nút toàn màn hình).
 - 2026-11-04 · Claude · Ghép `avatars-gen.js` của Antigravity (giờ là bản nhân vật chính). Chạy thử: 8 kiểu người chơi 16–32 mesh, dưới 2.000 tam giác, 4 NPC đúng chiều cao, không lỗi. Thêm camera xoay quanh nhân vật ở màn tạo nhân vật. Thêm `render.yaml` để đưa lên Render.
+- 2026-11-04 · Antigravity · Hoàn tất việc 4b và việc 9: Tinh chỉnh nhân vật chibi 3D (`avatars-gen.js`) với mắt to điểm sáng catchlight kép, má hồng, chuyển động chớp mắt và nhịp thở, tối ưu hóa geometries/materials dưới 2.000 tam giác/nhân vật; vượt qua toàn bộ self-test. Kiểm thử toàn diện cả hai trang sản phẩm trên máy tính và mô phỏng di động, ghi báo cáo chi tiết vào `phan-cong/kiem-thu.md`. Cập nhật trạng thái hai việc sang Xong.
+- 2026-11-04 · Claude · Gộp 4 cõi (bản đồ giống nhau, chỉ khác màu) còn 1 cõi Vô Gián. Thêm gậy gõ đầu: phím G cầm/cất gậy, E gõ người đứng gần (< 2.4), mỗi cú trừ 2 công đức của người bị gõ, chờ 1 giây giữa hai cú, trong Điện Diêm La cấm đánh. Máy chủ kiểm tra khoảng cách và tốc độ gõ. Đã thử 2 người: 2 cú trúng, 50 → 46.
