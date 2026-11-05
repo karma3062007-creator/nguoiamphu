@@ -1394,10 +1394,20 @@ addEventListener("keydown", e => {
 addEventListener("keyup", e => { if (KM[e.code]) keys[KM[e.code]] = false; });
 addEventListener("blur", () => { for (const k in keys) keys[k] = false; });
 let drag = null;
+// ngồi ghế xem màn chiếu: kéo chuột / vuốt để nhìn quanh, lăn chuột để phóng to, nhấp đúp để nhìn thẳng màn lại
+const seatLook = { yaw: 0, pitch: 0, fov: 55 };
+const watching = () => !!(riding && riding.ride.hall && riding.ride.type !== "stage" && riding.ride.hall.room && riding.ride.hall.room.screen);
+function resetSeatLook() { seatLook.yaw = 0; seatLook.pitch = 0; seatLook.fov = portrait ? 72 : 55; }
 canvas.addEventListener("pointerdown", e => { canvas.focus({ preventScroll: true }); if (shooting) { shootAt(e.clientX, e.clientY); return; } drag = { x: e.clientX, y: e.clientY, id: e.pointerId }; canvas.setPointerCapture(e.pointerId); });
-canvas.addEventListener("pointermove", e => { if (shooting) { aimAt(e.clientX, e.clientY); return; } if (!drag || drag.id !== e.pointerId) return; cam.tYaw -= (e.clientX - drag.x) * .006; cam.pitch = clamp(cam.pitch + (e.clientY - drag.y) * .004, .12, 1.2); drag.x = e.clientX; drag.y = e.clientY; });
+canvas.addEventListener("pointermove", e => {
+  if (shooting) { aimAt(e.clientX, e.clientY); return; } if (!drag || drag.id !== e.pointerId) return;
+  const dx = e.clientX - drag.x, dy = e.clientY - drag.y; drag.x = e.clientX; drag.y = e.clientY;
+  if (watching()) { const k = .0035 * seatLook.fov / 55; seatLook.yaw = clamp(seatLook.yaw + dx * k, -1.7, 1.7); seatLook.pitch = clamp(seatLook.pitch + dy * k, -.9, .9); return; }
+  cam.tYaw -= dx * .006; cam.pitch = clamp(cam.pitch + dy * .004, .12, 1.2);
+});
 canvas.addEventListener("pointerup", () => drag = null); canvas.addEventListener("pointercancel", () => drag = null);
-canvas.addEventListener("wheel", e => { e.preventDefault(); cam.dist = clamp(cam.dist + e.deltaY * .01, 4, 18); }, { passive: false });
+canvas.addEventListener("wheel", e => { e.preventDefault(); if (watching()) { seatLook.fov = clamp(seatLook.fov + e.deltaY * .03, 22, 75); return; } cam.dist = clamp(cam.dist + e.deltaY * .01, 4, 18); }, { passive: false });
+canvas.addEventListener("dblclick", () => { if (watching()) resetSeatLook(); });
 // joystick
 const stick = $("#stick"), knob = $("#knob"); let joy = null;
 stick.addEventListener("pointerdown", e => { joy = { id: e.pointerId, x: 0, y: 0 }; stick.setPointerCapture(e.pointerId); moveJoy(e); });
@@ -1424,7 +1434,7 @@ function boardRide(ride) {
   if (ride.hall) {
     // ngồi ghế gần nhất
     let bi = free[0], bd = 1e9; for (const i of free) { const b = ride.board[i], d = Math.hypot(player.x - b.x, player.z - b.z); if (d < bd) { bd = d; bi = i; } }
-    riding = { ride, seat: bi }; presenceNow(true);
+    riding = { ride, seat: bi }; resetSeatLook(); presenceNow(true);
     if (ride.type === "chua") openChant();
     else if (ride.type === "stage") { toast("Bạn đang đứng trên sân khấu. Hát theo video nhé!"); sfx("up"); }
     return;
@@ -1876,7 +1886,7 @@ function hallsFrame(dt, now) {
 const clock = new THREE.Clock(); let t = 0;
 const actBtn = $("#actbtn");
 // test hook, only when running on this computer
-if (location.hostname === "localhost") window.__apo = { player, others, interact, findNear, setArmed, reborn, endIntro, STALLS, walkable, cam, rides, boardRide, leaveRide, get riding() { return riding; }, HALLS, THEATERS, NP, chantOnce, hallAt, doOffer, doBow, doWish, doMeditate, sutraDone, get chantUI() { return chantUI; }, booth, startShoot, endShoot, shootAt, get shooting() { return shooting; }, get intro() { return intro; }, get merit() { return merit; } };
+if (location.hostname === "localhost") window.__apo = { player, others, interact, findNear, setArmed, reborn, endIntro, STALLS, walkable, cam, rides, boardRide, leaveRide, get riding() { return riding; }, HALLS, THEATERS, NP, seatLook, chantOnce, hallAt, doOffer, doBow, doWish, doMeditate, sutraDone, get chantUI() { return chantUI; }, booth, startShoot, endShoot, shootAt, get shooting() { return shooting; }, get intro() { return intro; }, get merit() { return merit; } };
 // big static meshes that can block the camera (collected once, after extras are built)
 const camRay = new THREE.Raycaster(), camDir = new THREE.Vector3(), camFrom = new THREE.Vector3();
 let camD = 9;
@@ -1968,9 +1978,15 @@ function frame() {
   if (seatScr && myAv) {
     seatWorld(riding.ride, riding.seat); scrN.set(0, 0, 1).applyQuaternion(seatQ); scrN.y = 0; scrN.normalize();
     camera.position.copy(seatPos).addScaledVector(scrN, .2); camera.position.y += 1.55;   // ngang tầm mắt người ngồi
-    seatScr.updateWorldMatrix(true, false); scrC.setFromMatrixPosition(seatScr.matrixWorld); camera.lookAt(scrC);
+    seatScr.updateWorldMatrix(true, false); scrC.setFromMatrixPosition(seatScr.matrixWorld);
+    // hướng nhìn = hướng tới màn chiếu + phần người chơi tự kéo
+    scrV.copy(scrC).sub(camera.position);
+    const ly = Math.atan2(scrV.x, scrV.z) + seatLook.yaw, lp = clamp(Math.atan2(scrV.y, Math.hypot(scrV.x, scrV.z)) + seatLook.pitch, -1.3, 1.3);
+    camera.lookAt(camera.position.x + Math.sin(ly) * Math.cos(lp), camera.position.y + Math.sin(lp), camera.position.z + Math.cos(ly) * Math.cos(lp));
     hallFade(riding.ride.hall, scrC.x, scrC.y, scrC.z);
   } else hallFade(inside, fx, fy, fz);
+  const wantFov = seatScr ? seatLook.fov : (portrait ? 72 : 55);
+  if (Math.abs(camera.fov - wantFov) > .01) { camera.fov = wantFov; camera.updateProjectionMatrix(); }
   camera.updateMatrixWorld(); for (const k in THEATERS) THEATERS[k].place();
   if (shooting && booth) {
     // camera ngay sau khẩu súng, nhìn thẳng vào vách bia
