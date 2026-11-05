@@ -99,6 +99,9 @@ button { font-family: var(--body); }
 .autobtn[aria-expanded="true"] { background: #e8b765; }
 .automenu { right: max(10px, env(safe-area-inset-right, 0px)); bottom: calc(188px + env(safe-area-inset-bottom, 0px)); width: min(320px, calc(100vw - 20px)); max-height: min(60vh, 460px); overflow: auto; border-radius: 16px; background: linear-gradient(180deg, rgba(255,243,214,.97), rgba(246,212,154,.97)); color: #2b0a0a; border: 2px solid #e8b765; z-index: 6; }
 .automenu .am-head { display: flex; align-items: center; justify-content: space-between; position: sticky; top: -10px; background: inherit; padding-bottom: 4px; }
+.automenu .am-run { display: block; width: 100%; margin: 6px 0 2px; text-align: left; font: 800 .88rem var(--body); color: #fff4e0; background: var(--cinnabar, #b3261e); border: 2px solid #e8b765; border-radius: 12px; padding: 8px 12px; cursor: pointer; }
+.automenu .am-run small { display: block; font-weight: 600; font-size: .72rem; opacity: .9; }
+.automenu .am-run[aria-pressed="true"] { background: #e8b765; color: #4a1d0c; }
 .automenu .am-x { border: 0; background: none; font-size: 1rem; cursor: pointer; color: #6a1414; }
 .automenu h4 { margin: 10px 0 4px; font: 800 .74rem var(--body); letter-spacing: .06em; text-transform: uppercase; color: #8a3a14; }
 .automenu .am-grid { display: flex; flex-wrap: wrap; gap: 6px; }
@@ -334,12 +337,12 @@ h2 { font-size: 1.8rem; color: var(--gold); }
   <div class="hud toast" id="toast" hidden></div>
   <div id="chant-host"></div>
   <div class="hud shoot card" id="shoot" hidden><b>Bắn súng trúng tâm</b><span>Đạn <i id="sh-ammo"></i></span><span>Điểm <b id="sh-score">0</b></span><span id="sh-time"></span><button class="btn ghost" type="button" id="sh-quit">Thôi</button></div>
-  <div class="hud help" id="help" hidden>WASD / mũi tên: đi · Kéo chuột: xoay góc nhìn · Lăn chuột: gần xa · E: tương tác · Space: nhảy · G: cầm gậy · T: tự đi</div>
+  <div class="hud help" id="help" hidden>WASD / mũi tên: đi · Kéo chuột: xoay góc nhìn · Lăn chuột: gần xa · E: tương tác · Space: nhảy · G: cầm gậy · T: tự đi · R: tự chạy thẳng</div>
   <div class="hud stick" id="stick" hidden><i id="knob"></i></div>
   <button class="hud actbtn" id="actbtn" type="button" hidden>Tương tác</button>
   <button class="hud jumpbtn" id="b-jump" type="button" hidden>Nhảy</button>
   <button class="hud autobtn" id="b-auto" type="button" aria-expanded="false" aria-controls="auto-menu" hidden>🧭 Tự đi</button>
-  <div class="hud automenu card" id="auto-menu" hidden><div class="am-head"><b>Tự đi tới…</b><button type="button" class="am-x" id="am-close" aria-label="Đóng">✕</button></div><div id="am-list"></div></div>
+  <div class="hud automenu card" id="auto-menu" hidden><div class="am-head"><b>Tự đi tới…</b><button type="button" class="am-x" id="am-close" aria-label="Đóng">✕</button></div><button type="button" class="am-run" id="am-run" aria-pressed="false">🏃 Tự chạy thẳng <small>(R) · lái bằng A/D, cần điều khiển hoặc kéo chuột</small></button><div id="am-list"></div></div>
   <div class="hud autochip" id="auto-chip" hidden><span id="ac-text"></span><button type="button" id="ac-stop">Dừng</button></div>
   <button class="hud gaybtn" id="b-gay" type="button" aria-pressed="false" hidden>Cầm gậy (G)</button>
 
@@ -1286,7 +1289,7 @@ $("#b-intro").addEventListener("click", () => { if (playing) startIntro(true); }
 
 /* ---------- UI: servers, character ---------- */
 function show(id) { ["#ov-sv", "#ov-char", "#ov-board"].forEach(s => $(s).hidden = s !== id); }
-function setHud(on) { ["#hud", "#hud2", "#chat", "#help", "#stick", "#actbtn", "#b-gay", "#b-jump", "#b-auto"].forEach(s => $(s).hidden = !on); if (!on) { $("#prompt").hidden = true; if (typeof stopAuto === "function") { stopAuto(); closeAutoMenu(); } } }
+function setHud(on) { ["#hud", "#hud2", "#chat", "#help", "#stick", "#actbtn", "#b-gay", "#b-jump", "#b-auto"].forEach(s => $(s).hidden = !on); if (!on) { $("#prompt").hidden = true; if (typeof stopAuto === "function") { stopAuto(); stopAutoRun(); closeAutoMenu(); } } }
 $("#servers").addEventListener("click", e => { const b = e.target.closest("[data-sv]"); if (!b) return; sv = b.dataset.sv; applyServerLook(); fillChar(); show("#ov-char"); ensureMyAv(); });
 function applyServerLook() {
   const s = SERVERS.find(s => s.id === sv) || SERVERS[0];
@@ -1415,6 +1418,7 @@ addEventListener("keydown", e => {
   if (e.code === "KeyE" && !e.repeat) { e.preventDefault(); interact(); }
   if (e.code === "Escape" && shooting) { e.preventDefault(); endShoot(); }
   if (e.code === "KeyT" && !e.repeat) { e.preventDefault(); toggleAutoMenu(); }
+  if (e.code === "KeyR" && !e.repeat) { e.preventDefault(); toggleAutoRun(); }
   if (e.code === "Escape" && !$("#auto-menu").hidden) { e.preventDefault(); closeAutoMenu(); }
   if (e.code === "Space") { e.preventDefault(); if (!e.repeat) jump(); }
   if (e.code === "Enter" && !chantUI) { e.preventDefault(); $("#chat-in").focus(); }
@@ -1981,10 +1985,19 @@ function goTo(d) {
   if (shooting) endShoot(); if (riding) leaveRide();
   const path = navPath(player.x, player.z, d.x, d.z);
   if (!path || !path.length) { toast(`Không tìm được đường tới ${d.name}`); return; }
-  autoNav = { name: d.name, path, i: 0, stuckT: 0, lastD: 1e9 };
+  stopAutoRun(); autoNav = { name: d.name, path, i: 0, stuckT: 0, lastD: 1e9 };
   $("#ac-text").textContent = `🧭 Đang tự đi tới ${d.name}`; $("#auto-chip").hidden = false; closeAutoMenu();
 }
 function stopAuto(msg) { if (!autoNav) return; autoNav = null; $("#auto-chip").hidden = true; if (msg) toast(msg); }
+// Tự chạy thẳng: nhân vật cứ chạy tới trước theo hướng camera; A/D, cần điều khiển trái/phải hoặc kéo chuột để lái; S / kéo cần xuống / nút Dừng để dừng
+let autoRun = false;
+function startAutoRun() {
+  if (!playing) return; if (shooting) endShoot(); if (riding) leaveRide(); stopAuto();
+  autoRun = true; $("#ac-text").textContent = "🏃 Đang tự chạy · A/D hoặc kéo chuột để lái"; $("#auto-chip").hidden = false;
+  $("#am-run").setAttribute("aria-pressed", "true"); closeAutoMenu();
+}
+function stopAutoRun(msg) { if (!autoRun) return; autoRun = false; $("#auto-chip").hidden = true; $("#am-run").setAttribute("aria-pressed", "false"); if (msg) toast(msg); }
+function toggleAutoRun() { if (autoRun) stopAutoRun("Đã dừng tự chạy"); else startAutoRun(); }
 function autoStep(dt, manual) {
   if (manual) { stopAuto("Đã dừng tự đi"); return; }
   if (riding || shooting) { stopAuto(); return; }
@@ -2011,14 +2024,15 @@ function closeAutoMenu() { $("#auto-menu").hidden = true; $("#b-auto").setAttrib
 function toggleAutoMenu() { if ($("#auto-menu").hidden) openAutoMenu(); else closeAutoMenu(); }
 $("#b-auto").addEventListener("click", toggleAutoMenu);
 $("#am-close").addEventListener("click", closeAutoMenu);
-$("#ac-stop").addEventListener("click", () => stopAuto("Đã dừng tự đi"));
+$("#ac-stop").addEventListener("click", () => { stopAuto("Đã dừng tự đi"); stopAutoRun("Đã dừng tự chạy"); });
+$("#am-run").addEventListener("click", toggleAutoRun);
 $("#am-list").addEventListener("click", e => { const b = e.target.closest("[data-go]"); if (!b) return; const d = navDests()[+b.dataset.go]; if (d) goTo(d); });
 
 /* ---------- loop ---------- */
 const clock = new THREE.Clock(); let t = 0;
 const actBtn = $("#actbtn");
 // test hook, only when running on this computer
-if (location.hostname === "localhost") window.__apo = { player, others, interact, findNear, setArmed, reborn, endIntro, STALLS, walkable, cam, rides, boardRide, leaveRide, get riding() { return riding; }, HALLS, THEATERS, NP, seatLook, navPath, navDests, goTo, stopAuto, autoStep, get autoNav() { return autoNav; }, chantOnce, hallAt, doOffer, doBow, doWish, doMeditate, sutraDone, get chantUI() { return chantUI; }, booth, startShoot, endShoot, shootAt, get shooting() { return shooting; }, get intro() { return intro; }, get merit() { return merit; } };
+if (location.hostname === "localhost") window.__apo = { player, others, interact, findNear, setArmed, reborn, endIntro, STALLS, walkable, cam, rides, boardRide, leaveRide, get riding() { return riding; }, HALLS, THEATERS, NP, seatLook, navPath, navDests, goTo, stopAuto, autoStep, toggleAutoRun, get autoRun() { return autoRun; }, get autoNav() { return autoNav; }, chantOnce, hallAt, doOffer, doBow, doWish, doMeditate, sutraDone, get chantUI() { return chantUI; }, booth, startShoot, endShoot, shootAt, get shooting() { return shooting; }, get intro() { return intro; }, get merit() { return merit; } };
 // big static meshes that can block the camera (collected once, after extras are built)
 const camRay = new THREE.Raycaster(), camDir = new THREE.Vector3(), camFrom = new THREE.Vector3();
 let camD = 9;
@@ -2046,6 +2060,11 @@ function frame() {
   if (playing && myAv) {
     let ix = (keys.r ? 1 : 0) - (keys.l ? 1 : 0), iz = (keys.f ? 1 : 0) - (keys.b ? 1 : 0);
     if (joy) { ix = joy.x; iz = -joy.y; }
+    if (autoRun) {
+      if (riding || shooting) stopAutoRun();
+      else if (keys.b || (joy && joy.y > .6)) stopAutoRun("Đã dừng tự chạy");
+      else { iz = 1; ix = joy ? joy.x * 1.2 : ix; }   // luôn chạy tới, trái/phải để lái
+    }
     if (riding || shooting) { ix = 0; iz = 0; }
     const il = Math.hypot(ix, iz);
     player.moving = il > .1;
