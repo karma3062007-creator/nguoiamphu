@@ -95,6 +95,20 @@ button { font-family: var(--body); }
 .gaybtn[aria-pressed="true"] { background: #7a4520; color: #fff4e0; }
 .jumpbtn { right: max(10px, env(safe-area-inset-right, 0px)); bottom: calc(92px + env(safe-area-inset-bottom, 0px)); font: 800 .85rem var(--display); color: #6a1414; background: #fff3d6; border: 2px solid #e8b765; padding: 8px 14px; border-radius: 999px; cursor: pointer; touch-action: none; }
 .jumpbtn:active { transform: translateY(2px); }
+.autobtn { right: max(10px, env(safe-area-inset-right, 0px)); bottom: calc(140px + env(safe-area-inset-bottom, 0px)); font: 800 .85rem var(--display); color: #6a1414; background: #fff3d6; border: 2px solid #e8b765; padding: 8px 14px; border-radius: 999px; cursor: pointer; touch-action: manipulation; }
+.autobtn[aria-expanded="true"] { background: #e8b765; }
+.automenu { right: max(10px, env(safe-area-inset-right, 0px)); bottom: calc(188px + env(safe-area-inset-bottom, 0px)); width: min(320px, calc(100vw - 20px)); max-height: min(60vh, 460px); overflow: auto; border-radius: 16px; background: linear-gradient(180deg, rgba(255,243,214,.97), rgba(246,212,154,.97)); color: #2b0a0a; border: 2px solid #e8b765; z-index: 6; }
+.automenu .am-head { display: flex; align-items: center; justify-content: space-between; position: sticky; top: -10px; background: inherit; padding-bottom: 4px; }
+.automenu .am-x { border: 0; background: none; font-size: 1rem; cursor: pointer; color: #6a1414; }
+.automenu h4 { margin: 10px 0 4px; font: 800 .74rem var(--body); letter-spacing: .06em; text-transform: uppercase; color: #8a3a14; }
+.automenu .am-grid { display: flex; flex-wrap: wrap; gap: 6px; }
+.automenu .am-grid button { font: 700 .8rem var(--body); color: #4a1d0c; background: #fff; border: 1px solid #e8b765; border-radius: 999px; padding: 6px 10px; cursor: pointer; }
+.automenu .am-grid button:hover, .automenu .am-grid button:focus-visible { background: #ffe6a8; }
+.autochip { left: 50%; transform: translateX(-50%); top: calc(64px + env(safe-area-inset-top, 0px)); display: flex; align-items: center; gap: 10px; background: rgba(43,10,10,.88); color: #ffe6a8; border: 1px solid #e8b765; border-radius: 999px; padding: 6px 8px 6px 14px; font: 700 .85rem var(--body); white-space: nowrap; max-width: calc(100vw - 24px); }
+.autochip span { overflow: hidden; text-overflow: ellipsis; }
+.autochip button { font: 800 .8rem var(--body); background: #ffe6a8; color: #6a1414; border: 0; border-radius: 999px; padding: 5px 12px; cursor: pointer; }
+@media (pointer: coarse) { .autobtn { right: calc(179px + env(safe-area-inset-right, 0px)); bottom: calc(30px + env(safe-area-inset-bottom, 0px)); width: 56px; height: 56px; padding: 0; border-radius: 50%; font-size: .78rem; line-height: 1.1; } .automenu { bottom: calc(104px + env(safe-area-inset-bottom, 0px)); } }
+@media (pointer: coarse) and (max-height: 500px) { .autobtn { right: calc(160px + env(safe-area-inset-right, 0px)); bottom: calc(14px + env(safe-area-inset-bottom, 0px)); width: 56px; height: 56px; } .automenu { bottom: 8px; right: calc(170px + env(safe-area-inset-right, 0px)); max-height: calc(100% - 16px); } }
 .menu-btn { display: none; }
 @media (pointer: coarse) {
   .stick, .actbtn { display: block; }
@@ -320,10 +334,13 @@ h2 { font-size: 1.8rem; color: var(--gold); }
   <div class="hud toast" id="toast" hidden></div>
   <div id="chant-host"></div>
   <div class="hud shoot card" id="shoot" hidden><b>Bắn súng trúng tâm</b><span>Đạn <i id="sh-ammo"></i></span><span>Điểm <b id="sh-score">0</b></span><span id="sh-time"></span><button class="btn ghost" type="button" id="sh-quit">Thôi</button></div>
-  <div class="hud help" id="help" hidden>WASD / mũi tên: đi · Kéo chuột: xoay góc nhìn · Lăn chuột: gần xa · E: tương tác · Space: nhảy · G: cầm gậy</div>
+  <div class="hud help" id="help" hidden>WASD / mũi tên: đi · Kéo chuột: xoay góc nhìn · Lăn chuột: gần xa · E: tương tác · Space: nhảy · G: cầm gậy · T: tự đi</div>
   <div class="hud stick" id="stick" hidden><i id="knob"></i></div>
   <button class="hud actbtn" id="actbtn" type="button" hidden>Tương tác</button>
   <button class="hud jumpbtn" id="b-jump" type="button" hidden>Nhảy</button>
+  <button class="hud autobtn" id="b-auto" type="button" aria-expanded="false" aria-controls="auto-menu" hidden>🧭 Tự đi</button>
+  <div class="hud automenu card" id="auto-menu" hidden><div class="am-head"><b>Tự đi tới…</b><button type="button" class="am-x" id="am-close" aria-label="Đóng">✕</button></div><div id="am-list"></div></div>
+  <div class="hud autochip" id="auto-chip" hidden><span id="ac-text"></span><button type="button" id="ac-stop">Dừng</button></div>
   <button class="hud gaybtn" id="b-gay" type="button" aria-pressed="false" hidden>Cầm gậy (G)</button>
 
   <!-- server select -->
@@ -4684,7 +4701,7 @@ $("#b-intro").addEventListener("click", () => { if (playing) startIntro(true); }
 
 /* ---------- UI: servers, character ---------- */
 function show(id) { ["#ov-sv", "#ov-char", "#ov-board"].forEach(s => $(s).hidden = s !== id); }
-function setHud(on) { ["#hud", "#hud2", "#chat", "#help", "#stick", "#actbtn", "#b-gay", "#b-jump"].forEach(s => $(s).hidden = !on); if (!on) $("#prompt").hidden = true; }
+function setHud(on) { ["#hud", "#hud2", "#chat", "#help", "#stick", "#actbtn", "#b-gay", "#b-jump", "#b-auto"].forEach(s => $(s).hidden = !on); if (!on) { $("#prompt").hidden = true; if (typeof stopAuto === "function") { stopAuto(); closeAutoMenu(); } } }
 $("#servers").addEventListener("click", e => { const b = e.target.closest("[data-sv]"); if (!b) return; sv = b.dataset.sv; applyServerLook(); fillChar(); show("#ov-char"); ensureMyAv(); });
 function applyServerLook() {
   const s = SERVERS.find(s => s.id === sv) || SERVERS[0];
@@ -4812,6 +4829,8 @@ addEventListener("keydown", e => {
   if (KM[e.code]) { keys[KM[e.code]] = true; e.preventDefault(); }
   if (e.code === "KeyE" && !e.repeat) { e.preventDefault(); interact(); }
   if (e.code === "Escape" && shooting) { e.preventDefault(); endShoot(); }
+  if (e.code === "KeyT" && !e.repeat) { e.preventDefault(); toggleAutoMenu(); }
+  if (e.code === "Escape" && !$("#auto-menu").hidden) { e.preventDefault(); closeAutoMenu(); }
   if (e.code === "Space") { e.preventDefault(); if (!e.repeat) jump(); }
   if (e.code === "Enter" && !chantUI) { e.preventDefault(); $("#chat-in").focus(); }
   if (e.code === "Space" && chantUI && chantUI.fallback) { e.preventDefault(); if (!e.repeat) chantOnce("niem"); return; }
@@ -5308,11 +5327,113 @@ function hallsFrame(dt, now) {
   if (chantUI && !(riding && riding.ride.type === "chua")) closeChant();
 }
 
+/* ---------- Tự đi: chọn nơi muốn tới, nhân vật tự tìm đường (lưới 0,5 m, A*) ---------- */
+const NAV = { x0: -60, z0: -34, cell: .5, w: 240, h: 280, grid: null };
+function navGrid() {
+  if (NAV.grid) return NAV.grid;
+  const g = new Uint8Array(NAV.w * NAV.h);
+  for (let j = 0; j < NAV.h; j++) for (let i = 0; i < NAV.w; i++) g[j * NAV.w + i] = walkable(NAV.x0 + (i + .5) * NAV.cell, NAV.z0 + (j + .5) * NAV.cell) ? 1 : 0;
+  return NAV.grid = g;
+}
+const navCell = (x, z) => [Math.floor((x - NAV.x0) / NAV.cell), Math.floor((z - NAV.z0) / NAV.cell)];
+const navPos = (i, j) => ({ x: NAV.x0 + (i + .5) * NAV.cell, z: NAV.z0 + (j + .5) * NAV.cell });
+const navOk = (i, j) => i >= 0 && j >= 0 && i < NAV.w && j < NAV.h && NAV.grid[j * NAV.w + i] === 1;
+// ô đi được gần nhất (điểm đích hay nằm ngay trên đồ vật, cần đứng cạnh)
+function navNearest(i, j) {
+  if (navOk(i, j)) return [i, j];
+  for (let r = 1; r < 14; r++) { let best = null, bd = 1e9; for (let dj = -r; dj <= r; dj++) for (let di = -r; di <= r; di++) { if (Math.max(Math.abs(di), Math.abs(dj)) !== r || !navOk(i + di, j + dj)) continue; const d = di * di + dj * dj; if (d < bd) { bd = d; best = [i + di, j + dj]; } } if (best) return best; }
+  return null;
+}
+function navLine(a, b) {
+  const d = Math.hypot(b.x - a.x, b.z - a.z), n = Math.ceil(d / (NAV.cell * .5));
+  for (let k = 1; k < n; k++) { const t = k / n, [i, j] = navCell(a.x + (b.x - a.x) * t, a.z + (b.z - a.z) * t); if (!navOk(i, j)) return false; }
+  // lưới cho qua thì kiểm tra chính xác từng 0,2 m (tránh cắt sát mép cầu, cửa)
+  const m = Math.ceil(d / .2);
+  for (let k = 1; k < m; k++) { const t = k / m; if (!walkable(a.x + (b.x - a.x) * t, a.z + (b.z - a.z) * t)) return false; }
+  return true;
+}
+function navPath(fx, fz, tx, tz) {
+  navGrid();
+  const s = navNearest(...navCell(fx, fz)), e = navNearest(...navCell(tx, tz)); if (!s || !e) return null;
+  const W = NAV.w, N = W * NAV.h, si = s[1] * W + s[0], ei = e[1] * W + e[0];
+  const gS = new Float32Array(N).fill(Infinity), from = new Int32Array(N).fill(-1), done = new Uint8Array(N);
+  const heap = []; const push = (k, f) => { heap.push([f, k]); let c = heap.length - 1; while (c) { const p = (c - 1) >> 1; if (heap[p][0] <= heap[c][0]) break; [heap[p], heap[c]] = [heap[c], heap[p]]; c = p; } };
+  const pop = () => { const top = heap[0], last = heap.pop(); if (heap.length) { heap[0] = last; let c = 0; for (;;) { const l = 2 * c + 1, r = l + 1; let m = c; if (l < heap.length && heap[l][0] < heap[m][0]) m = l; if (r < heap.length && heap[r][0] < heap[m][0]) m = r; if (m === c) break; [heap[m], heap[c]] = [heap[c], heap[m]]; c = m; } } return top; };
+  const hh = k => { const dx = Math.abs(k % W - e[0]), dz = Math.abs((k / W | 0) - e[1]); return Math.max(dx, dz) + .414 * Math.min(dx, dz); };
+  gS[si] = 0; push(si, hh(si)); let steps = 0;
+  while (heap.length && steps++ < 200000) {
+    const [, k] = pop(); if (done[k]) continue; done[k] = 1; if (k === ei) break;
+    const i = k % W, j = k / W | 0;
+    for (let dj = -1; dj <= 1; dj++) for (let di = -1; di <= 1; di++) {
+      if (!di && !dj) continue; const ni = i + di, nj = j + dj; if (!navOk(ni, nj)) continue;
+      if (di && dj && (!navOk(i + di, j) || !navOk(i, j + dj))) continue;   // không cắt góc vật cản
+      const nk = nj * W + ni, ng = gS[k] + (di && dj ? 1.414 : 1);
+      if (ng < gS[nk]) { gS[nk] = ng; from[nk] = k; push(nk, ng + hh(nk)); }
+    }
+  }
+  if (!done[ei]) return null;
+  const cells = []; for (let k = ei; k !== -1; k = from[k]) cells.push(navPos(k % W, k / W | 0)); cells.reverse();
+  // làm mượt: bỏ các điểm giữa nếu đi thẳng được
+  const out = [{ x: fx, z: fz }]; let a = 0;
+  while (a < cells.length - 1) { let b = cells.length - 1; while (b > a + 1 && !navLine(cells[a], cells[b])) b--; out.push(cells[b]); a = b; }
+  return out.slice(1);
+}
+function navDests() {
+  const L = [];
+  const add = (group, name, x, z) => { if (isFinite(x) && isFinite(z)) L.push({ group, name, x, z }); };
+  [["mo", "🪘 Gõ mõ"], ["huong", "🪔 Đỉnh hương"], ["chuong", "🔔 Chuông"], ["vang", "🔥 Lò vàng mã"], ["den", "🏮 Bến thả đèn"]].forEach(([k, n]) => ACTS[k] && add("Sân Điện Diêm La", n, ACTS[k].x, ACTS[k].z));
+  add("Sân Điện Diêm La", "🌉 Cầu Nại Hà", 0, -12); add("Sân Điện Diêm La", "🍲 Mạnh Bà", NPC_MENG.x, NPC_MENG.z); add("Sân Điện Diêm La", "👑 Diêm Vương", NPC_KING.x, NPC_KING.z + 4);
+  STALLS.forEach(st => add("Quầy ăn tích phước", `${st.ic} ${st.label}`, st.x, st.z));
+  add("Công viên Âm Phủ", "⛩️ Cổng công viên", 0, 31);
+  rides.forEach(rd => { if (!rd.hall) add("Công viên Âm Phủ", { swing: "🪢 Xích đu", wheel: "🎡 Đu quay", coaster: "🎢 Tàu lượn" }[rd.type] || rd.name, rd.board[0].x, rd.board[0].z); });
+  if (booth && boothBoard[0]) add("Công viên Âm Phủ", "🎯 Bắn súng trúng tâm", boothBoard[0].x, boothBoard[0].z);
+  HALLS.forEach(h => { if (!h.room) return; const w = hallWorld(h, 0, 6.5); add("Nhà", { kara: "🎤 Phòng Karaoke", chua: "🙏 Chùa Niệm Phật", cine: "🎬 Rạp phim" }[h.key] || h.name, w.x, w.z); });
+  return L;
+}
+let autoNav = null;   // { name, path, i, stuckT, lastD }
+function goTo(d) {
+  if (!playing) return;
+  if (shooting) endShoot(); if (riding) leaveRide();
+  const path = navPath(player.x, player.z, d.x, d.z);
+  if (!path || !path.length) { toast(`Không tìm được đường tới ${d.name}`); return; }
+  autoNav = { name: d.name, path, i: 0, stuckT: 0, lastD: 1e9 };
+  $("#ac-text").textContent = `🧭 Đang tự đi tới ${d.name}`; $("#auto-chip").hidden = false; closeAutoMenu();
+}
+function stopAuto(msg) { if (!autoNav) return; autoNav = null; $("#auto-chip").hidden = true; if (msg) toast(msg); }
+function autoStep(dt, manual) {
+  if (manual) { stopAuto("Đã dừng tự đi"); return; }
+  if (riding || shooting) { stopAuto(); return; }
+  const A = autoNav, wp = A.path[A.i], dx = wp.x - player.x, dz = wp.z - player.z, d = Math.hypot(dx, dz);
+  if (d < .35) { if (++A.i >= A.path.length) { stopAuto(); toast(`Đã tới ${A.name}`); sfx("den", .5); } return; }
+  const sp = Math.min(5 * dt, d), mx = dx / d * sp, mz = dz / d * sp;
+  let moved = false;
+  if (walkable(player.x + mx, player.z)) { player.x += mx; moved = true; }
+  if (walkable(player.x, player.z + mz)) { player.z += mz; moved = true; }
+  if (!moved && walkable(player.x + mx, player.z + mz)) { player.x += mx; player.z += mz; }   // đi chéo qua khe hẹp
+  const tgt = Math.atan2(mx, mz); let rd = tgt - player.ry; rd = Math.atan2(Math.sin(rd), Math.cos(rd)); player.ry += rd * Math.min(1, dt * 12);
+  if (!drag) { let cd = (player.ry + Math.PI) - cam.tYaw; cd = Math.atan2(Math.sin(cd), Math.cos(cd)); cam.tYaw += cd * Math.min(1, dt * 1.5); }
+  player.moving = true;
+  // kẹt quá 2 giây (có người đứng chắn…) thì tìm đường lại
+  if (d > A.lastD - .01) { A.stuckT += dt; if (A.stuckT > 2) { const last = A.path[A.path.length - 1], np = navPath(player.x, player.z, last.x, last.z); if (np && np.length) { A.path = np; A.i = 0; A.stuckT = 0; A.lastD = 1e9; } else stopAuto("Không đi tiếp được"); return; } } else A.stuckT = 0;
+  A.lastD = d;
+}
+function renderAutoMenu() {
+  const groups = {}; navDests().forEach((d, i) => (groups[d.group] = groups[d.group] || []).push([d, i]));
+  $("#am-list").innerHTML = Object.entries(groups).map(([g, list]) => `<h4>${esc(g)}</h4><div class="am-grid">${list.map(([d, i]) => `<button type="button" data-go="${i}">${esc(d.name)}</button>`).join("")}</div>`).join("");
+}
+function openAutoMenu() { if (!playing) return; renderAutoMenu(); $("#auto-menu").hidden = false; $("#b-auto").setAttribute("aria-expanded", "true"); const f = $("#am-list button"); f && f.focus({ preventScroll: true }); }
+function closeAutoMenu() { $("#auto-menu").hidden = true; $("#b-auto").setAttribute("aria-expanded", "false"); }
+function toggleAutoMenu() { if ($("#auto-menu").hidden) openAutoMenu(); else closeAutoMenu(); }
+$("#b-auto").addEventListener("click", toggleAutoMenu);
+$("#am-close").addEventListener("click", closeAutoMenu);
+$("#ac-stop").addEventListener("click", () => stopAuto("Đã dừng tự đi"));
+$("#am-list").addEventListener("click", e => { const b = e.target.closest("[data-go]"); if (!b) return; const d = navDests()[+b.dataset.go]; if (d) goTo(d); });
+
 /* ---------- loop ---------- */
 const clock = new THREE.Clock(); let t = 0;
 const actBtn = $("#actbtn");
 // test hook, only when running on this computer
-if (location.hostname === "localhost") window.__apo = { player, others, interact, findNear, setArmed, reborn, endIntro, STALLS, walkable, cam, rides, boardRide, leaveRide, get riding() { return riding; }, HALLS, THEATERS, NP, seatLook, chantOnce, hallAt, doOffer, doBow, doWish, doMeditate, sutraDone, get chantUI() { return chantUI; }, booth, startShoot, endShoot, shootAt, get shooting() { return shooting; }, get intro() { return intro; }, get merit() { return merit; } };
+if (location.hostname === "localhost") window.__apo = { player, others, interact, findNear, setArmed, reborn, endIntro, STALLS, walkable, cam, rides, boardRide, leaveRide, get riding() { return riding; }, HALLS, THEATERS, NP, seatLook, navPath, navDests, goTo, stopAuto, autoStep, get autoNav() { return autoNav; }, chantOnce, hallAt, doOffer, doBow, doWish, doMeditate, sutraDone, get chantUI() { return chantUI; }, booth, startShoot, endShoot, shootAt, get shooting() { return shooting; }, get intro() { return intro; }, get merit() { return merit; } };
 // big static meshes that can block the camera (collected once, after extras are built)
 const camRay = new THREE.Raycaster(), camDir = new THREE.Vector3(), camFrom = new THREE.Vector3();
 let camD = 9;
@@ -5352,6 +5473,7 @@ function frame() {
       const target = Math.atan2(dx, dz); let d = target - player.ry; d = Math.atan2(Math.sin(d), Math.cos(d)); player.ry += d * Math.min(1, dt * 12);
       if (!drag) { let cd = (player.ry + Math.PI) - cam.tYaw; cd = Math.atan2(Math.sin(cd), Math.cos(cd)); cam.tYaw += cd * Math.min(1, dt * .8) * (Math.abs(iz) > .3 ? 1 : 0); }
     }
+    if (autoNav) autoStep(dt, il > .1);
     myAv.moving = player.moving;
     myAv.root.position.set(player.x, groundY(player.x, player.z) + jumpH((now - jumpT0) / 1000), player.z); myAv.root.rotation.set(0, player.ry, 0);
     if (riding) { const sp = seatWorld(riding.ride, riding.seat); myAv.root.position.copy(sp); myAv.root.quaternion.copy(seatQ); player.x = sp.x; player.z = sp.z; myAv.moving = false; }
