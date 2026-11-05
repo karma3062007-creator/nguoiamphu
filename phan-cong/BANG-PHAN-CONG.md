@@ -19,7 +19,7 @@ Ghép bằng lệnh `node build.js` ở thư mục gốc (xem `README.md`).
 |---|---|---|
 | Claude | `src/tour/*`, `src/home/*`, `src/online/online.template.html`, `src/games/hub.template.html`, `server.js`, `build.js`, `README.md` | `avatars.js`, `extras.js` |
 | Codex | `src/online/avatars.js`, `src/online/extras.js`, `src/shared/levels.json`, `src/games/rules-*.js`, `src/games/ui-*.js`, `src/games/ui-demo.html`, `src/online/reborn.js` | mọi file `*.template.html`, `avatars-gen.js` |
-| Antigravity | `src/online/avatars-gen.js`, `phan-cong/kiem-thu.md` | `avatars.js`, `extras.js`, mọi file `*.template.html` |
+| Antigravity | `src/online/avatars-gen.js`, `phan-cong/kiem-thu.md`, `src/online/chant-ui.js`, `src/online/chant-demo.html` | `avatars.js`, `extras.js`, mọi file `*.template.html` |
 
 Ai cũng được sửa file này (`BANG-PHAN-CONG.md`) để cập nhật trạng thái.
 
@@ -51,8 +51,10 @@ Ai cũng được sửa file này (`BANG-PHAN-CONG.md`) để cập nhật trạ
 | 22 | Quầy bắn súng hội chợ: quầy, bia di động, súng (`src/online/booth.js`) | Codex | Xong | [codex.md](codex.md) |
 | 23 | Chơi bắn súng: ngắm, bắn, tính điểm, cộng công đức | Claude | Xong | |
 | 24 | Hai tòa nhà: Phòng Karaoke Âm Phủ + Chùa Niệm Phật (`src/online/rooms.js`) | Codex | Xong | [codex.md](codex.md) |
-| 25 | Giao diện niệm Phật + tụng kinh (`src/online/chant-ui.js`) | Antigravity | Chưa làm | [antigravity.md](antigravity.md) |
+| 25 | Giao diện niệm Phật + tụng kinh (`src/online/chant-ui.js`) | Antigravity | Xong | [antigravity.md](antigravity.md) |
 | 26 | Máy chủ karaoke (hàng chờ YouTube, đồng bộ, chấm điểm) + niệm Phật chung, ghép 2 phòng vào game | Claude | Xong | |
+| 27 | Mở rộng bảng chùa của Antigravity: tự niệm, giọng đọc, thiền, dâng lễ, lạy Phật, đèn nguyện (`src/online/chant-ui.js`) | Codex | Đang làm | [codex.md](codex.md) |
+| 28 | Máy chủ đèn nguyện, công đức các việc trong chùa, hiệu ứng 3D (lạy, dâng lễ, đèn bay) | Claude | Đang làm | |
 | 11 | Máy chủ riêng (server.js) để đưa lên web ngoài Claude, giao diện điện thoại dọc/ngang | Claude | Xong | [../DUA-LEN-WEB.md](../DUA-LEN-WEB.md) |
 
 ## Quy tắc chung
@@ -96,3 +98,4 @@ Ai cũng được sửa file này (`BANG-PHAN-CONG.md`) để cập nhật trạ
 - 2026-11-05 · Claude · Ghép `booth.js` (self-test đạt, 104 mesh, 4.570 tam giác). Xong việc 23: quầy đặt giữa công viên, bấm E cầm súng, 12 viên / 30 giây, bấm hoặc chạm vào bia để bắn, hồng tâm ×3, vòng giữa ×2; hết đạn/giờ được +1 công đức mỗi 25 điểm (tối đa 15), lưu kỷ lục. Đã thử bắn trúng hồng tâm +90, kết thúc được +7.
 - 2026-11-06 · Codex · Xong việc 24: `rooms.js` Phòng Karaoke Âm Phủ (sân khấu, micro, màn hình 16:9, 20 ghế, 117 mesh) và Chùa Niệm Phật (tượng A Di Đà, bàn thờ, mõ, 20 bồ đoàn, 157 mesh).
 - 2026-11-06 · Claude · Xong việc 26: `halls.js` trên máy chủ (hàng chờ YouTube mỗi người 2 bài, lấy tên bài, đồng bộ giờ phát, qua bài khi đủ nửa phòng, chấm 1–5★ người hát được tối đa +10 công đức; đếm câu niệm cả chùa theo ngày, chặn bấm quá 6 câu/giây). Ghép 2 tòa nhà hai bên công viên, cửa nhìn ra công viên, mái ẩn và camera giữ trong phòng khi vào. Niệm 108 câu được +3 công đức. Đang dùng giao diện niệm tạm, chờ `chant-ui.js` của Antigravity (việc 25). Sửa lỗi cũ: vị trí người khác bị cắt ở ±60 m. Đã thử 2 tab: video lệch < 1 giây, chấm 5★ được +10.
+- 2026-11-06 · Antigravity · Xong việc 25: tạo `src/online/chant-ui.js` và `src/online/chant-demo.html`. Tràng hạt 108 hạt xoay một nấc mỗi câu với hạt mẫu và hạt phát sáng, nút niệm lớn kasaya tròn; chế độ tụng Bát Nhã Ba La Mật Đa Tâm Kinh tô sáng từng chữ theo nhịp mõ, đổi tốc độ chậm/vừa/nhanh, hồi hướng khi hoàn thành; bộ đếm lượt này, hôm nay, cả chùa và top 5 công đức; thông báo người khác đang niệm không spam; phím Space/Enter/Esc; giao diện kem/vàng đồng trang nghiêm, tối đa 42% chiều cao màn hình điện thoại dọc và dạt phải khi màn hình ngang; đã kiểm tra cú pháp và build sạch vào dist/am-phu-online.html.

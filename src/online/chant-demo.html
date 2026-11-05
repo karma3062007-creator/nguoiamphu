@@ -1,0 +1,296 @@
+<!doctype html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Thử nghiệm Giao diện Niệm Phật & Tụng Kinh (Chant UI Demo)</title>
+  <style>
+    :root {
+      color-scheme: dark;
+    }
+    body {
+      margin: 0;
+      padding: 0;
+      height: 100vh;
+      width: 100vw;
+      overflow: hidden;
+      background: radial-gradient(circle at 50% 35%, #2a110e 0%, #150605 60%, #0a0303 100%);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Be Vietnam Pro", sans-serif;
+      color: #f3e3c4;
+      display: flex;
+      flex-direction: column;
+    }
+    /* Simulated 3D game backdrop */
+    .sim-backdrop {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 24px;
+      position: relative;
+    }
+    .temple-halo {
+      width: 220px;
+      height: 220px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(245, 158, 11, 0.28) 0%, rgba(217, 119, 6, 0.08) 50%, transparent 70%);
+      position: absolute;
+      top: 15%;
+      pointer-events: none;
+      filter: blur(8px);
+      animation: pulseGlow 4s ease-in-out infinite alternate;
+    }
+    @keyframes pulseGlow {
+      from { transform: scale(0.92); opacity: 0.6; }
+      to { transform: scale(1.15); opacity: 0.95; }
+    }
+    .temple-icon {
+      font-size: 5rem;
+      margin-bottom: 8px;
+      filter: drop-shadow(0 4px 12px rgba(217, 119, 6, 0.4));
+    }
+    h1 {
+      font-size: 1.4rem;
+      color: #fcd34d;
+      margin: 0 0 6px 0;
+      text-shadow: 0 2px 4px rgba(0,0,0,0.6);
+    }
+    p.desc {
+      font-size: 0.85rem;
+      color: #bfa07e;
+      margin: 0 0 16px 0;
+      max-width: 480px;
+      line-height: 1.4;
+    }
+    /* Toolbar at top */
+    .toolbar {
+      position: absolute;
+      top: 14px;
+      left: 14px;
+      right: 14px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      z-index: 100;
+      justify-content: center;
+    }
+    .t-btn {
+      background: rgba(42, 17, 14, 0.85);
+      border: 1px solid #e8b765;
+      color: #fef08a;
+      padding: 6px 12px;
+      border-radius: 8px;
+      font-size: 0.78rem;
+      font-weight: 600;
+      cursor: pointer;
+      backdrop-filter: blur(4px);
+      transition: all 0.15s ease;
+    }
+    .t-btn:hover {
+      background: #e8b765;
+      color: #3b1e10;
+    }
+    /* Chant host element matching the game's #chant-host */
+    #chant-host {
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      z-index: 50;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="toolbar">
+    <button class="t-btn" id="btn-toggle">Gỡ giao diện (Unmount)</button>
+    <button class="t-btn" id="btn-remote-sim">+1 người khác niệm (Remote)</button>
+    <button class="t-btn" id="btn-fast-sim">+108 câu nhanh (Test Tràng)</button>
+    <button class="t-btn" id="btn-sound-toggle">Âm thanh: Bật</button>
+  </div>
+
+  <div class="sim-backdrop">
+    <div class="temple-halo"></div>
+    <div class="temple-icon">🛕</div>
+    <h1>Chùa Niệm Phật Âm Phủ</h1>
+    <p class="desc">Phía trên là không gian chùa 3D (bàn thờ, tượng Phật A Di Đà, 20 bồ đoàn và các vong hồn khác). Giao diện niệm Phật và tụng kinh của Antigravity ở phía dưới.</p>
+  </div>
+
+  <div id="chant-host"></div>
+
+  <script src="chant-ui.js"></script>
+  <script>
+    (function () {
+      let actx = null;
+      let soundEnabled = true;
+
+      function getAudioContext() {
+        if (!actx) {
+          actx = new (window.AudioContext || window.webkitAudioContext)();
+        }
+        if (actx.state === "suspended") actx.resume();
+        return actx;
+      }
+
+      function playSound(kind) {
+        if (!soundEnabled) return;
+        try {
+          const ctx = getAudioContext();
+          const t = ctx.currentTime;
+
+          if (kind === "mo") {
+            // Woodblock (Mõ) pitch sweep
+            const osc = ctx.createOscillator();
+            const gain = ctx.createGain();
+            osc.type = "sine";
+            osc.frequency.setValueAtTime(740, t);
+            osc.frequency.exponentialRampToValueAtTime(360, t + 0.08);
+            gain.gain.setValueAtTime(0.65, t);
+            gain.gain.exponentialRampToValueAtTime(0.001, t + 0.09);
+            osc.connect(gain);
+            gain.connect(ctx.destination);
+            osc.start(t);
+            osc.stop(t + 0.09);
+          } else if (kind === "chuong") {
+            // Temple Bell (Chuông chùa) rich harmonics
+            [147, 405, 792, 1310].forEach((freq, idx) => {
+              const osc = ctx.createOscillator();
+              const gain = ctx.createGain();
+              osc.type = "sine";
+              osc.frequency.setValueAtTime(freq, t);
+              const vol = 0.35 / (idx + 1);
+              gain.gain.setValueAtTime(vol, t);
+              gain.gain.exponentialRampToValueAtTime(0.0001, t + 3.2 - idx * 0.4);
+              osc.connect(gain);
+              gain.connect(ctx.destination);
+              osc.start(t);
+              osc.stop(t + 3.5);
+            });
+          } else {
+            // Khánh nhỏ
+            const osc = ctx.createOscillator();
+            const gain = ctx.createGain();
+            osc.type = "sine";
+            osc.frequency.setValueAtTime(1480, t);
+            gain.gain.setValueAtTime(0.25, t);
+            gain.gain.exponentialRampToValueAtTime(0.001, t + 0.8);
+            osc.connect(gain);
+            gain.connect(ctx.destination);
+            osc.start(t);
+            osc.stop(t + 0.85);
+          }
+        } catch (e) {
+          console.warn("Audio error:", e);
+        }
+      }
+
+      const host = document.getElementById("chant-host");
+      let uiInstance = null;
+
+      // Simulated state
+      const state = {
+        mine: 0,
+        today: 105,
+        room: 12450,
+        chanters: 4,
+        top: [
+          { name: "Pháp Thiện", c: 1080 },
+          { name: "Chân Tâm", c: 756 },
+          { name: "Vong hồn B3", c: 432 },
+          { name: "Du khách Hà Nội", c: 216 },
+          { name: "Tiểu Đạo Sĩ", c: 108 }
+        ]
+      };
+
+      function mountChantUI() {
+        if (uiInstance) uiInstance.unmount();
+        uiInstance = window.ChantUI.mount(host, {
+          name: "Vong Hồn Tôi",
+          onChant: function (kind) {
+            state.mine++;
+            state.today++;
+            state.room++;
+            console.log("onChant called:", kind, "Total mine:", state.mine);
+          },
+          onLeave: function () {
+            alert("Bạn đã đứng dậy khỏi bồ đoàn (onLeave)!");
+          },
+          sound: function (kind) {
+            playSound(kind);
+          }
+        });
+
+        uiInstance.setStats({
+          mine: state.mine,
+          today: state.today,
+          room: state.room,
+          chanters: state.chanters
+        });
+        uiInstance.setTop(state.top);
+      }
+
+      // Initial Mount
+      mountChantUI();
+
+      // Periodic simulation (other chanters chanting)
+      const simTimer = setInterval(() => {
+        if (!uiInstance) return;
+        state.room += Math.floor(Math.random() * 3) + 1;
+        if (Math.random() < 0.4) {
+          const names = ["Vong hồn B1", "Du khách Đà Nẵng", "Tịnh Niệm", "Đạo sĩ Vô Vi", "Cụ già B7"];
+          const pick = names[Math.floor(Math.random() * names.length)];
+          uiInstance.remote(pick);
+        }
+        uiInstance.setStats({
+          mine: state.mine,
+          today: state.today,
+          room: state.room,
+          chanters: state.chanters
+        });
+      }, 3500);
+
+      // Toolbar interactions
+      const btnToggle = document.getElementById("btn-toggle");
+      btnToggle.addEventListener("click", () => {
+        if (uiInstance) {
+          uiInstance.unmount();
+          uiInstance = null;
+          btnToggle.textContent = "Gắn lại giao diện (Mount)";
+        } else {
+          mountChantUI();
+          btnToggle.textContent = "Gỡ giao diện (Unmount)";
+        }
+      });
+
+      document.getElementById("btn-remote-sim").addEventListener("click", () => {
+        if (uiInstance) {
+          uiInstance.remote("Vong hồn B" + Math.floor(Math.random() * 18 + 1));
+        }
+      });
+
+      document.getElementById("btn-fast-sim").addEventListener("click", () => {
+        if (uiInstance) {
+          state.mine += 108;
+          state.today += 108;
+          state.room += 108;
+          playSound("chuong");
+          uiInstance.setStats({
+            mine: state.mine,
+            today: state.today,
+            room: state.room,
+            chanters: state.chanters
+          });
+        }
+      });
+
+      const btnSound = document.getElementById("btn-sound-toggle");
+      btnSound.addEventListener("click", () => {
+        soundEnabled = !soundEnabled;
+        btnSound.textContent = soundEnabled ? "Âm thanh: Bật" : "Âm thanh: Tắt";
+      });
+
+    })();
+  </script>
+</body>
+</html>
