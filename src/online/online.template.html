@@ -161,6 +161,8 @@ h2 { font-size: 1.8rem; color: var(--gold); }
 .sw button { width: 30px; height: 30px; border-radius: 50%; border: 2px solid var(--ash); cursor: pointer; }
 .sw button[aria-pressed="true"] { border-color: var(--gold-hi); box-shadow: 0 0 0 2px var(--lacquer), 0 0 0 4px var(--gold-hi); }
 .row2 { display: flex; gap: 8px; justify-content: space-between; flex-wrap: wrap; }
+.row2 .go2 { display: flex; gap: 8px; flex-direction: row-reverse; flex-wrap: wrap; }
+.in-card .in-skip { margin-top: 10px; }
 .board { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 4px; counter-reset: r; }
 .board li { display: grid; grid-template-columns: 28px minmax(0, 1fr) auto auto; gap: 8px; align-items: baseline; padding: 6px 8px; background: rgba(12,4,4,.6); font-size: .88rem; }
 .board li::before { counter-increment: r; content: counter(r); color: var(--gold); font-family: var(--display); font-size: 1.1rem; }
@@ -305,6 +307,7 @@ h2 { font-size: 1.8rem; color: var(--gold); }
     <button class="btn ghost" type="button" id="b-full" hidden>Toàn màn hình</button>
     <button class="btn ghost" type="button" id="b-board">Bảng công đức</button>
     <button class="btn ghost" type="button" id="b-char">Nhân vật</button>
+    <button class="btn ghost" type="button" id="b-intro">Xem giới thiệu</button>
     <button class="btn ghost" type="button" id="b-mute" aria-pressed="false">Âm thanh: bật</button>
     <a class="btn ghost" href="/tro-choi" id="b-games" target="_blank" rel="noopener">Trò chơi</a>
     <a class="btn ghost" href="/" id="b-home">Trang chủ</a>
@@ -345,7 +348,7 @@ h2 { font-size: 1.8rem; color: var(--gold); }
       <div class="field"><span class="lbl">Màu da</span><div class="sw" id="c-skin"></div></div>
       <div class="field"><span class="lbl">Màu áo</span><div class="sw" id="c-robe"></div></div>
       <div class="field"><span class="lbl">Màu tóc</span><div class="sw" id="c-hair"></div></div>
-      <div class="row2"><button class="btn ghost" type="button" id="c-back">Quay lại</button><button class="btn" type="submit">Vào âm phủ</button></div>
+      <div class="row2"><button class="btn ghost" type="button" id="c-back">Quay lại</button><span class="go2"><button class="btn" type="submit" data-go="direct" id="c-direct">Vào thẳng</button><button class="btn ghost" type="submit" data-go="intro" id="c-intro">Xem giới thiệu</button></span></div>
     </form>
   </div>
 
@@ -356,6 +359,7 @@ h2 { font-size: 1.8rem; color: var(--gold); }
       <b>Bạn đang ngồi trên bàn thờ, nhìn con cháu thắp hương</b>
       <p class="in-pray" id="in-pray" aria-live="polite"></p>
       <div id="in-go" hidden><p class="in-note">Đến giờ rồi. Ngưu Đầu Mã Diện đang đứng đợi ngoài cửa.</p><button class="btn" type="button" id="in-go-btn">Xuống âm phủ</button></div>
+      <button class="btn ghost in-skip" type="button" id="in-skip">Bỏ qua giới thiệu</button>
     </div>
   </div>
   <div id="fade" aria-hidden="true"></div>
@@ -1237,8 +1241,10 @@ const PRAYERS = [
   "Phù hộ con năm nay lấy được vợ, à không, chồng cũng được.",
   "Nhớ phù hộ con trúng số, trúng con chia đôi."
 ];
-function startIntro() {
-  intro = { t0: performance.now(), i: 0 };
+function startIntro(replay) {
+  if (intro) return;
+  intro = { t0: performance.now(), i: 0, replay: !!replay };
+  if (replay) { if (shooting) endShoot(); if (riding) leaveRide(); playing = false; }
   buildAltar(); show(null); setHud(false);
   const ov = $("#ov-intro"); ov.hidden = false; $("#in-go").hidden = true;
   const say = () => { if (!intro) return; $("#in-pray").textContent = "“" + PRAYERS[intro.i++ % PRAYERS.length] + "”"; };
@@ -1250,13 +1256,16 @@ function endIntro() {
   clearInterval(intro.timer);
   const fade = $("#fade"); fade.classList.add("on");
   setTimeout(() => {
-    intro = null; introSeen = true; $("#ov-intro").hidden = true;
+    const replay = intro.replay; intro = null; introSeen = true; $("#ov-intro").hidden = true;
+    if (replay) playing = true;   // xem lại: về đúng chỗ đang đứng, không tính là vào mới
     if (altar) { scene.remove(altar.group); }
     enterWorld();
     setTimeout(() => fade.classList.remove("on"), 150);
   }, 700);
 }
 $("#in-go-btn").addEventListener("click", endIntro);
+$("#in-skip").addEventListener("click", endIntro);
+$("#b-intro").addEventListener("click", () => { if (playing) startIntro(true); });
 
 /* ---------- UI: servers, character ---------- */
 function show(id) { ["#ov-sv", "#ov-char", "#ov-board"].forEach(s => $(s).hidden = s !== id); }
@@ -1275,6 +1284,7 @@ function swatches(el, list, key) {
 }
 function fillChar() {
   $("#c-name").value = me.name;
+  $("#c-intro").hidden = playing; $("#c-direct").textContent = playing ? "Lưu nhân vật" : "Vào thẳng";
   [["#c-g", "g"], ["#c-k", "k"]].forEach(([s, k]) => $(s).querySelectorAll("button").forEach(b => b.setAttribute("aria-pressed", b.dataset.v === me[k])));
   swatches($("#c-skin"), SKINS, "skin"); swatches($("#c-robe"), ROBES, "robe"); swatches($("#c-hair"), HAIRS, "hair");
 }
@@ -1287,7 +1297,8 @@ $("#c-back").addEventListener("click", () => { show("#ov-sv"); });
 $("#charf").addEventListener("submit", e => {
   e.preventDefault(); me.name = ($("#c-name").value.trim() || randName()).slice(0, 24); store.set("apo-char", me);
   ensureMyAv(); myAv.setLook(me); myAv.setTag(me.name, merit);
-  if (!playing && !introSeen) { startIntro(); return; }
+  const go = e.submitter && e.submitter.dataset.go;
+  if (!playing && go === "intro") { startIntro(); return; }
   enterWorld();
 });
 function enterWorld() {
