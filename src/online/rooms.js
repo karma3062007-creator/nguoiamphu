@@ -289,10 +289,101 @@
     };
   };
 
+  root.makeCinemaRoom = function (T) {
+    var k = kit(T), room = shell(T, k, '#24202f', 9.2, '#672839');
+    var g = room.group, roof = room.roof, blocked = room.blocked;
+    var seats = [], solids = [], bulbs = [], next = timer(), dim = 0;
+    g.name = 'cinema-room';
+    k.add(g, 'box', '#a52c3c', 0, 0.012, 0, 2.6, 0.024, 19.9);
+    // The screen faces +Z; its bottom is 1.4 m above the flat floor.
+    var screenY = 1.4 + 13 * 9 / 16 / 2;
+    var rimMat = new T.MeshBasicMaterial({ color: '#977344' });
+    k.add(g, 'box', rimMat, 0, screenY, -9.84, 13.65, 7.96, 0.12);
+    k.add(g, 'box', '#090912', 0, screenY, -9.75, 13.4, 7.71, 0.12);
+    var screen = k.add(g, 'plane', new T.MeshBasicMaterial({ color: '#ffffff' }),
+      0, screenY, -9.67, 13, 13 * 9 / 16, 1);
+    screen.name = 'video-screen';
+    [-1, 1].forEach(function (s) {
+      // Scalloped velvet curtains and speakers stay outside the image.
+      for (var j = 0; j < 3; j++) k.add(g, 'cyl', j % 2 ? '#8b2335' : red,
+        s * (7.15 + j * 0.65), 4.8, -9.45, 0.4, 7.6, 0.25);
+      k.add(g, 'box', '#101019', s * 10.3, 1.55, -9.3, 1.1, 2.5, 0.9);
+      rect(blocked, s < 0 ? -10.9 : 9.7, s < 0 ? -9.7 : 10.9, -9.9, -8.8);
+      for (j = 0; j < 3; j++) {
+        k.add(g, 'box', gold, s * 11.94, 3.1, -4 + j * 5, 0.1, 0.65, 0.6);
+        k.add(g, 'box', k.mat('#ffdfa0', true), s * 11.87, 3.1, -4 + j * 5, 0.06, 0.45, 0.4);
+      }
+      var title = s < 0 ? 'MA LÀNG CHIẾU BÓNG' : 'DIÊM VƯƠNG ĐẠI CHIẾN';
+      var posterMat = k.label(title, s < 0 ? '#413451' : '#6a252c', gold);
+      var inside = k.add(g, 'plane', posterMat, s * 11.96, 2.5, 4, 5.4, 1.35, 1);
+      inside.rotation.y = -s * Math.PI / 2;
+      k.add(g, 'plane', posterMat, s * 7.5, 2.2, 10.34, 5.4, 1.35, 1);
+    });
+    // Four rows of eight seats: clear centre, side aisles and 2 m row gaps.
+    // No risers: every seat is reachable from the same walkable floor.
+    var xs = [-8.4, -6.4, -4.4, -2.4, 2.4, 4.4, 6.4, 8.4];
+    for (var row = 0; row < 4; row++) {
+      for (var col = 0; col < xs.length; col++) {
+        var x = xs[col], z = -4.5 + row * 3.5;
+        k.add(g, 'box', red, x, 0.48, z, 1.35, 0.8, 1.25);
+        k.add(g, 'box', '#882337', x, 1.04, z + 0.54, 1.4, 1.3, 0.22);
+        k.add(g, 'box', '#4b2632', x - 0.77, 0.73, z, 0.19, 0.3, 1.3);
+        k.add(g, 'box', '#4b2632', x + 0.77, 0.73, z, 0.19, 0.3, 1.3);
+        var seat = k.pivot(g, x, 0.18, z - 0.08);
+        seat.rotation.y = Math.PI; seat.name = 'cinema-seat-' + seats.length;
+        seats.push(seat);
+        rect(blocked, x - 0.87, x + 0.87, z - 0.65, z + 0.65);
+      }
+    }
+    // Compact concessions beside the entrance, clear of the rear cross aisle.
+    k.add(g, 'box', red, -7.3, 0.65, 8.9, 4.4, 1.3, 1.2);
+    k.add(g, 'box', gold, -7.3, 1.34, 8.9, 4.6, 0.08, 1.35);
+    rect(blocked, -9.6, -5, 8.22, 9.58);
+    k.add(g, 'plane', k.label('BẮP RANG + NƯỚC NGỌT', red, cream), -7.3, 2.7, 9.96, 4.6, 0.9, 1).rotation.y = Math.PI;
+    for (var i = 0; i < 3; i++) {
+      k.add(g, 'cyl', red, -8.5 + i * 0.75, 1.6, 8.9, 0.22, 0.44, 0.22);
+      k.add(g, 'ball', cream, -8.5 + i * 0.75, 1.85, 8.9, 0.25, 0.14, 0.25);
+    }
+    k.add(g, 'box', '#673e56', -5.9, 1.9, 8.9, 0.65, 1.05, 0.7);
+    k.add(g, 'plane', k.label('NƯỚC', dark, cream), -5.9, 2, 8.54, 0.55, 0.4, 1).rotation.y = Math.PI;
+    // Marquee and canopy face the park, with no obstruction in the doorway.
+    k.add(roof, 'box', '#3b293c', 0, 4.5, 11.2, 15, 0.25, 2.5);
+    k.add(g, 'box', gold, 0, 3.84, 10.42, 14, 1.05, 0.16);
+    k.add(g, 'plane', k.label('RẠP PHIM ÂM PHỦ', '#542037', cream), 0, 3.84, 10.52, 13.4, 0.8, 1);
+    for (i = 0; i < 24; i++) {
+      bulbs.push(k.add(g, 'ball', k.mat(i % 2 ? cream : gold, true),
+        -6.6 + (i % 12) * 1.2, i < 12 ? 3.36 : 4.32, 10.57, 0.065, 0.065, 0.065));
+    }
+    var aisleMat = new T.MeshBasicMaterial({ color: '#8e6336' });
+    for (i = 0; i < 8; i++) k.add(g, 'box', aisleMat, i % 2 ? 1.36 : -1.36,
+      0.035, -4.5 + Math.floor(i / 2) * 3.5, 0.08, 0.07, 0.6);
+    var house = light(T, g, '#ffe2b0', 1.4, 0, 4.1, 3, 26);
+    var front = light(T, g, '#ffdfaa', 0.9, 0, 4.1, -5, 22);
+    var ceilingMat = new T.MeshBasicMaterial({ color: '#ffe2b0' });
+    k.add(roof, 'box', ceilingMat, 0, 9.01, 3, 3, 0.08, 1);
+    k.add(roof, 'box', ceilingMat, 0, 9.01, -5, 3, 0.08, 1);
+    return { group: g, roof: roof, name: 'Rạp phim Âm Phủ', seats: seats,
+      screen: screen, solids: solids, blocked: blocked,
+      update: function (dt, time, info) {
+        var t = next(dt, time), step = Number.isFinite(dt) ? Math.max(0, dt) : 0;
+        var target = info && info.playing ? 1 : 0;
+        var level = info && Number.isFinite(info.level) ? Math.max(0, Math.min(1, info.level)) : 0;
+        dim += (target - dim) * (1 - Math.exp(-step * 2));
+        house.intensity = 1.4 - dim * 1.25; front.intensity = 0.9 - dim * 0.82;
+        ceilingMat.color.setRGB(1 - dim * 0.9, 0.78 - dim * 0.7, 0.45 - dim * 0.4);
+        aisleMat.color.setRGB(0.3 + dim * 0.22, 0.16 + dim * 0.13, 0.06);
+        var glow = dim * (0.12 + level * 0.04);
+        rimMat.color.setRGB(0.35 + glow, 0.25 + glow, 0.15 + glow * 0.5);
+        for (var j = 0; j < bulbs.length; j++) bulbs[j].scale.setScalar(
+          (j + Math.floor(t * 5)) % 4 === 0 ? 0.085 : 0.065);
+      }
+    };
+  };
+
   root.__roomsSelfTest = function (T) {
     var rows = [];
     function assert(ok, msg) { if (!ok) throw new Error('Rooms self-test: ' + msg); }
-    function inspect(m, count) {
+    function inspect(m, count, cinema) {
       var meshes = 0, tris = 0, lights = 0;
       assert(m.group.isGroup && m.roof.isObject3D && m.roof.parent === m.group, m.name + ' API');
       assert(m.seats.length === count, m.name + ' seat count');
@@ -334,12 +425,38 @@
       if (m.screen) {
         assert(m.screen.isMesh && m.screen.geometry.type === 'PlaneGeometry' && m.screen.material.isMeshBasicMaterial, 'screen API');
         assert(Math.abs(m.screen.scale.x / m.screen.scale.y - 16 / 9) < 1e-8, 'screen aspect');
-        assert(m.stage.isObject3D && m.stage.parent === m.group && m.stage.position.y === 0.7, 'stage API');
+        if (!cinema) assert(m.stage.isObject3D && m.stage.parent === m.group && m.stage.position.y === 0.7, 'stage API');
+      }
+      if (cinema) {
+        assert(m.screen.parent === m.group && m.screen.rotation.y === 0, 'cinema screen facing');
+        assert(Math.abs(m.screen.scale.x - 13) < 1e-8 &&
+          Math.abs(m.screen.position.y - m.screen.scale.y / 2 - 1.4) < 1e-8, 'cinema screen size/height');
+        m.seats.forEach(function (seat) {
+          assert(seat.position.z - 0.65 - m.screen.position.z >= 3, 'cinema front clearance');
+          // A standing point 1.3 m in front of every seat must be reachable.
+          var x = seat.position.x, z = seat.position.z - 1.3;
+          m.blocked.forEach(function (b) {
+            assert(x + 0.3 <= b.x0 || x - 0.3 >= b.x1 || z + 0.3 <= b.z0 || z - 0.3 >= b.z1,
+              'cinema seat approach blocked');
+          });
+        });
+        m.blocked.forEach(function (b) {
+          assert(b.x1 <= -1.3 || b.x0 >= 1.3 || b.z1 <= -10 || b.z0 >= 10, 'cinema centre aisle blocked');
+        });
+        var house = m.group.children.filter(function (o) { return o.isPointLight; })[0];
+        assert(house, 'cinema house light');
+        var before = house.intensity;
+        m.update(2, 3, { playing: false });
+        assert(house.intensity > before, 'cinema lights restore');
+        before = house.intensity;
+        m.update(2, 5, { playing: true, level: 1 });
+        assert(house.intensity < before, 'cinema lights dim');
       }
       assert(meshes <= 220 && lights <= 3, m.name + ' budget exceeded: ' + meshes);
       rows.push({ name: m.name, meshes: meshes, tris: Math.round(tris), lights: lights, seats: m.seats.length });
     }
     inspect(root.makeKaraokeRoom(T), 20); inspect(root.makeTempleHall(T), 20);
+    inspect(root.makeCinemaRoom(T), 32, true);
     return { ok: true, rows: rows };
   };
 })(typeof window !== 'undefined' ? window : globalThis);

@@ -26,27 +26,31 @@ button { font-family: var(--body); }
 
 /* HUD */
 .hud { position: absolute; z-index: 3; }
-.kara { top: calc(104px + env(safe-area-inset-top, 0px)); right: max(12px, env(safe-area-inset-right, 0px)); width: min(400px, 42vw); max-height: calc(100% - 190px); overflow: auto; background: linear-gradient(180deg, rgba(40,14,52,.96), rgba(22,8,30,.96)); color: #fbe9ff; border: 2px solid #c86bff; border-radius: 16px; padding: 10px; box-shadow: 0 0 18px rgba(200,107,255,.35); font-size: .88rem; }
+.kara { top: calc(104px + env(safe-area-inset-top, 0px)); right: max(12px, env(safe-area-inset-right, 0px)); width: min(360px, 40vw); max-height: calc(100% - 190px); overflow: auto; background: linear-gradient(180deg, rgba(40,14,52,.96), rgba(22,8,30,.96)); color: #fbe9ff; border: 2px solid #c86bff; border-radius: 16px; padding: 10px; box-shadow: 0 0 18px rgba(200,107,255,.35); font-size: .88rem; }
+.kara.cine { background: linear-gradient(180deg, rgba(48,10,10,.96), rgba(22,6,6,.96)); border-color: #e8b765; box-shadow: 0 0 18px rgba(232,183,101,.3); }
 .kara .k-head { display: flex; align-items: center; gap: 8px; } .kara .k-head b { flex: 1; color: #ffd36b; }
-.kara #k-here { opacity: .8; font-size: .78rem; }
+.kara .k-here { opacity: .8; font-size: .78rem; }
 .kara button { font: 700 .8rem var(--body); color: #2b0a2f; background: #ffd36b; border: 0; border-radius: 999px; padding: 6px 12px; cursor: pointer; }
 .kara .k-ic { background: rgba(255,255,255,.14); color: #fbe9ff; padding: 4px 10px; }
-.kara .k-video { position: relative; margin-top: 8px; aspect-ratio: 16 / 9; background: #000; border-radius: 10px; overflow: hidden; }
-.kara .k-video iframe, .kara #k-yt { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; }
-.kara .k-idle { position: absolute; inset: 0; display: grid; place-items: center; text-align: center; padding: 14px; color: #e9c9ff; }
-.kara .k-tap { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); font-size: 1rem; padding: 10px 18px; }
+.kara .k-tip { margin: 6px 0 0; font-size: .78rem; opacity: .8; }
 .kara .k-now { margin-top: 8px; line-height: 1.35; } .kara .k-now b { color: #ffd36b; }
+.kara .k-tap { display: block; width: 100%; margin-top: 8px; font-size: .95rem; padding: 9px; }
+.kara .k-vol { display: flex; align-items: center; gap: 8px; margin-top: 8px; } .kara .k-vol input { flex: 1; accent-color: #ffd36b; }
 .kara .k-rate { display: flex; align-items: center; gap: 6px; margin-top: 6px; flex-wrap: wrap; }
 .kara .k-stars button { background: none; color: #ffd36b; font-size: 1.35rem; padding: 0 2px; line-height: 1; }
 .kara .k-stars button[aria-pressed="false"] { color: rgba(255,211,107,.35); }
 .kara .k-form { display: flex; gap: 6px; margin-top: 8px; }
 .kara .k-form input { flex: 1; min-width: 0; border-radius: 999px; border: 1px solid #c86bff; background: rgba(255,255,255,.08); color: #fff; padding: 7px 12px; font: inherit; }
 .kara .k-row { display: flex; gap: 6px; margin-top: 6px; flex-wrap: wrap; } .kara .k-row button { background: rgba(255,255,255,.14); color: #fbe9ff; }
-.kara .k-q { margin: 8px 0 0; padding-left: 20px; } .kara .k-q li { margin: 3px 0; } .kara .k-q li em { opacity: .75; font-style: normal; }
+.kara .k-q { margin: 8px 0 0; padding-left: 20px; } .kara .k-q li { margin: 4px 0; } .kara .k-q li em { opacity: .75; font-style: normal; }
 .kara .k-q li button { padding: 1px 8px; margin-left: 6px; background: rgba(255,255,255,.14); color: #fbe9ff; }
+.kara .k-q li button.vote[aria-pressed="true"] { background: #ffd36b; color: #2b0a2f; }
 .kara.min .k-body { display: none; }
-@media (max-width: 640px) { .kara { left: 8px; right: 8px; width: auto; top: calc(66px + env(safe-area-inset-top, 0px)); max-height: 46%; font-size: .82rem; } }
-@media (max-height: 500px) { .kara { top: 54px; width: min(340px, 40vw); max-height: calc(100% - 62px); } }
+@media (max-width: 640px) { .kara { left: 8px; right: 8px; width: auto; top: calc(66px + env(safe-area-inset-top, 0px)); max-height: 38%; font-size: .82rem; } }
+@media (max-height: 500px) { .kara { top: 54px; width: min(320px, 38vw); max-height: calc(100% - 62px); } }
+/* video YouTube đặt khớp lên màn chiếu 3D (biến đổi phối cảnh matrix3d) */
+.bigscreen { position: absolute; left: 0; top: 0; width: 1280px; height: 720px; transform-origin: 0 0; z-index: 1; pointer-events: none; background: #000; visibility: hidden; }
+.bigscreen iframe, .bigscreen > div { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; }
 #chant-host { position: absolute; inset: 0; z-index: 4; pointer-events: none; }
 .np-fb { position: absolute; left: 50%; bottom: calc(18px + env(safe-area-inset-bottom, 0px)); transform: translateX(-50%); pointer-events: auto; width: min(420px, calc(100% - 24px)); background: linear-gradient(180deg, #fff7e6, #f6e2b8); color: #4a1d0c; border: 2px solid #e8b765; border-radius: 16px; padding: 12px 14px; text-align: center; box-shadow: 0 6px 24px rgba(0,0,0,.35); }
 .np-fb .np-btn { display: block; margin: 0 auto 8px; width: 104px; height: 104px; border-radius: 50%; border: 3px solid #b8741a; background: radial-gradient(circle at 40% 35%, #ffd27a, #e39a2a); color: #4a1d0c; font: 800 .9rem/1.2 var(--display, serif); cursor: pointer; touch-action: manipulation; }
@@ -311,17 +315,6 @@ h2 { font-size: 1.8rem; color: var(--gold); }
   </div>
   <div class="hud prompt" id="prompt" hidden></div>
   <div class="hud toast" id="toast" hidden></div>
-  <div class="hud kara" id="kara" hidden>
-    <div class="k-head"><b>🎤 Karaoke Âm Phủ</b><span id="k-here"></span><button type="button" class="k-ic" id="k-min" aria-expanded="true">Thu nhỏ</button></div>
-    <div class="k-body" id="k-body">
-      <div class="k-video"><div id="k-yt"></div><div class="k-idle" id="k-idle">Chưa có bài nào. Dán link YouTube bài karaoke để hát!</div><button type="button" class="k-tap" id="k-tap" hidden>▶ Bấm để nghe</button></div>
-      <div class="k-now" id="k-now"></div>
-      <div class="k-rate" id="k-rate" hidden><span>Chấm điểm:</span><span class="k-stars" id="k-stars"></span><em id="k-avg"></em></div>
-      <form class="k-form" id="k-form"><input id="k-url" type="url" inputmode="url" placeholder="Dán link YouTube…" aria-label="Link YouTube bài hát" maxlength="200"><button type="submit">Xếp bài</button></form>
-      <div class="k-row"><button type="button" id="k-skip">Qua bài</button><button type="button" id="k-yts">Tìm bài trên YouTube ↗</button></div>
-      <ol class="k-q" id="k-q"></ol>
-    </div>
-  </div>
   <div id="chant-host"></div>
   <div class="hud shoot card" id="shoot" hidden><b>Bắn súng trúng tâm</b><span>Đạn <i id="sh-ammo"></i></span><span>Điểm <b id="sh-score">0</b></span><span id="sh-time"></span><button class="btn ghost" type="button" id="sh-quit">Thôi</button></div>
   <div class="hud help" id="help" hidden>WASD / mũi tên: đi · Kéo chuột: xoay góc nhìn · Lăn chuột: gần xa · E: tương tác · Space: nhảy · G: cầm gậy</div>
@@ -488,7 +481,7 @@ const stoneMat = M(0x3a2420), darkMat = M(0x2a1410), redMat = M(0x8a1a12), goldM
 
 // Công viên Âm Phủ: khu mở rộng phía nam, nối với sân qua lối giữa bia B9 và B10 (đi thẳng qua Quỷ Môn Quan)
 const PARK = { x0: -30, x1: 30, z0: 33, z1: 80 };
-const FLAT = { x0: -58, x1: 58, z0: 33, z1: 80 };   // công viên + chùa (tây) + karaoke (đông)
+const FLAT = { x0: -58, x1: 58, z0: 33, z1: 102 };   // công viên + chùa (tây) + karaoke (đông) + rạp phim (nam)
 const inFlat = (x, z, m = 0) => x > FLAT.x0 - m && x < FLAT.x1 + m && z > FLAT.z0 - m && z < FLAT.z1 + m;
 const inPark = (x, z, m = 0) => x > PARK.x0 - m && x < PARK.x1 + m && z > PARK.z0 - m && z < PARK.z1 + m;
 // ground
@@ -844,7 +837,8 @@ try {
 // Phòng Karaoke Âm Phủ (đông) và Chùa Niệm Phật (tây), hình của Codex (rooms.js). Cửa nhìn ra công viên.
 const HALLS = [
   { key: "kara", make: "makeKaraokeRoom", x: 44, z: 52, ry: -Math.PI / 2, name: "Phòng Karaoke Âm Phủ", seatVerb: "Ngồi xuống ghế xem hát" },
-  { key: "chua", make: "makeTempleHall", x: -44, z: 52, ry: Math.PI / 2, name: "Chùa Niệm Phật", seatVerb: "Ngồi bồ đoàn niệm Phật" }
+  { key: "chua", make: "makeTempleHall", x: -44, z: 52, ry: Math.PI / 2, name: "Chùa Niệm Phật", seatVerb: "Ngồi bồ đoàn niệm Phật" },
+  { key: "cine", make: "makeCinemaRoom", x: 0, z: 90, ry: Math.PI, name: "Rạp phim Âm Phủ", seatVerb: "Ngồi ghế xem phim" }
 ];
 const hallByKey = {};
 const hallLocal = (h, x, z) => { const dx = x - h.x, dz = z - h.z, c = Math.cos(h.ry), sn = Math.sin(h.ry); return { x: dx * c - dz * sn, z: dx * sn + dz * c }; };
@@ -870,7 +864,7 @@ HALLS.forEach(h => {
   (r.solids || []).forEach(o => { const w = hallWorld(h, o.x, o.z); solids.push({ x: w.x, z: w.z, r: o.r }); });
   const seatsAt = list => list.map(st => { st.updateWorldMatrix(true, false); const v = new THREE.Vector3().setFromMatrixPosition(st.matrixWorld); return { x: v.x, z: v.z }; });
   if (Array.isArray(r.seats) && r.seats.length) {
-    h.seatRide = { idx: rides.length, type: h.key, hall: h, r: { seats: r.seats }, board: seatsAt(r.seats), name: h.key === "kara" ? "ghế khán giả" : "bồ đoàn", verb: h.seatVerb, occ: r.seats.map(() => false), lastGain: 0 };
+    h.seatRide = { idx: rides.length, type: h.key, hall: h, r: { seats: r.seats }, board: seatsAt(r.seats), name: h.key === "kara" ? "ghế khán giả" : h.key === "cine" ? "ghế rạp" : "bồ đoàn", verb: h.seatVerb, occ: r.seats.map(() => false), lastGain: 0 };
     rides.push(h.seatRide);
   }
   if (r.stage) { h.stageRide = { idx: rides.length, type: "stage", hall: h, r: { seats: [r.stage] }, board: seatsAt([r.stage]), name: "sân khấu", verb: "Lên sân khấu cầm micro", occ: [false], lastGain: 0 }; rides.push(h.stageRide); }
@@ -940,7 +934,7 @@ function inHall(x, z) { return Math.abs(x) < 12.6 && z < -18 && z > -32; }
 function walkable(x, z) {
   const onBridge = Math.abs(x) < 1.9 && z > -15.6 && z < -8.4;
   if (!onBridge && z > -15 && z < -9) return false;
-  if (Math.abs(x) > 29.9) return hallWalk(x, z) && !solids.some(s => Math.hypot(x - s.x, z - s.z) < s.r + .35);
+  if (Math.abs(x) > 29.9 || z >= 79.5) return (hallWalk(x, z) || inPark(x, z)) && !solids.some(s => Math.hypot(x - s.x, z - s.z) < s.r + .35);
   if (z < -32 || Math.hypot(x, z - 2) > 31 && !inHall(x, z) && !inPark(x, z) && !(Math.abs(x) < 3 && z > 20 && z < 36)) return false;
   if (z < -15 && z > -32 && Math.abs(x) > 12.6 && z < -18) return false;
   for (const s of solids) if (Math.hypot(x - s.x, z - s.z) < s.r + .35) return false;
@@ -1080,7 +1074,7 @@ function syncPeers() {
     }
     o.av.setLook(look); o.av.setTag(look.name, +q.m || 0); o.name = look.name;
     o.tx = clamp(+q.x || 0, -100, 100); o.tz = clamp(+q.z || 0, -100, 100); o.tr = +q.r || 0; o.av.moving = !!q.mv;
-    if (Array.isArray(q.a) && q.a[1] !== o.aat && q.a[0] === "niem") { o.aat = q.a[1]; remoteChant(o, look.name); }
+    if (Array.isArray(q.a) && q.a[1] !== o.aat && typeof q.a[0] === "string" && /^(niem|tung|lay|le_)/.test(q.a[0])) { o.aat = q.a[1]; remoteChant(o, look.name, q.a[0]); }
     if (Array.isArray(q.a) && q.a[1] !== o.aat) { o.aat = q.a[1]; if (ACTS[q.a[0]]) { playEffect(q.a[0], o); floatText(`+${ACTS[q.a[0]].gain}`, o.tx, 2.6, o.tz); if (q.a[0] !== "mo") addLog(`<b>${esc(look.name)}</b> vừa ${ACTS[q.a[0]].verb}.`); } }
     if (Array.isArray(q.s) && q.s[1] !== o.sat) { o.sat = q.s[1]; const t = String(q.s[0] || "").slice(0, 100); if (t) { o.av.say(t); addLog(`<b>${esc(look.name)}:</b> ${esc(t)}`); } }
     if ((+q.j || 0) !== o.jq) { o.jq = +q.j || 0; o.jt0 = performance.now(); }
@@ -1140,7 +1134,7 @@ function makeWsNet() {
       else if (m.t === "leave") { peers.delete(m.id); emitPeers(); }
       else if (m.t === "board" || m.t === "me") boardFns.forEach(f => f(m));
       else if (m.t === "full") { full = true; location.href = "/?full"; }
-      else if (typeof m.t === "string" && (m.t.startsWith("k.") || m.t.startsWith("np."))) hallFns.forEach(f => f(m));
+      else if (typeof m.t === "string" && /^(k|c|np)\./.test(m.t)) hallFns.forEach(f => f(m));
     };
     ws.onclose = () => { if (full) return; open = false; peers = new Map(); emitPeers(); statusFns.forEach(f => f(false)); setTimeout(connect, Math.min(10000, 800 * 2 ** retry++)); };
     ws.onerror = () => {};
@@ -1514,164 +1508,364 @@ function interact() {
   }
 }
 
-/* ---------- Phòng Karaoke Âm Phủ ---------- */
-const KARA = { st: null, skew: 0, inside: false, yt: null, ytReady: false, ytLoading: false, vid: "", durSent: "", myRate: 0, rateFor: 0, lastSync: 0, canvas: null, tex: null, texKey: "" };
+/* ---------- Phòng xem chung: Karaoke Âm Phủ + Rạp phim Âm Phủ ---------- */
+// Mỗi phòng có hàng chờ video YouTube trên máy chủ (tiền tố tin "k." / "c."), phát đồng bộ theo giờ máy chủ.
+// Video hiện thẳng trên màn chiếu 3D: khung YouTube được biến đổi phối cảnh cho khớp 4 góc màn hình.
 const net = () => (ownServer && room === ownServer ? ownServer : null);
 function ytId(u) {
   u = String(u || "").trim(); if (/^[\w-]{11}$/.test(u)) return u;
   const m = u.match(/(?:youtu\.be\/|[?&]v=|\/shorts\/|\/embed\/|\/live\/)([\w-]{11})/); return m ? m[1] : null;
 }
-function karaNow() { return Date.now() + KARA.skew; }
+let ytApi = null;   // Promise khi nạp xong YouTube IFrame API
 function loadYT() {
-  if (KARA.ytLoading) return; KARA.ytLoading = true;
-  window.onYouTubeIframeAPIReady = () => {
-    KARA.yt = new YT.Player("k-yt", { width: "100%", height: "100%", playerVars: { autoplay: 1, controls: 1, rel: 0, playsinline: 1, modestbranding: 1 },
-      events: { onReady: () => { KARA.ytReady = true; karaSync(true); }, onStateChange: e => karaYTState(e.data) } });
-  };
-  const sc = document.createElement("script"); sc.src = "https://www.youtube.com/iframe_api"; sc.async = true;
-  sc.onerror = () => { $("#k-idle").textContent = "Không tải được trình phát YouTube."; };
-  document.head.append(sc);
+  if (ytApi) return ytApi;
+  ytApi = new Promise((res, rej) => {
+    window.onYouTubeIframeAPIReady = () => res(window.YT);
+    const sc = document.createElement("script"); sc.src = "https://www.youtube.com/iframe_api"; sc.async = true; sc.onerror = rej; document.head.append(sc);
+  });
+  return ytApi;
 }
-function karaYTState(stt) {
-  const cur = KARA.st && KARA.st.cur, n = net(); if (!cur || !n) return;
-  if (stt === 1) { $("#k-tap").hidden = true; if (KARA.durSent !== cur.vid) { const d = KARA.yt.getDuration && KARA.yt.getDuration(); if (d > 0) { KARA.durSent = cur.vid; n.send({ t: "k.dur", vid: cur.vid, d }); } } }
-  if (stt === 0) n.send({ t: "k.end", vid: cur.vid });
-}
-function karaSync(force) {
-  const cur = KARA.st && KARA.st.cur;
-  $("#k-idle").hidden = !!cur;
-  const fr = $("#k-yt"); if (fr) fr.style.visibility = cur ? "visible" : "hidden";
-  if (!KARA.ytReady) return;
-  const yt = KARA.yt;
-  if (!KARA.inside || !cur) { if (KARA.vid) { try { yt.stopVideo(); } catch (e) {} KARA.vid = ""; } $("#k-tap").hidden = true; return; }
-  const want = (karaNow() - cur.start) / 1000;
-  if (want < 0) { if (KARA.vid !== cur.vid) { KARA.vid = cur.vid; try { yt.cueVideoById({ videoId: cur.vid, startSeconds: 0 }); } catch (e) {} } setTimeout(() => karaSync(true), -want * 1000 + 50); return; }
-  try {
-    if (KARA.vid !== cur.vid) { KARA.vid = cur.vid; yt.loadVideoById({ videoId: cur.vid, startSeconds: want }); return; }
-    const stt = yt.getPlayerState();
-    if (stt === 5 || stt === -1 || stt === 2) { yt.playVideo(); setTimeout(() => { if (KARA.yt.getPlayerState() !== 1 && KARA.inside) $("#k-tap").hidden = false; }, 1500); }
-    if (stt === 1 && Math.abs(yt.getCurrentTime() - want) > 2.5) yt.seekTo(want, true);
-  } catch (e) {}
-}
-function karaRender() {
-  const st = KARA.st; if (!st) return;
-  const me_ = net() && net().id, cur = st.cur;
-  $("#k-here").textContent = `${st.here} người trong phòng`;
-  $("#k-now").innerHTML = cur ? `Đang hát: <b>${esc(cur.title || "bài của " + cur.name)}</b><br>🎤 ${cur.by === me_ ? "<b>Bạn</b> (lên sân khấu cầm micro đi!)" : esc(cur.name)}` : "";
-  $("#k-rate").hidden = !cur || cur.by === me_;
-  if (cur && KARA.rateFor !== cur.id) { KARA.rateFor = cur.id; KARA.myRate = 0; }
-  $("#k-stars").innerHTML = [1, 2, 3, 4, 5].map(i => `<button type="button" data-s="${i}" aria-label="${i} sao" aria-pressed="${i <= KARA.myRate}">★</button>`).join("");
-  $("#k-avg").textContent = st.nr ? `TB ${st.avg}★ · ${st.nr} người chấm` : "";
-  $("#k-skip").textContent = cur ? (cur.by === me_ ? "Thôi không hát" : `Qua bài (${st.skips}/${st.need})`) : "Qua bài";
-  $("#k-skip").disabled = !cur;
-  $("#k-q").innerHTML = st.q.length ? st.q.map(q => `<li>${esc(q.title || q.vid)} <em>· ${esc(q.name)}</em>${q.by === me_ ? `<button type="button" data-rm="${q.id}">Bỏ</button>` : ""}</li>`).join("") : "";
-  drawKaraScreen();
-}
-function drawKaraScreen() {
-  const h = hallByKey.kara; if (!h || !h.room || !h.room.screen) return;
-  const st = KARA.st, cur = st && st.cur;
-  const key = cur ? cur.id + "|" + cur.title + "|" + st.avg + "|" + st.nr : "idle";
-  if (key === KARA.texKey) return; KARA.texKey = key;
-  if (!KARA.canvas) { KARA.canvas = document.createElement("canvas"); KARA.canvas.width = 1024; KARA.canvas.height = 576; KARA.tex = new THREE.CanvasTexture(KARA.canvas); const mt = h.room.screen.material; mt.map = KARA.tex; if (mt.color) mt.color.set(0xffffff); mt.needsUpdate = true; }
-  const g = KARA.canvas.getContext("2d"), W = 1024, H = 576;
-  const gr = g.createLinearGradient(0, 0, W, H); gr.addColorStop(0, "#2a0b3a"); gr.addColorStop(1, "#0d0518"); g.fillStyle = gr; g.fillRect(0, 0, W, H);
-  g.textAlign = "center"; g.fillStyle = "#ff7ad9"; g.font = "800 56px sans-serif"; g.fillText("KARAOKE ÂM PHỦ", W / 2, 96);
-  g.fillStyle = "#fff"; g.font = "700 44px sans-serif";
-  const wrap = (txt, y) => { const words = String(txt).split(" "); let line = "", yy = y; for (const w of words) { const t2 = line ? line + " " + w : w; if (g.measureText(t2).width > W - 120) { g.fillText(line, W / 2, yy); line = w; yy += 54; } else line = t2; } g.fillText(line, W / 2, yy); };
-  if (cur) {
-    wrap(cur.title || "Bài hát của " + cur.name, 230);
-    g.fillStyle = "#ffd36b"; g.font = "700 40px sans-serif"; g.fillText("🎤 " + cur.name, W / 2, 420);
-    if (st.nr) { g.fillText("★".repeat(Math.round(st.avg)) + "  " + st.avg + " (" + st.nr + " người chấm)", W / 2, 490); }
-  } else { g.font = "600 38px sans-serif"; wrap("Sân khấu đang trống. Dán link YouTube trong bảng karaoke để hát!", 260); }
-  KARA.tex.needsUpdate = true;
-}
-function karaMsg(m) {
-  if (m.t === "k.state") {
-    const prev = KARA.st && KARA.st.cur;
-    KARA.skew = m.now - Date.now(); KARA.st = m; karaRender(); karaSync(true);
-    const me_ = net() && net().id;
-    if (m.cur && (!prev || prev.id !== m.cur.id) && m.cur.by === me_) { toast("Đến lượt bạn hát! Vào Phòng Karaoke, lên sân khấu cầm micro."); addLog(`Đến lượt <b>bạn</b> hát ở <b>Phòng Karaoke Âm Phủ</b>.`, true); sfx("up"); }
-  } else if (m.t === "k.err") toast(m.msg || "Không xếp được bài");
-  else if (m.t === "k.res") {
-    if (!m.nr) return;
-    const txt = `<b>${esc(m.name)}</b> hát xong${m.title ? " “" + esc(m.title) + "”" : ""}: ${m.avg}★ (${m.nr} người chấm)${m.gain ? `, được <b>+${m.gain}</b> công đức` : ""}.`;
-    addLog(txt); if (KARA.inside) toast(`${m.name}: ${m.avg}★ · +${m.gain} công đức`);
+// biến đổi phối cảnh: hình chữ nhật w×h → tứ giác 4 điểm (trên trái, trên phải, dưới trái, dưới phải)
+const H3 = {
+  adj: m => [m[4] * m[8] - m[5] * m[7], m[2] * m[7] - m[1] * m[8], m[1] * m[5] - m[2] * m[4], m[5] * m[6] - m[3] * m[8], m[0] * m[8] - m[2] * m[6], m[2] * m[3] - m[0] * m[5], m[3] * m[7] - m[4] * m[6], m[1] * m[6] - m[0] * m[7], m[0] * m[4] - m[1] * m[3]],
+  mm(a, b) { const c = []; for (let i = 0; i < 3; i++) for (let j = 0; j < 3; j++) { let v = 0; for (let k = 0; k < 3; k++) v += a[3 * i + k] * b[3 * k + j]; c[3 * i + j] = v; } return c; },
+  mv: (m, v) => [m[0] * v[0] + m[1] * v[1] + m[2] * v[2], m[3] * v[0] + m[4] * v[1] + m[5] * v[2], m[6] * v[0] + m[7] * v[1] + m[8] * v[2]],
+  basis(x1, y1, x2, y2, x3, y3, x4, y4) { const m = [x1, x2, x3, y1, y2, y3, 1, 1, 1], v = H3.mv(H3.adj(m), [x4, y4, 1]); return H3.mm(m, [v[0], 0, 0, 0, v[1], 0, 0, 0, v[2]]); },
+  css(w, h, d) {
+    const t = H3.mm(H3.basis(...d), H3.adj(H3.basis(0, 0, w, 0, 0, h, w, h)));
+    for (let i = 0; i < 9; i++) t[i] /= t[8];
+    return `matrix3d(${[t[0], t[3], 0, t[6], t[1], t[4], 0, t[7], 0, 0, 1, 0, t[2], t[5], 0, t[8]].map(v => +v.toFixed(8)).join(",")})`;
   }
+};
+const scrV = new THREE.Vector3(), scrN = new THREE.Vector3(), scrC = new THREE.Vector3(), scrBox = new THREE.Box3();
+const THEATERS = {};
+function makeTheater(cfg) {
+  const T = Object.assign({ st: null, skew: 0, inside: false, yt: null, ytReady: false, vid: "", durSent: "", myRate: 0, rateFor: 0, lastSync: 0, canvas: null, tex: null, texKey: "", vol: 80, shown: false }, cfg);
+  const P = cfg.P, el = document.createElement("div");
+  el.className = "hud kara" + (cfg.key === "cine" ? " cine" : ""); el.hidden = true;
+  el.innerHTML = `<div class="k-head"><b>${cfg.icon} ${esc(cfg.title)}</b><span class="k-here"></span><button type="button" class="k-ic k-min" aria-expanded="true">Thu nhỏ</button></div>
+    <div class="k-body">
+      <p class="k-tip">Video chiếu trên màn hình lớn. Ngồi ghế để xem rõ nhất.</p>
+      <div class="k-now"></div>
+      <button type="button" class="k-tap" hidden>▶ Bấm để bật tiếng / phát</button>
+      <label class="k-vol">🔊<input type="range" min="0" max="100" value="80" aria-label="Âm lượng"></label>
+      ${cfg.rate ? `<div class="k-rate" hidden><span>Chấm điểm:</span><span class="k-stars"></span><em class="k-avg"></em></div>` : ""}
+      <form class="k-form"><input type="url" inputmode="url" placeholder="${esc(cfg.placeholder)}" aria-label="Link YouTube" maxlength="200"><button type="submit">${esc(cfg.addLabel)}</button></form>
+      <div class="k-row"><button type="button" class="k-skip">Qua bài</button><button type="button" class="k-yts">Tìm trên YouTube ↗</button></div>
+      <ol class="k-q"></ol>
+    </div>`;
+  document.body.append(el);
+  const big = document.createElement("div"); big.className = "bigscreen"; big.innerHTML = `<div id="yt-${cfg.key}"></div>`;
+  canvas.parentNode.insertBefore(big, canvas.nextSibling);
+  const q = sel => el.querySelector(sel);
+  T.el = el; T.big = big;
+  const now_ = () => Date.now() + T.skew;
+  function ytState(stt) {
+    const cur = T.st && T.st.cur, n = net(); if (!cur || !n) return;
+    if (stt === 1) { q(".k-tap").hidden = true; if (T.durSent !== cur.vid) { const d = T.yt.getDuration && T.yt.getDuration(); if (d > 0) { T.durSent = cur.vid; n.send({ t: P + ".dur", vid: cur.vid, d }); } } }
+    if (stt === 0) n.send({ t: P + ".end", vid: cur.vid });
+  }
+  function ensureYT() {
+    if (T.yt || T.ytLoading) return; T.ytLoading = true;
+    loadYT().then(YT => {
+      T.yt = new YT.Player("yt-" + cfg.key, { width: "1280", height: "720", playerVars: { autoplay: 1, controls: 0, rel: 0, playsinline: 1, modestbranding: 1, disablekb: 1, iv_load_policy: 3 },
+        events: { onReady: () => { T.ytReady = true; try { T.yt.setVolume(T.vol); } catch (e) {} sync(); }, onStateChange: e => ytState(e.data) } });
+    }).catch(() => { q(".k-now").textContent = "Không tải được trình phát YouTube."; });
+  }
+  function sync() {
+    const cur = T.st && T.st.cur;
+    if (!T.ytReady) return;
+    const yt = T.yt;
+    if (!T.inside || !cur) { if (T.vid) { try { yt.stopVideo(); } catch (e) {} T.vid = ""; } q(".k-tap").hidden = true; return; }
+    const want = (now_() - cur.start) / 1000;
+    if (want < 0) { if (T.vid !== cur.vid) { T.vid = cur.vid; try { yt.cueVideoById({ videoId: cur.vid, startSeconds: 0 }); } catch (e) {} } setTimeout(sync, -want * 1000 + 50); return; }
+    try {
+      if (T.vid !== cur.vid) { T.vid = cur.vid; yt.loadVideoById({ videoId: cur.vid, startSeconds: want }); return; }
+      const stt = yt.getPlayerState();
+      if (stt === 5 || stt === -1 || stt === 2) { yt.playVideo(); setTimeout(() => { if (T.yt.getPlayerState() !== 1 && T.inside) q(".k-tap").hidden = false; }, 1500); }
+      if (stt === 1 && Math.abs(yt.getCurrentTime() - want) > 2.5) yt.seekTo(want, true);
+    } catch (e) {}
+  }
+  function render() {
+    const st = T.st; if (!st) return;
+    const me_ = net() && net().id, cur = st.cur;
+    q(".k-here").textContent = `${st.here} người trong phòng`;
+    q(".k-now").innerHTML = cur ? `${cfg.nowLabel}: <b>${esc(cur.title || cur.vid)}</b><br>${cfg.byIcon} ${cur.by === me_ ? `<b>Bạn</b>${cfg.rate ? " (lên sân khấu cầm micro đi!)" : ""}` : esc(cur.name)}` : esc(cfg.idle);
+    if (cfg.rate) {
+      q(".k-rate").hidden = !cur || cur.by === me_;
+      if (cur && T.rateFor !== cur.id) { T.rateFor = cur.id; T.myRate = 0; }
+      q(".k-stars").innerHTML = [1, 2, 3, 4, 5].map(i => `<button type="button" data-s="${i}" aria-label="${i} sao" aria-pressed="${i <= T.myRate}">★</button>`).join("");
+      q(".k-avg").textContent = st.nr ? `TB ${st.avg}★ · ${st.nr} người chấm` : "";
+    }
+    q(".k-skip").textContent = cur ? (cur.by === me_ ? (cfg.rate ? "Thôi không hát" : "Dừng video của tôi") : `Qua bài (${st.skips}/${st.need})`) : "Qua bài";
+    q(".k-skip").disabled = !cur;
+    q(".k-q").innerHTML = st.q.length ? st.q.map(v => `<li>${esc(v.title || v.vid)} <em>· ${esc(v.name)}</em><button type="button" class="vote" data-vote="${v.id}" aria-pressed="${!!v.mine}" aria-label="Bình chọn">▲ ${v.votes || 0}</button>${v.by === me_ ? `<button type="button" data-rm="${v.id}">Bỏ</button>` : ""}</li>`).join("") : "";
+    drawScreen();
+  }
+  function drawScreen() {
+    const h = hallByKey[cfg.key]; if (!h || !h.room || !h.room.screen) return;
+    const st = T.st, cur = st && st.cur;
+    const key = cur ? cur.id + "|" + cur.title + "|" + st.avg + "|" + st.nr : "idle";
+    if (key === T.texKey) return; T.texKey = key;
+    if (!T.canvas) { T.canvas = document.createElement("canvas"); T.canvas.width = 1024; T.canvas.height = 576; T.tex = new THREE.CanvasTexture(T.canvas); const mt = h.room.screen.material; mt.map = T.tex; if (mt.color) mt.color.set(0xffffff); mt.needsUpdate = true; }
+    const g = T.canvas.getContext("2d"), W = 1024, H = 576;
+    const gr = g.createLinearGradient(0, 0, W, H); gr.addColorStop(0, cfg.key === "cine" ? "#2a0b0b" : "#2a0b3a"); gr.addColorStop(1, "#0d0518"); g.fillStyle = gr; g.fillRect(0, 0, W, H);
+    g.textAlign = "center"; g.fillStyle = cfg.key === "cine" ? "#ffd36b" : "#ff7ad9"; g.font = "800 56px sans-serif"; g.fillText(cfg.title.toUpperCase(), W / 2, 96);
+    g.fillStyle = "#fff"; g.font = "700 44px sans-serif";
+    const wrap = (txt, y) => { const words = String(txt).split(" "); let line = "", yy = y; for (const w of words) { const t2 = line ? line + " " + w : w; if (g.measureText(t2).width > W - 120) { g.fillText(line, W / 2, yy); line = w; yy += 54; } else line = t2; } g.fillText(line, W / 2, yy); };
+    if (cur) { wrap(cur.title || "Video của " + cur.name, 230); g.fillStyle = "#ffd36b"; g.font = "700 40px sans-serif"; g.fillText(cfg.byIcon + " " + cur.name, W / 2, 420); if (st.nr) g.fillText("★".repeat(Math.round(st.avg)) + "  " + st.avg + " (" + st.nr + " người chấm)", W / 2, 490); }
+    else { g.font = "600 38px sans-serif"; wrap(cfg.idle, 260); }
+    T.tex.needsUpdate = true;
+  }
+  // đặt khung video khớp màn chiếu mỗi khung hình
+  T.place = function () {
+    const h = hallByKey[cfg.key], cur = T.st && T.st.cur;
+    const show = T.inside && cur && T.ytReady && h && h.room && h.room.screen;
+    if (!show) { if (T.shown) { big.style.visibility = "hidden"; T.shown = false; } return; }
+    const scr = h.room.screen; scr.updateWorldMatrix(true, false);
+    if (!scr.geometry.boundingBox) scr.geometry.computeBoundingBox();
+    const bb = scr.geometry.boundingBox, rect = canvas.getBoundingClientRect(), pts = [];
+    // mặt màn phải quay về phía camera
+    scrC.set((bb.min.x + bb.max.x) / 2, (bb.min.y + bb.max.y) / 2, 0).applyMatrix4(scr.matrixWorld);
+    scrN.set(0, 0, 1).transformDirection(scr.matrixWorld);
+    let ok = scrN.dot(scrV.copy(camera.position).sub(scrC)) > 0;
+    for (const [x, y] of [[bb.min.x, bb.max.y], [bb.max.x, bb.max.y], [bb.min.x, bb.min.y], [bb.max.x, bb.min.y]]) {
+      scrV.set(x, y, 0).applyMatrix4(scr.matrixWorld).applyMatrix4(camera.matrixWorldInverse);
+      if (scrV.z > -.1) { ok = false; break; }
+      scrV.applyMatrix4(camera.projectionMatrix);
+      pts.push((scrV.x + 1) / 2 * rect.width, (1 - scrV.y) / 2 * rect.height);
+    }
+    if (!ok) { if (T.shown) { big.style.visibility = "hidden"; T.shown = false; } return; }
+    big.style.transform = H3.css(1280, 720, pts);
+    if (!T.shown) { big.style.visibility = "visible"; T.shown = true; }
+  };
+  T.msg = function (m) {
+    const k = m.t.slice(2);
+    if (k === "state") {
+      const prev = T.st && T.st.cur;
+      T.skew = m.now - Date.now(); T.st = m; render(); sync();
+      const me_ = net() && net().id;
+      if (m.cur && (!prev || prev.id !== m.cur.id) && m.cur.by === me_) { toast(cfg.myTurn); addLog(cfg.myTurnLog, true); sfx("up"); }
+    } else if (k === "err") toast(m.msg || "Không gửi được video");
+    else if (k === "res" && m.nr) {
+      addLog(`<b>${esc(m.name)}</b> hát xong${m.title ? " “" + esc(m.title) + "”" : ""}: ${m.avg}★ (${m.nr} người chấm)${m.gain ? `, được <b>+${m.gain}</b> công đức` : ""}.`);
+      if (T.inside) toast(`${m.name}: ${m.avg}★ · +${m.gain} công đức`);
+    }
+  };
+  T.enter = function (inside) {
+    T.inside = inside; el.hidden = !inside;
+    const n = net(); if (n) { n.send({ t: P + ".here", in: inside }); if (inside) n.send({ t: P + ".get" }); }
+    if (inside) { if (!n) q(".k-now").textContent = "Phòng này cần máy chủ trò chơi (mở trang qua địa chỉ của game)."; else ensureYT(); addLog(cfg.welcome, true); }
+    sync(); T.place();
+  };
+  T.sync = sync;
+  q(".k-form").addEventListener("submit", e => {
+    e.preventDefault(); const n = net(), inp = q(".k-form input"), id = ytId(inp.value);
+    if (!n) { toast("Cần máy chủ trò chơi"); return; }
+    if (!id) { toast("Dán link YouTube (ví dụ youtube.com/watch?v=…)"); return; }
+    n.send({ t: P + ".add", vid: id }); inp.value = ""; inp.blur(); toast("Đã gửi video vào hàng chờ");
+  });
+  if (cfg.rate) q(".k-stars").addEventListener("click", e => { const b = e.target.closest("[data-s]"); if (!b || !net()) return; T.myRate = +b.dataset.s; net().send({ t: P + ".rate", s: T.myRate }); render(); });
+  q(".k-q").addEventListener("click", e => {
+    const n = net(); if (!n) return; const v = e.target.closest("[data-vote]"), r = e.target.closest("[data-rm]");
+    if (v) n.send({ t: P + ".vote", id: +v.dataset.vote }); if (r) n.send({ t: P + ".rm", id: +r.dataset.rm });
+  });
+  q(".k-skip").addEventListener("click", () => { if (net()) net().send({ t: P + ".skip" }); });
+  q(".k-tap").addEventListener("click", () => { try { T.yt.unMute(); T.yt.playVideo(); } catch (e) {} q(".k-tap").hidden = true; });
+  q(".k-vol input").addEventListener("input", e => { T.vol = +e.target.value; try { T.yt.setVolume(T.vol); if (T.vol > 0) T.yt.unMute(); } catch (er) {} });
+  q(".k-yts").addEventListener("click", () => window.open("https://www.youtube.com/results?search_query=" + encodeURIComponent(cfg.search), "_blank", "noopener"));
+  q(".k-min").addEventListener("click", () => { const mn = el.classList.toggle("min"); q(".k-min").textContent = mn ? "Mở" : "Thu nhỏ"; q(".k-min").setAttribute("aria-expanded", !mn); });
+  THEATERS[cfg.key] = T; return T;
 }
-$("#k-form").addEventListener("submit", e => {
-  e.preventDefault(); const n = net(); const id = ytId($("#k-url").value);
-  if (!n) { toast("Phòng karaoke cần máy chủ trò chơi"); return; }
-  if (!id) { toast("Dán link YouTube (ví dụ youtube.com/watch?v=…)"); return; }
-  n.send({ t: "k.add", vid: id }); $("#k-url").value = ""; $("#k-url").blur(); toast("Đã xếp bài, chờ tới lượt nhé");
-});
-$("#k-stars").addEventListener("click", e => { const b = e.target.closest("[data-s]"); if (!b || !net()) return; KARA.myRate = +b.dataset.s; net().send({ t: "k.rate", s: KARA.myRate }); karaRender(); });
-$("#k-q").addEventListener("click", e => { const b = e.target.closest("[data-rm]"); if (b && net()) net().send({ t: "k.rm", id: +b.dataset.rm }); });
-$("#k-skip").addEventListener("click", () => { if (net()) net().send({ t: "k.skip" }); });
-$("#k-tap").addEventListener("click", () => { try { KARA.yt.playVideo(); } catch (e) {} $("#k-tap").hidden = true; });
-$("#k-yts").addEventListener("click", () => window.open("https://www.youtube.com/results?search_query=" + encodeURIComponent("karaoke beat"), "_blank", "noopener"));
-$("#k-min").addEventListener("click", () => { const mn = $("#kara").classList.toggle("min"); $("#k-min").textContent = mn ? "Mở" : "Thu nhỏ"; $("#k-min").setAttribute("aria-expanded", !mn); });
-function karaEnter(inside) {
-  KARA.inside = inside; $("#kara").hidden = !inside;
-  const n = net(); if (n) { n.send({ t: "k.here", in: inside }); if (inside) n.send({ t: "k.get" }); }
-  if (inside) { if (!n) $("#k-idle").textContent = "Phòng karaoke cần máy chủ trò chơi (mở trang qua địa chỉ của game)."; else loadYT(); addLog("Bạn vào <b>Phòng Karaoke Âm Phủ</b>. Dán link YouTube để xếp bài, ngồi ghế xem, chấm điểm người hát. Người hát được cộng công đức theo điểm.", true); }
-  karaSync(true);
-}
+makeTheater({ key: "kara", P: "k", rate: true, icon: "🎤", byIcon: "🎤", title: "Karaoke Âm Phủ", nowLabel: "Đang hát", placeholder: "Dán link YouTube bài karaoke…", addLabel: "Xếp bài", search: "karaoke beat",
+  idle: "Sân khấu đang trống. Dán link YouTube bài karaoke để hát!", myTurn: "Đến lượt bạn hát! Vào Phòng Karaoke, lên sân khấu cầm micro.", myTurnLog: "Đến lượt <b>bạn</b> hát ở <b>Phòng Karaoke Âm Phủ</b>.",
+  welcome: "Bạn vào <b>Phòng Karaoke Âm Phủ</b>. Dán link YouTube để xếp bài, ngồi ghế xem trên màn hình lớn, chấm điểm người hát. Người hát được cộng công đức theo điểm." });
+makeTheater({ key: "cine", P: "c", rate: false, icon: "🎬", byIcon: "🎟️", title: "Rạp phim Âm Phủ", nowLabel: "Đang chiếu", placeholder: "Dán link YouTube video muốn xem…", addLabel: "Gửi video", search: "phim hay",
+  idle: "Màn chiếu đang trống. Gửi một video YouTube, mọi người bình chọn ▲ video muốn xem tiếp!", myTurn: "Video bạn gửi đang chiếu ở Rạp phim Âm Phủ!", myTurnLog: "Video <b>bạn</b> gửi đang chiếu ở <b>Rạp phim Âm Phủ</b>.",
+  welcome: "Bạn vào <b>Rạp phim Âm Phủ</b>. Gửi video YouTube, bình chọn ▲ video muốn xem tiếp, ngồi ghế để xem trên màn chiếu lớn." });
 
 /* ---------- Chùa Niệm Phật ---------- */
-const NP = { mine: 0, today: 0, room: 0, chanters: 0, top: [], pending: 0, lastKnock: 0 };
+const NP = { mine: 0, today: 0, room: 0, chanters: 0, top: [], pending: 0, manualN: 0, autoN: 0, wishes: [], sutraAt: -1e9, wishAt: -1e9 };
 let chantUI = null;
-function chantOnce(kind) {
-  NP.mine++; NP.today++; NP.pending++;
-  if (NP.mine % 108 === 0) { gain(3); floatText("+3 công đức · viên mãn 1 tràng", player.x, 2.9, player.z); sfx("chuong", .6); }
-  myAct = ["niem", ++actSeq]; presenceNow(false);
+// công đức trong chùa: tự tay niệm 108 câu +3, tự niệm 108 câu +1; tụng trọn Tâm Kinh +5 (mõ tự động +2);
+// dâng lễ / lạy Phật +1 (chờ 30 / 20 giây); thiền +1 mỗi phút (tối đa 30); thả đèn nguyện +2 (mỗi phút một đèn)
+function chantSay(text) { if (chantUI && chantUI.toast) try { chantUI.toast(text); return; } catch (e) {} toast(text); }
+function chantStats() { if (chantUI && chantUI.setStats) try { chantUI.setStats({ mine: NP.mine, today: NP.today, room: NP.room, chanters: NP.chanters }); } catch (e) {} }
+function chantOnce(kind, manual = true) {
+  kind = kind === "tung" ? "tung" : "niem";
+  NP.pending++;
+  if (kind === "niem") {
+    NP.mine++; NP.today++;
+    if (manual ? ++NP.manualN % 108 === 0 : ++NP.autoN % 108 === 0) {
+      const g = manual ? 3 : 1; gain(g); floatText(`+${g} công đức`, player.x, 2.9, player.z);
+      chantSay(manual ? "+3 công đức · viên mãn 1 tràng" : "+1 công đức · 1 tràng tự niệm (tự tay niệm được +3)");
+    }
+  }
+  myAct = [kind, ++actSeq]; presenceNow(false);
   const h = hallByKey.chua; if (h && h.room && h.room.knock) try { h.room.knock(); } catch (e) {}
-  if (chantUI && chantUI.fallback) { sfx("mo"); chantUI.render(); floatText("Nam mô A Di Đà Phật", player.x, 2.4, player.z, "#ffe6a8"); }
-  else if (chantUI && chantUI.setStats) chantUI.setStats({ mine: NP.mine, today: NP.today, room: NP.room, chanters: NP.chanters });
+  if (chantUI && chantUI.fallback) { sfx("mo"); chantUI.render(); }
+  else chantStats();
+  floatText(kind === "niem" ? "Nam mô A Di Đà Phật" : "📜", player.x, 2.4, player.z, "#ffe6a8");
 }
-function remoteChant(o, name) {
-  if (!hallAt(o.tx, o.tz) || hallAt(o.tx, o.tz).key !== "chua") return;
-  floatText("Nam mô A Di Đà Phật", o.tx, 2.4, o.tz, "#ffe6a8");
-  const here = hallAt(player.x, player.z); if (here && here.key === "chua") sfx("mo", .25);
-  if (chantUI && chantUI.remote) try { chantUI.remote(name); } catch (e) {}
+function sutraDone(manual) {
+  const now = performance.now(); if (now - NP.sutraAt < 60000) return; NP.sutraAt = now;
+  const g = manual ? 5 : 2; gain(g); floatText(`+${g} công đức`, player.x, 2.9, player.z);
+  chantSay(`Tụng trọn Tâm Kinh · +${g} công đức`); addLog(`Bạn tụng trọn <b>Bát Nhã Tâm Kinh</b>, được +${g} công đức.`);
+}
+// dâng lễ
+const OFFERS = { huong: ["🪔", "thắp hương", "huong"], nen: ["🕯️", "thắp nến", "den"], hoa: ["🌸", "dâng hoa", "huong"], dendang: ["🏮", "thả đèn hoa đăng", "den"], chuong: ["🔔", "thỉnh chuông", "chuong"] };
+const offerAt = {}; let bowAt = -1e9, bowT0 = -1e9;
+const cool = (at, ms) => { const w = ms - (performance.now() - at); return w > 0 ? Math.ceil(w / 1000) : 0; };
+function altarSpot() { const h = hallByKey.chua; return h && h.room ? hallWorld(h, (Math.random() - .5) * 3, -5.2) : { x: player.x, z: player.z }; }
+function offerFx(kind, mine) {
+  const o = OFFERS[kind]; if (!o) return; const a = altarSpot();
+  floatText(`${o[0]} ${o[1]}`, a.x, 3.4, a.z, "#ffe6a8"); sfx(o[2], mine ? 1 : .35);
+  if (kind === "dendang") spawnLantern();
+}
+function doOffer(kind) {
+  if (!OFFERS[kind]) return { ok: false, wait: 0 };
+  const w = cool(offerAt[kind] || -1e9, 30000); if (w) return { ok: false, wait: w };
+  offerAt[kind] = performance.now(); gain(1); offerFx(kind, true);
+  myAct = ["le_" + kind, ++actSeq]; presenceNow(true); addLog(`Bạn ${OFFERS[kind][1]} dâng Phật. +1 công đức.`);
+  return { ok: true, wait: 0 };
+}
+function doBow() {
+  const w = cool(bowAt, 20000); if (w) return { ok: false, wait: w };
+  bowAt = bowT0 = performance.now(); gain(1); sfx("chuong", .4);
+  myAct = ["lay", ++actSeq]; presenceNow(true); addLog("Bạn lạy Phật ba lạy. +1 công đức.");
+  return { ok: true, wait: 0 };
+}
+// góc cúi người khi lạy: 3 lạy trong 3,6 giây
+function bowAngle(ms) { const k = ms / 1000; if (k < 0 || k > 3.6) return 0; return Math.sin(Math.PI * (k % 1.2) / 1.2) * .75; }
+function doMeditate(sec) {
+  const m = Math.min(30, Math.floor((+sec || 0) / 60));
+  if (m > 0) { gain(m); floatText(`+${m} công đức`, player.x, 2.9, player.z); chantSay(`Xả thiền · ${m} phút · +${m} công đức`); addLog(`Bạn thiền định ${m} phút, được +${m} công đức.`); }
+  else chantSay("Thiền đủ 1 phút mới có công đức");
+}
+function doWish(text) {
+  text = String(text || "").trim().slice(0, 80);
+  if (!text) return { ok: false, msg: "Viết lời nguyện trước đã" };
+  if (!net()) return { ok: false, msg: "Đèn nguyện cần máy chủ trò chơi" };
+  const w = cool(NP.wishAt, 60000); if (w) return { ok: false, msg: `Chờ ${w} giây nữa mới thả đèn tiếp được` };
+  NP.wishAt = performance.now(); net().send({ t: "np.wish", text }); gain(2);
+  return { ok: true, msg: "Đã thả đèn nguyện · +2 công đức" };
+}
+// đèn bay lên trong chùa (đèn hoa đăng, đèn nguyện)
+const skyLamps = []; let skyGeo = null, skyMat = null;
+function spawnLantern() {
+  const h = hallByKey.chua; if (!h || !h.room || skyLamps.length > 24) return;
+  if (!skyGeo) { skyGeo = new THREE.CylinderGeometry(.2, .26, .42, 8); skyMat = new THREE.MeshBasicMaterial({ color: 0xffa646 }); }
+  const m = new THREE.Mesh(skyGeo, skyMat), p = hallWorld(h, (Math.random() - .5) * 8, -2 + Math.random() * 5);
+  m.position.set(p.x, 1.2, p.z); scene.add(m); skyLamps.push({ m, t0: performance.now(), x: p.x, z: p.z, ph: Math.random() * 6 });
+}
+function lanternsFrame(now) {
+  for (let i = skyLamps.length - 1; i >= 0; i--) {
+    const L = skyLamps[i], k = (now - L.t0) / 1000;
+    if (k > 14) { scene.remove(L.m); skyLamps.splice(i, 1); continue; }
+    L.m.position.set(L.x + Math.sin(k * .8 + L.ph) * .4, 1.2 + k * .75, L.z + Math.cos(k * .6 + L.ph) * .3);
+    L.m.scale.setScalar(k > 11 ? Math.max(.05, (14 - k) / 3) : 1);
+  }
+}
+function remoteChant(o, name, a0) {
+  const hh = hallAt(o.tx, o.tz); if (!hh || hh.key !== "chua") return;
+  const here = hallAt(player.x, player.z), near = !!(here && here.key === "chua");
+  if (a0 === "niem" || a0 === "tung") {
+    floatText(a0 === "niem" ? "Nam mô A Di Đà Phật" : "📜", o.tx, 2.4, o.tz, "#ffe6a8");
+    if (near) sfx("mo", .25);
+    if (chantUI && chantUI.remote) try { chantUI.remote(name); } catch (e) {}
+  } else if (a0 === "lay") { o.bowT0 = performance.now(); if (near) addLog(`<b>${esc(name)}</b> lạy Phật ba lạy.`); }
+  else if (a0.startsWith("le_") && OFFERS[a0.slice(3)]) { if (near) { offerFx(a0.slice(3), false); addLog(`<b>${esc(name)}</b> ${OFFERS[a0.slice(3)][1]} dâng Phật.`); } }
 }
 function fallbackChant(host) {
   const el = document.createElement("div"); el.className = "np-fb";
-  el.innerHTML = `<button type="button" class="np-btn">Nam mô<br>A Di Đà Phật</button><p class="np-me"></p><p class="np-room"></p><button type="button" class="np-up">Đứng dậy</button>`;
+  el.innerHTML = `<button type="button" class="np-btn">Nam mô<br>A Di Đà Phật</button><p class="np-me"></p><p class="np-room"></p><button type="button" class="np-up np-auto" aria-pressed="false">Tự niệm: tắt</button> <button type="button" class="np-up np-leave">Đứng dậy</button>`;
   host.append(el);
+  let autoT = 0;
   const ui = { fallback: true, render() { el.querySelector(".np-me").textContent = `Lượt này: ${NP.mine} câu · Hôm nay: ${NP.today} câu (${Math.floor(NP.today / 108)} tràng)`; el.querySelector(".np-room").textContent = `Cả chùa hôm nay: ${NP.room.toLocaleString("vi-VN")} câu · ${NP.chanters} người đang niệm`; },
-    setStats() { this.render(); }, setTop() {}, unmount() { el.remove(); } };
-  el.querySelector(".np-btn").addEventListener("click", () => chantOnce("niem"));
-  el.querySelector(".np-up").addEventListener("click", () => leaveRide());
+    setStats() { this.render(); }, setTop() {}, setWishes() {}, toast(t) { toast(t); }, unmount() { clearInterval(autoT); el.remove(); } };
+  el.querySelector(".np-btn").addEventListener("click", () => chantOnce("niem", true));
+  const ab = el.querySelector(".np-auto");
+  ab.addEventListener("click", () => { const on = !autoT; if (on) autoT = setInterval(() => chantOnce("niem", false), 1100); else { clearInterval(autoT); autoT = 0; } ab.setAttribute("aria-pressed", on); ab.textContent = on ? "Tự niệm: bật" : "Tự niệm: tắt"; });
+  el.querySelector(".np-leave").addEventListener("click", () => leaveRide());
   ui.render(); return ui;
 }
 function openChant() {
-  closeChant(); NP.mine = 0;
+  closeChant(); NP.mine = 0; NP.manualN = 0; NP.autoN = 0;
   const host = $("#chant-host");
   if (window.ChantUI && window.ChantUI.mount) {
-    try { chantUI = window.ChantUI.mount(host, { name: me.name, onChant: k => chantOnce(k || "niem"), onLeave: () => leaveRide(), sound: k => k === "mo" ? sfx("mo") : k === "chuong" ? sfx("chuong", .6) : sfx("huong") }); } catch (e) { console.warn("ChantUI", e); chantUI = null; }
+    try {
+      chantUI = window.ChantUI.mount(host, {
+        name: me.name,
+        onChant: (k, manual) => chantOnce(k || "niem", manual !== false),
+        onSutraDone: manual => sutraDone(manual !== false),
+        onOffer: k => doOffer(k), onBow: () => doBow(), onMeditate: sec => doMeditate(sec), onWish: t2 => doWish(t2),
+        onLeave: () => leaveRide(),
+        sound: k => k === "mo" ? sfx("mo") : k === "chuong" ? sfx("chuong", .6) : k === "khanh" ? sfx("den", .6) : sfx("huong")
+      });
+    } catch (e) { console.warn("ChantUI", e); chantUI = null; }
   }
   if (!chantUI) chantUI = fallbackChant(host);
-  try { chantUI.setStats({ mine: NP.mine, today: NP.today, room: NP.room, chanters: NP.chanters }); chantUI.setTop(NP.top); } catch (e) {}
+  try { chantStats(); chantUI.setTop(NP.top); chantUI.setWishes && chantUI.setWishes(NP.wishes); } catch (e) {}
   if (net()) net().send({ t: "np.get" });
-  addLog("Bạn ngồi bồ đoàn. Bấm nút niệm (hoặc Space) để niệm “Nam mô A Di Đà Phật”, đủ 108 câu (1 tràng) được +3 công đức.", true);
+  addLog("Bạn ngồi bồ đoàn. Niệm Phật, tụng kinh, thiền, dâng lễ, lạy Phật hoặc thả đèn nguyện. Tự tay niệm đủ 108 câu được +3 công đức; bật tự niệm thì máy niệm giúp (+1 mỗi tràng).", true);
 }
 function closeChant() { if (!chantUI) return; try { chantUI.unmount(); } catch (e) {} chantUI = null; $("#chant-host").innerHTML = ""; }
 function npMsg(m) {
-  if (m.t !== "np.state") return;
-  NP.room = m.total | 0; NP.chanters = m.chanters | 0; NP.top = m.top || []; NP.today = Math.max(NP.today, m.today | 0);
-  if (chantUI) try { chantUI.setStats({ mine: NP.mine, today: NP.today, room: NP.room, chanters: NP.chanters }); chantUI.setTop(NP.top); } catch (e) {}
+  if (m.t === "np.state") {
+    NP.room = m.total | 0; NP.chanters = m.chanters | 0; NP.top = m.top || []; NP.today = Math.max(NP.today, m.today | 0);
+    chantStats(); if (chantUI) try { chantUI.setTop(NP.top); } catch (e) {}
+  } else if (m.t === "np.wishes") {
+    NP.wishes = Array.isArray(m.list) ? m.list : []; if (chantUI && chantUI.setWishes) try { chantUI.setWishes(NP.wishes); } catch (e) {}
+  } else if (m.t === "np.wish" && m.w) {
+    NP.wishes.unshift(m.w); if (NP.wishes.length > 30) NP.wishes.pop();
+    if (chantUI && chantUI.setWishes) try { chantUI.setWishes(NP.wishes); } catch (e) {}
+    const here = playing && hallAt(player.x, player.z);
+    if (here && here.key === "chua") { spawnLantern(); addLog(`🏮 <b>${esc(m.w.name)}</b> thả đèn nguyện: “${esc(m.w.text)}”`); }
+  } else if (m.t === "np.err") chantSay(m.msg || "Chưa làm được");
 }
-if (ownServer) ownServer.onHall(m => { if (m.t.startsWith("k.")) karaMsg(m); else npMsg(m); });
+if (ownServer) ownServer.onHall(m => { if (m.t.startsWith("np.")) npMsg(m); else if (m.t[0] === "k") THEATERS.kara.msg(m); else if (m.t[0] === "c") THEATERS.cine.msg(m); });
 let npFlushAt = 0;
+// trong nhà: ẩn tạm tường / biển hiệu / cột nằm giữa camera và nhân vật để nhìn rộng mà không bị che
+const fadeRay = new THREE.Raycaster(), fadeFrom = new THREE.Vector3(), fadeDir = new THREE.Vector3(), faded = [];
+function hallFade(h, fx, fy, fz) {
+  while (faded.length) faded.pop().visible = true;
+  if (!h || !h.room) return;
+  if (!h.fadeList) {
+    h.fadeList = []; const sc = new THREE.Vector3();
+    h.room.group.traverse(o => {
+      if (!o.isMesh || o.userData.noOcclude) return;
+      if (!o.geometry.boundingSphere) o.geometry.computeBoundingSphere();
+      o.getWorldScale(sc); if (o.geometry.boundingSphere.radius * Math.max(sc.x, sc.y, sc.z) > .5) h.fadeList.push(o);
+      // phần nằm ngoài lòng phòng (tường, cửa, biển, đèn lồng mặt ngoài): nhớ nó ở phía nào để cắt khi camera ở phía đó
+      const c = o.geometry.boundingSphere.center.clone(); o.localToWorld(c); const l = hallLocal(h, c.x, c.z);
+      o.userData.side = l.z > 9.6 ? "zp" : l.z < -9.6 ? "zn" : l.x > 11.6 ? "xp" : l.x < -11.6 ? "xn" : "";
+      if (o.userData.side) (h.shell = h.shell || []).push(o);
+    });
+  }
+  // mặt cắt: ẩn tường + đồ trang trí ở phía camera
+  const cl = hallLocal(h, camera.position.x, camera.position.z);
+  const sides = { zp: cl.z > 9.6, zn: cl.z < -9.6, xp: cl.x > 11.6, xn: cl.x < -11.6 };
+  for (const o of h.shell || []) if (sides[o.userData.side] && o.visible) { o.visible = false; faded.push(o); }
+  fadeFrom.set(fx, fy, fz); fadeDir.copy(camera.position).sub(fadeFrom); const far = fadeDir.length(); fadeDir.normalize();
+  fadeRay.set(fadeFrom, fadeDir); fadeRay.far = far;
+  for (const hit of fadeRay.intersectObjects(h.fadeList, false)) if (hit.distance > .4 && hit.object.visible) { hit.object.visible = false; faded.push(hit.object); }
+}
 function hallsFrame(dt, now) {
+  if (skyLamps.length) lanternsFrame(now);
   const here = playing ? hallAt(player.x, player.z) : null;
-  const inKara = !!(here && here.key === "kara");
-  if (inKara !== KARA.inside) karaEnter(inKara);
-  if (KARA.inside && now - KARA.lastSync > 2000) { KARA.lastSync = now; karaSync(); }
+  for (const k in THEATERS) {
+    const T = THEATERS[k], inn = !!(here && here.key === k);
+    if (inn !== T.inside) T.enter(inn);
+    if (T.inside && now - T.lastSync > 2000) { T.lastSync = now; T.sync(); }
+    // ngồi ghế xem thì thu nhỏ bảng cho khỏi che màn chiếu, đứng dậy thì mở lại
+    const seated = !!(riding && riding.ride.hall && riding.ride.hall.key === k && riding.ride.type !== "stage");
+    if (seated !== !!T.seated) { T.seated = seated; T.el.classList.toggle("min", seated); const mb = T.el.querySelector(".k-min"); mb.textContent = seated ? "Mở" : "Thu nhỏ"; mb.setAttribute("aria-expanded", !seated); }
+  }
   for (const h of HALLS) {
     if (!h.room) continue;
     if (h.room.roof) h.room.roof.visible = here !== h;
-    const info = h.key === "kara" ? { playing: !!(KARA.st && KARA.st.cur), level: KARA.st ? Math.min(1, (KARA.st.here || 0) / 6 + (KARA.st.avg || 0) / 10) : 0 } : { chanting: NP.chanters };
+    const T = THEATERS[h.key];
+    const info = T ? { playing: !!(T.st && T.st.cur), level: T.st ? Math.min(1, (T.st.here || 0) / 6 + (T.st.avg || 0) / 10) : 0 } : { chanting: NP.chanters };
     try { h.room.update && h.room.update(dt, t, info); } catch (e) {}
   }
   if (NP.pending && now - npFlushAt > 1000) { npFlushAt = now; if (net()) net().send({ t: "np.add", n: NP.pending }); NP.pending = 0; }
@@ -1682,7 +1876,7 @@ function hallsFrame(dt, now) {
 const clock = new THREE.Clock(); let t = 0;
 const actBtn = $("#actbtn");
 // test hook, only when running on this computer
-if (location.hostname === "localhost") window.__apo = { player, others, interact, findNear, setArmed, reborn, endIntro, STALLS, walkable, cam, rides, boardRide, leaveRide, get riding() { return riding; }, HALLS, KARA, NP, chantOnce, hallAt, booth, startShoot, endShoot, shootAt, get shooting() { return shooting; }, get intro() { return intro; }, get merit() { return merit; } };
+if (location.hostname === "localhost") window.__apo = { player, others, interact, findNear, setArmed, reborn, endIntro, STALLS, walkable, cam, rides, boardRide, leaveRide, get riding() { return riding; }, HALLS, THEATERS, NP, chantOnce, hallAt, doOffer, doBow, doWish, doMeditate, sutraDone, get chantUI() { return chantUI; }, booth, startShoot, endShoot, shootAt, get shooting() { return shooting; }, get intro() { return intro; }, get merit() { return merit; } };
 // big static meshes that can block the camera (collected once, after extras are built)
 const camRay = new THREE.Raycaster(), camDir = new THREE.Vector3(), camFrom = new THREE.Vector3();
 let camD = 9;
@@ -1725,6 +1919,7 @@ function frame() {
     myAv.moving = player.moving;
     myAv.root.position.set(player.x, groundY(player.x, player.z) + jumpH((now - jumpT0) / 1000), player.z); myAv.root.rotation.set(0, player.ry, 0);
     if (riding) { const sp = seatWorld(riding.ride, riding.seat); myAv.root.position.copy(sp); myAv.root.quaternion.copy(seatQ); player.x = sp.x; player.z = sp.z; myAv.moving = false; }
+    { const ba = bowAngle(now - bowT0); if (ba) myAv.root.rotateX(ba); }
     const n = findNear(); nearT = n; const pt = promptText(n); const pe = $("#prompt");
     const al = n && n.type === "bonk" ? "Gõ!" : n && n.type === "leave" ? (n.ride.hall ? "Đứng dậy" : "Xuống") : n && n.type === "ride" ? (n.ride.hall ? "Ngồi" : "Lên") : n && n.type === "shootEnd" ? "Thôi" : n && n.type === "shoot" ? "Bắn súng" : "Tương tác"; if (actBtn.textContent !== al) actBtn.textContent = al;
     if (pt !== pe.dataset.t) { pe.dataset.t = pt; pe.innerHTML = pt; } pe.hidden = !pt;
@@ -1734,10 +1929,10 @@ function frame() {
   // other players
   others.forEach(o => {
     const rr = o.rd && rideOf(o.rd[0]);
-    if (rr && rr.r.seats[o.rd[1]]) { const sp = seatWorld(rr, o.rd[1]); o.av.root.position.copy(sp); o.av.root.quaternion.copy(seatQ); o.x = o.tx = sp.x; o.z = o.tz = sp.z; o.av.moving = false; o.av.update(dt, t); return; }
+    if (rr && rr.r.seats[o.rd[1]]) { const sp = seatWorld(rr, o.rd[1]); o.av.root.position.copy(sp); o.av.root.quaternion.copy(seatQ); o.x = o.tx = sp.x; o.z = o.tz = sp.z; o.av.moving = false; if (o.bowT0) { const ba = bowAngle(now - o.bowT0); if (ba) o.av.root.rotateX(ba); } o.av.update(dt, t); return; }
     const k = Math.min(1, dt * 10); o.x += (o.tx - o.x) * k; o.z += (o.tz - o.z) * k;
     let d = o.tr - o.ry; d = Math.atan2(Math.sin(d), Math.cos(d)); o.ry += d * k;
-    o.av.root.position.set(o.x, groundY(o.x, o.z) + jumpH((now - o.jt0) / 1000), o.z); o.av.root.rotation.set(0, o.ry, 0); o.av.update(dt, t);
+    o.av.root.position.set(o.x, groundY(o.x, o.z) + jumpH((now - o.jt0) / 1000), o.z); o.av.root.rotation.set(0, o.ry, 0); if (o.bowT0) { const ba = bowAngle(now - o.bowT0); if (ba) o.av.root.rotateX(ba); } o.av.update(dt, t);
   });
   npcs.forEach(h => { h.n.update && h.n.update(dt, t); if (h.bubble && now > h.bubbleUntil) { disposeSprite(h.bubble); h.bubble = null; } });
   // camera
@@ -1749,16 +1944,13 @@ function frame() {
   const fx = playing ? player.x : preview ? player.x + (portrait ? 0 : 1.35) : Math.sin(t * .08) * 6, fz = playing || preview ? player.z : 4 + Math.cos(t * .08) * 4;
   const fy = playing ? (riding && myAv ? myAv.root.position.y + 1.1 : groundY(player.x, player.z) + 1.3) : preview ? .9 : 2;
   const dist = playing ? (riding && !riding.ride.hall ? Math.max(cam.dist, riding.ride.type === "swing" ? 8 : 12) : cam.dist) * (portrait ? 1.45 : 1) : preview ? (portrait ? 5.5 : 4.2) : 22;
-  // trong chùa / phòng karaoke: mái đã ẩn, nhìn từ trên cao xuống cho tường trước khỏi che
+  // trong chùa / phòng karaoke: mái đã ẩn, camera lùi xa và cao để thấy rộng cả phòng;
+  // tường, biển hiệu chắn giữa camera và nhân vật thì tạm ẩn (hallFade bên dưới)
   const inside = playing && hallAt(player.x, player.z);
-  const pitch = playing ? (inside ? clamp(cam.pitch, .55, .8) : cam.pitch) + (portrait ? .12 : 0) : preview ? .18 : .35;
+  const pitch = playing ? (inside ? clamp(cam.pitch, .62, 1.05) : cam.pitch) + (portrait ? .12 : 0) : preview ? .18 : .35;
   const yaw = playing ? cam.yaw : preview ? 0 : t * .08 + Math.PI;
   let d2 = dist;
-  if (inside) {
-    // giữ camera trong lòng phòng: kéo gần lại tới khi camera còn ở trong tường
-    d2 = Math.min(d2, 9);
-    while (d2 > 2.5 && !inHallRoom(inside, fx + Math.sin(yaw) * Math.cos(pitch) * d2, fz + Math.cos(yaw) * Math.cos(pitch) * d2, .4)) d2 -= .3;
-  }
+  if (inside) d2 = Math.max(dist * 1.25, portrait ? 15 : 13);
   else if (playing && !riding) {
     // pull the camera in front of walls/gates that would hide the player (not on rides: the cabin itself would trap the camera)
     camDir.set(Math.sin(yaw) * Math.cos(pitch), Math.sin(pitch), Math.cos(yaw) * Math.cos(pitch));
@@ -1770,6 +1962,16 @@ function frame() {
   camera.position.set(fx + Math.sin(yaw) * Math.cos(pitch) * camD, fy + Math.sin(pitch) * camD, fz + Math.cos(yaw) * Math.cos(pitch) * camD);
   if (now < shakeUntil) { camera.position.x += (Math.random() - .5) * .3; camera.position.y += (Math.random() - .5) * .2; }
   camera.lookAt(fx, fy, fz);
+  // ngồi ghế phòng có màn chiếu: camera ngay sau lưng, nhìn thẳng vào màn hình lớn
+  const seatScr = riding && riding.ride.hall && riding.ride.type !== "stage" && riding.ride.hall.room && riding.ride.hall.room.screen;
+  if (myAv && !shooting) myAv.root.visible = !seatScr;   // ngồi xem thì ẩn nhân vật mình cho khỏi che màn
+  if (seatScr && myAv) {
+    seatWorld(riding.ride, riding.seat); scrN.set(0, 0, 1).applyQuaternion(seatQ); scrN.y = 0; scrN.normalize();
+    camera.position.copy(seatPos).addScaledVector(scrN, .2); camera.position.y += 1.55;   // ngang tầm mắt người ngồi
+    seatScr.updateWorldMatrix(true, false); scrC.setFromMatrixPosition(seatScr.matrixWorld); camera.lookAt(scrC);
+    hallFade(riding.ride.hall, scrC.x, scrC.y, scrC.z);
+  } else hallFade(inside, fx, fy, fz);
+  camera.updateMatrixWorld(); for (const k in THEATERS) THEATERS[k].place();
   if (shooting && booth) {
     // camera ngay sau khẩu súng, nhìn thẳng vào vách bia
     const v = booth.view; camera.position.copy(booth.group.localToWorld(shootCam.set(v.pos.x, v.pos.y, v.pos.z)));

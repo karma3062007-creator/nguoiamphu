@@ -53,8 +53,10 @@ Ai cũng được sửa file này (`BANG-PHAN-CONG.md`) để cập nhật trạ
 | 24 | Hai tòa nhà: Phòng Karaoke Âm Phủ + Chùa Niệm Phật (`src/online/rooms.js`) | Codex | Xong | [codex.md](codex.md) |
 | 25 | Giao diện niệm Phật + tụng kinh (`src/online/chant-ui.js`) | Antigravity | Xong | [antigravity.md](antigravity.md) |
 | 26 | Máy chủ karaoke (hàng chờ YouTube, đồng bộ, chấm điểm) + niệm Phật chung, ghép 2 phòng vào game | Claude | Xong | |
-| 27 | Mở rộng bảng chùa của Antigravity: tự niệm, giọng đọc, thiền, dâng lễ, lạy Phật, đèn nguyện (`src/online/chant-ui.js`) | Codex | Đang làm | [codex.md](codex.md) |
-| 28 | Máy chủ đèn nguyện, công đức các việc trong chùa, hiệu ứng 3D (lạy, dâng lễ, đèn bay) | Claude | Đang làm | |
+| 27 | Mở rộng bảng chùa của Antigravity: tự niệm, giọng đọc, thiền, dâng lễ, lạy Phật, đèn nguyện (`src/online/chant-ui.js`) | Codex | Xong | [codex.md](codex.md) |
+| 28 | Máy chủ đèn nguyện, công đức các việc trong chùa, hiệu ứng 3D (lạy, dâng lễ, đèn bay) | Claude | Xong | |
+| 29 | Rạp phim Âm Phủ (`makeCinemaRoom` trong `rooms.js`) | Codex | Xong | [codex.md](codex.md) |
+| 30 | Rạp phim (gửi video, bình chọn, chiếu đồng bộ), video chiếu thẳng lên màn 3D, camera nhìn màn khi ngồi, góc nhìn rộng trong nhà | Claude | Xong | |
 | 11 | Máy chủ riêng (server.js) để đưa lên web ngoài Claude, giao diện điện thoại dọc/ngang | Claude | Xong | [../DUA-LEN-WEB.md](../DUA-LEN-WEB.md) |
 
 ## Quy tắc chung
@@ -99,3 +101,7 @@ Ai cũng được sửa file này (`BANG-PHAN-CONG.md`) để cập nhật trạ
 - 2026-11-06 · Codex · Xong việc 24: `rooms.js` Phòng Karaoke Âm Phủ (sân khấu, micro, màn hình 16:9, 20 ghế, 117 mesh) và Chùa Niệm Phật (tượng A Di Đà, bàn thờ, mõ, 20 bồ đoàn, 157 mesh).
 - 2026-11-06 · Claude · Xong việc 26: `halls.js` trên máy chủ (hàng chờ YouTube mỗi người 2 bài, lấy tên bài, đồng bộ giờ phát, qua bài khi đủ nửa phòng, chấm 1–5★ người hát được tối đa +10 công đức; đếm câu niệm cả chùa theo ngày, chặn bấm quá 6 câu/giây). Ghép 2 tòa nhà hai bên công viên, cửa nhìn ra công viên, mái ẩn và camera giữ trong phòng khi vào. Niệm 108 câu được +3 công đức. Đang dùng giao diện niệm tạm, chờ `chant-ui.js` của Antigravity (việc 25). Sửa lỗi cũ: vị trí người khác bị cắt ở ±60 m. Đã thử 2 tab: video lệch < 1 giây, chấm 5★ được +10.
 - 2026-11-06 · Antigravity · Xong việc 25: tạo `src/online/chant-ui.js` và `src/online/chant-demo.html`. Tràng hạt 108 hạt xoay một nấc mỗi câu với hạt mẫu và hạt phát sáng, nút niệm lớn kasaya tròn; chế độ tụng Bát Nhã Ba La Mật Đa Tâm Kinh tô sáng từng chữ theo nhịp mõ, đổi tốc độ chậm/vừa/nhanh, hồi hướng khi hoàn thành; bộ đếm lượt này, hôm nay, cả chùa và top 5 công đức; thông báo người khác đang niệm không spam; phím Space/Enter/Esc; giao diện kem/vàng đồng trang nghiêm, tối đa 42% chiều cao màn hình điện thoại dọc và dạt phải khi màn hình ngang; đã kiểm tra cú pháp và build sạch vào dist/am-phu-online.html.
+- 2026-11-06 · Codex · Xong việc 27: mở rộng `chant-ui.js` của Antigravity thành bảng chùa 5 thẻ (Niệm Phật + tự niệm có nhịp, Tụng kinh + mõ tự động + giọng đọc, Thiền hẹn giờ có nhịp thở, Dâng lễ + Lạy Phật, Đèn nguyện).
+- 2026-11-06 · Claude · Xong việc 28: công đức trong chùa (tự tay 108 câu +3, tự niệm +1, tụng trọn Tâm Kinh +5/+2, dâng lễ/lạy +1, thiền +1/phút, đèn nguyện +2), nhân vật lạy 3 lạy người khác thấy, đèn bay lên trong chánh điện, máy chủ giữ 30 đèn nguyện gần nhất.
+- 2026-11-06 · Codex · Xong việc 29: Rạp phim Âm Phủ (32 ghế, màn 16:9, rèm, poster, quầy bắp, bảng marquee; 218 mesh).
+- 2026-11-06 · Claude · Xong việc 30: `halls.js` gộp karaoke và rạp phim vào một khuôn phòng xem chung (bình chọn ▲ video muốn xem trước). Rạp đặt phía nam công viên. Video YouTube đặt khớp lên màn chiếu 3D bằng biến đổi phối cảnh; ngồi ghế thì camera ngang tầm mắt nhìn thẳng màn, bảng tự thu nhỏ. Trong nhà camera lùi xa, tường phía camera tự ẩn. Đã thử: video chạy trên màn rạp và màn karaoke, bình chọn, tự niệm.

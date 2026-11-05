@@ -21,7 +21,7 @@
       flex-direction: column;
     }
     /* Simulated 3D game backdrop */
-    .sim-backdrop {
+    .cu-sim-backdrop {
       flex: 1;
       display: flex;
       flex-direction: column;
@@ -31,7 +31,7 @@
       padding: 24px;
       position: relative;
     }
-    .temple-halo {
+    .cu-temple-halo {
       width: 220px;
       height: 220px;
       border-radius: 50%;
@@ -46,7 +46,7 @@
       from { transform: scale(0.92); opacity: 0.6; }
       to { transform: scale(1.15); opacity: 0.95; }
     }
-    .temple-icon {
+    .cu-temple-icon {
       font-size: 5rem;
       margin-bottom: 8px;
       filter: drop-shadow(0 4px 12px rgba(217, 119, 6, 0.4));
@@ -57,7 +57,7 @@
       margin: 0 0 6px 0;
       text-shadow: 0 2px 4px rgba(0,0,0,0.6);
     }
-    p.desc {
+    p.cu-desc {
       font-size: 0.85rem;
       color: #bfa07e;
       margin: 0 0 16px 0;
@@ -65,7 +65,7 @@
       line-height: 1.4;
     }
     /* Toolbar at top */
-    .toolbar {
+    .cu-toolbar {
       position: absolute;
       top: 14px;
       left: 14px;
@@ -76,7 +76,7 @@
       z-index: 100;
       justify-content: center;
     }
-    .t-btn {
+    .cu-t-btn {
       background: rgba(42, 17, 14, 0.85);
       border: 1px solid #e8b765;
       color: #fef08a;
@@ -88,10 +88,11 @@
       backdrop-filter: blur(4px);
       transition: all 0.15s ease;
     }
-    .t-btn:hover {
+    .cu-t-btn:hover {
       background: #e8b765;
       color: #3b1e10;
     }
+    @media (prefers-reduced-motion: reduce) { .cu-temple-halo { animation: none; } }
     /* Chant host element matching the game's #chant-host */
     #chant-host {
       position: absolute;
@@ -103,18 +104,18 @@
 </head>
 <body>
 
-  <div class="toolbar">
-    <button class="t-btn" id="btn-toggle">Gỡ giao diện (Unmount)</button>
-    <button class="t-btn" id="btn-remote-sim">+1 người khác niệm (Remote)</button>
-    <button class="t-btn" id="btn-fast-sim">+108 câu nhanh (Test Tràng)</button>
-    <button class="t-btn" id="btn-sound-toggle">Âm thanh: Bật</button>
+  <div class="cu-toolbar">
+    <button class="cu-t-btn" id="btn-toggle">Gỡ giao diện (Unmount)</button>
+    <button class="cu-t-btn" id="btn-remote-sim">+1 người khác niệm (Remote)</button>
+    <button class="cu-t-btn" id="btn-fast-sim">+108 câu (Test Stats)</button>
+    <button class="cu-t-btn" id="btn-sound-toggle">Âm thanh: Bật</button>
   </div>
 
-  <div class="sim-backdrop">
-    <div class="temple-halo"></div>
-    <div class="temple-icon">🛕</div>
+  <div class="cu-sim-backdrop">
+    <div class="cu-temple-halo"></div>
+    <div class="cu-temple-icon">🛕</div>
     <h1>Chùa Niệm Phật Âm Phủ</h1>
-    <p class="desc">Phía trên là không gian chùa 3D (bàn thờ, tượng Phật A Di Đà, 20 bồ đoàn và các vong hồn khác). Giao diện niệm Phật và tụng kinh của Antigravity ở phía dưới.</p>
+    <p class="cu-desc">Phía trên là không gian chùa 3D (bàn thờ, tượng Phật A Di Đà, 20 bồ đoàn và các vong hồn khác). Bảng chùa ở phía dưới: tràng hạt, tụng kinh, thiền, dâng lễ và đèn nguyện.</p>
   </div>
 
   <div id="chant-host"></div>
@@ -194,6 +195,10 @@
         today: 105,
         room: 12450,
         chanters: 4,
+        wishes: [
+          { name: "Tịnh Tâm", text: "Nguyện mọi người thân tâm an lạc.", at: Date.now() - 180000 },
+          { name: "<img src=x onerror=alert(1)>", text: "<b>Lời nguyện này phải hiện nguyên văn.</b>", at: Date.now() - 60000 }
+        ],
         top: [
           { name: "Pháp Thiện", c: 1080 },
           { name: "Chân Tâm", c: 756 },
@@ -203,18 +208,50 @@
         ]
       };
 
+      const ritualUntil = {};
+      function tryRitual(kind) {
+        const wait = Math.ceil(((ritualUntil[kind] || 0) - Date.now()) / 1000);
+        if (wait > 0) return { ok: false, wait: wait };
+        ritualUntil[kind] = Date.now() + 20000;
+        if (uiInstance) uiInstance.toast(kind === "bow" ? "Nhân vật đang lạy 3 lạy. Bấm lại để thử chờ 20 giây." : "Đã dâng lễ. Bấm lại để thử chờ 20 giây.");
+        return { ok: true };
+      }
+      function unmountChantUI() {
+        if (!uiInstance) return;
+        const instance = uiInstance;
+        uiInstance = null;
+        instance.unmount();
+        document.getElementById("btn-toggle").textContent = "Gắn lại giao diện (Mount)";
+      }
       function mountChantUI() {
         if (uiInstance) uiInstance.unmount();
         uiInstance = window.ChantUI.mount(host, {
           name: "Vong Hồn Tôi",
-          onChant: function (kind) {
+          onChant: function (kind, manual) {
             state.mine++;
             state.today++;
             state.room++;
-            console.log("onChant called:", kind, "Total mine:", state.mine);
+            console.log("onChant:", kind, "manual:", manual, "mine:", state.mine);
+            if (uiInstance) uiInstance.setStats(state);
+          },
+          onSutraDone: function (manual) {
+            if (uiInstance) uiInstance.toast("Đã tụng trọn Tâm Kinh · " + (manual ? "tự tay gõ" : "có mõ tự động"));
+          },
+          onOffer: function (kind) { return tryRitual(kind); },
+          onBow: function () { return tryRitual("bow"); },
+          onMeditate: function (seconds) {
+            console.log("onMeditate:", seconds);
+            if (uiInstance) uiInstance.toast("Đã xả thiền sau " + seconds + " giây.");
+          },
+          onWish: function (text) {
+            if (!text || text.length > 80) return { ok: false, msg: "Lời nguyện cần từ 1 đến 80 ký tự." };
+            state.wishes.unshift({ name: "Vong Hồn Tôi", text: text, at: Date.now() });
+            state.wishes = state.wishes.slice(0, 30);
+            if (uiInstance) uiInstance.setWishes(state.wishes);
+            return { ok: true };
           },
           onLeave: function () {
-            alert("Bạn đã đứng dậy khỏi bồ đoàn (onLeave)!");
+            unmountChantUI();
           },
           sound: function (kind) {
             playSound(kind);
@@ -228,6 +265,8 @@
           chanters: state.chanters
         });
         uiInstance.setTop(state.top);
+        uiInstance.setWishes(state.wishes);
+        document.getElementById("btn-toggle").textContent = "Gỡ giao diện (Unmount)";
       }
 
       // Initial Mount
@@ -237,6 +276,8 @@
       const simTimer = setInterval(() => {
         if (!uiInstance) return;
         state.room += Math.floor(Math.random() * 3) + 1;
+        state.top[0].c++;
+        uiInstance.setTop(state.top);
         if (Math.random() < 0.4) {
           const names = ["Vong hồn B1", "Du khách Đà Nẵng", "Tịnh Niệm", "Đạo sĩ Vô Vi", "Cụ già B7"];
           const pick = names[Math.floor(Math.random() * names.length)];
@@ -254,9 +295,7 @@
       const btnToggle = document.getElementById("btn-toggle");
       btnToggle.addEventListener("click", () => {
         if (uiInstance) {
-          uiInstance.unmount();
-          uiInstance = null;
-          btnToggle.textContent = "Gắn lại giao diện (Mount)";
+          unmountChantUI();
         } else {
           mountChantUI();
           btnToggle.textContent = "Gỡ giao diện (Unmount)";
@@ -290,6 +329,11 @@
         btnSound.textContent = soundEnabled ? "Âm thanh: Bật" : "Âm thanh: Tắt";
       });
 
+      window.addEventListener("pagehide", function () {
+        clearInterval(simTimer);
+        unmountChantUI();
+        if (actx) actx.close();
+      });
     })();
   </script>
 </body>

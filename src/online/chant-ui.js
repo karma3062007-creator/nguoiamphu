@@ -23,8 +23,8 @@
       words: ["Thị", "cố", "không", "trung", "vô", "sắc,", "vô", "thọ,", "tưởng,", "hành,", "thức;", "vô", "nhãn,", "nhĩ,", "tỷ,", "thiệt,", "thân,", "ý;", "vô", "sắc,", "thanh,", "hương,", "vị,", "xúc,", "pháp;", "vô", "nhãn", "giới", "nãi", "chí", "vô", "ý", "thức", "giới;"]
     },
     {
-      text: "vô vô minh diệc, vô vô minh tận, nãi chí vô lão tử, diệc vô lão tử tận; vô khổ, tập, diệt, đạo; vô trí diệc vô đắc.",
-      words: ["vô", "vô", "minh", "diệc,", "vô", "vô", "minh", "tận,", "nãi", "chí", "vô", "lão", "tử,", "diệc", "vô", "lão", "tử", "tận;", "vô", "khổ,", "tập,", "diệt,", "đạo;", "vô", "trí", "diệc", "vô", "đắc."]
+      text: "vô vô minh, diệc vô vô minh tận, nãi chí vô lão tử, diệc vô lão tử tận; vô khổ, tập, diệt, đạo; vô trí diệc vô đắc.",
+      words: ["vô", "vô", "minh,", "diệc", "vô", "vô", "minh", "tận,", "nãi", "chí", "vô", "lão", "tử,", "diệc", "vô", "lão", "tử", "tận;", "vô", "khổ,", "tập,", "diệt,", "đạo;", "vô", "trí", "diệc", "vô", "đắc."]
     },
     {
       text: "Dĩ vô sở đắc cố, Bồ Đề tát đỏa y Bát Nhã Ba La Mật Đa cố, tâm vô quái ngại; vô quái ngại cố, vô hữu khủng bố, viễn ly điên đảo mộng tưởng, cứu cánh Niết Bàn.",
@@ -251,482 +251,455 @@
     return '<svg class="cu-mala-svg" id="cu-mala-svg" viewBox="0 0 154 154">' + elements.join('') + '</svg>';
   }
 
+  // Keep the original paper palette, mala SVG and word-by-word sutra.
+  function extraStyles() {
+    var style = document.createElement('style');
+    style.className = 'cu-instance-style';
+    style.textContent = [
+      '.cu-card{height:45vh;max-height:45vh;padding:8px 12px max(8px,env(safe-area-inset-bottom));gap:6px;border-radius:16px 16px 0 0;color-scheme:light}',
+      '.cu-card *{box-sizing:border-box}.cu-card [hidden]{display:none!important}',
+      '.cu-header{flex-shrink:0;min-width:0}.cu-tabs{overflow-x:auto;min-width:0;flex:1;flex-wrap:nowrap}.cu-tab-btn{white-space:nowrap;flex-shrink:0}.cu-leave-btn{flex-shrink:0}',
+      '.cu-content{overflow:auto;align-items:stretch;display:block;min-height:0}.cu-panel{min-width:0;width:100%}',
+      '.cu-main-col{justify-content:center;gap:10px}.cu-stats-col{max-width:400px}.cu-controls{display:flex;flex-wrap:wrap;gap:6px;align-items:center;font-size:12px}',
+      '.cu-note{font-size:11px;color:#795536;margin:4px 0}.cu-footer{flex-shrink:0;font-size:11px;border-top:1px solid #e8b765;padding-top:4px}',
+      '.cu-footer details{position:relative}.cu-top-list{position:absolute;bottom:100%;right:0;width:min(260px,75vw);background:#fbf7ee;border:1px solid #e8b765;border-radius:10px;padding:8px;box-shadow:0 -3px 12px #0003;z-index:8}',
+      '.cu-top-name{max-width:75%}.cu-footer summary{cursor:pointer}.cu-message{min-height:15px;overflow-wrap:anywhere}.cu-remote-line{color:#795536;min-height:14px}',
+      '.cu-sutra-scroll{height:100px;min-height:72px;flex:auto}.cu-sutra-ctrls{flex-wrap:wrap;padding:0}.cu-sutra-panel{gap:4px}',
+      '.cu-auto{animation:cuPulse 3s ease-in-out infinite}.cu-halo{box-shadow:0 0 22px #f7c24a}.cu-mala-wrap{touch-action:none}',
+      '.cu-offers{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}.cu-offer{min-height:64px;border-radius:16px;font-size:13px}',
+      '.cu-card button:disabled{opacity:.5;cursor:default}.cu-card button:focus-visible,.cu-card textarea:focus-visible{outline:3px solid #b45309;outline-offset:2px}',
+      '.cu-wish-input{width:100%;resize:vertical;min-height:45px;max-height:80px;border:1px solid #cca972;border-radius:8px;padding:6px;font:inherit;user-select:text}',
+      '.cu-wish-list{list-style:none;padding:0;margin:6px 0;font-size:12px}.cu-wish-item{border-bottom:1px dashed #d8ba82;padding:6px;overflow-wrap:anywhere}.cu-wish-item time{color:#795536}',
+      '.cu-meditation{display:flex;gap:18px;align-items:center;justify-content:center;min-height:140px}.cu-breath{width:90px;height:90px;border-radius:50%;background:radial-gradient(circle,#fcd34d,#d9770633);display:flex;align-items:center;justify-content:center;font-size:13px;flex-shrink:0}',
+      '.cu-breathing{animation:cuBreath 10s linear infinite}.cu-clock{font-size:24px;font-variant-numeric:tabular-nums}',
+      '@keyframes cuBreath{0%,100%{transform:scale(.8)}40%{transform:scale(1.15)}}@keyframes cuPulse{50%{filter:brightness(1.12)}}',
+      '@media(max-width:420px){.cu-card{padding:6px 8px;gap:4px}.cu-tab-btn{padding:5px 8px}.cu-leave-btn{font-size:11px;padding:5px}.cu-mala-wrap{width:138px;height:138px}.cu-stat-row{font-size:12px}.cu-main-col{gap:6px}.cu-offers{gap:5px}.cu-controls{gap:4px}}',
+      '@media(max-height:500px) and (orientation:landscape){.cu-card{height:100vh;max-height:100vh}.cu-main-col{flex-wrap:wrap}.cu-wrap{width:46%}}',
+      '@media(prefers-reduced-motion:reduce){.cu-wrap *{animation:none!important;transition:none!important;scroll-behavior:auto!important}}'
+    ].join('\n');
+    return style;
+  }
+
   root.ChantUI = {
     mount: function (host, opts) {
       ensureStyles();
       opts = opts || {};
       var sound = typeof opts.sound === 'function' ? opts.sound : function () {};
-      var onChant = typeof opts.onChant === 'function' ? opts.onChant : function () {};
-      var onLeave = typeof opts.onLeave === 'function' ? opts.onLeave : function () {};
+      var alive = true, listeners = [], timers = new Set();
+      var currentTab = 'niem', autoMode = '', autoTimer = null;
+      var mine = 0, today = 0, room = 0, chanters = 0, malaCount = 0;
+      var lastManual = -Infinity, wordIndex = 0, sentenceManual = true, sutraManual = true;
+      var meditationStart = null, meditationLimit = 0, cooldowns = [];
+      var remoteNames = new Set(), remoteTimer = null, voice = null;
+      var speech = root.speechSynthesis;
 
-      var currentTab = 'niem'; // 'niem' | 'tung'
-      var mineCount = 0;
-      var todayCount = 0;
-      var roomCount = 0;
-      var chantersCount = 0;
-      var topChanters = [];
-      var lastManualChant = 0;
-      var activeBeadIndex = 0;
-      var currentRotation = 0;
-
-      // Sutra recitation state
-      var sutraTimer = null;
-      var sutraWordIndex = 0;
-      var sutraPlaying = false;
-      var sutraSpeed = 700; // ms per word (Chậm: 900, Vừa: 700, Nhanh: 500)
-
-      // Remote notifications debounce queue
-      var remoteBatch = [];
-      var remoteTimer = null;
-
-      // Build DOM
       var wrap = document.createElement('div');
       wrap.className = 'cu-wrap';
-
+      wrap.appendChild(extraStyles());
       var card = document.createElement('div');
       card.className = 'cu-card';
-
-      // Remote toast element
-      var toastEl = document.createElement('div');
-      toastEl.className = 'cu-remote-toast';
-      toastEl.id = 'cu-toast';
-      card.appendChild(toastEl);
-
-      // Header: Tabs & Leave button
-      var header = document.createElement('div');
-      header.className = 'cu-header';
-      header.innerHTML = [
-        '<div class="cu-tabs">',
-        '  <button type="button" class="cu-tab-btn cu-active" id="cu-tab-niem">📿 Niệm Phật</button>',
-        '  <button type="button" class="cu-tab-btn" id="cu-tab-tung">📜 Tụng kinh Bát Nhã</button>',
-        '</div>',
-        '<button type="button" class="cu-leave-btn" id="cu-btn-leave">Đứng dậy (Esc)</button>'
-      ].join('');
-      card.appendChild(header);
-
-      // Content area
-      var content = document.createElement('div');
-      content.className = 'cu-content';
-      card.appendChild(content);
-
-      // --- PANEL NIỆM PHẬT ---
-      var niemPanel = document.createElement('div');
-      niemPanel.className = 'cu-main-col';
-      niemPanel.id = 'cu-panel-niem';
-
-      // Mala & Chant Button
-      var malaWrap = document.createElement('div');
-      malaWrap.className = 'cu-mala-wrap';
-      malaWrap.innerHTML = buildMalaSVG() + [
-        '<button type="button" class="cu-chant-btn" id="cu-btn-chant">',
-        '  <span>Nam mô<br>A Di Đà Phật</span>',
-        '  <small>Space / Chạm</small>',
-        '</button>'
-      ].join('');
-      niemPanel.appendChild(malaWrap);
-
-      // Stats Column
-      var statsCol = document.createElement('div');
-      statsCol.className = 'cu-stats-col';
-      statsCol.innerHTML = [
-        '<div class="cu-stat-row" id="cu-stat-me">Lượt này: <b>0</b> câu · Hôm nay: <b>0</b> câu (0 tràng)</div>',
-        '<div class="cu-progress-box"><div class="cu-progress-bar" id="cu-prog-bar"></div></div>',
-        '<div class="cu-stat-row" style="font-size: 0.76rem; color: #78350f;" id="cu-mala-label">Tràng hạt: 0 / 108 câu</div>',
-        '<div class="cu-stat-row" style="font-size: 0.76rem; color: #5a3825; margin-top: 2px;" id="cu-stat-room">Cả chùa hôm nay: <b>0</b> câu · <b>0</b> người đang niệm</div>'
-      ].join('');
-      niemPanel.appendChild(statsCol);
-
-      // Top chanters card
-      var infoCard = document.createElement('div');
-      infoCard.className = 'cu-info-card';
-      infoCard.id = 'cu-info-card';
-      infoCard.innerHTML = [
-        '<div class="cu-info-title"><span>Công đức hôm nay</span><span id="cu-chanters-badge">0 người</span></div>',
-        '<ul class="cu-top-list" id="cu-top-list"><li class="cu-top-item"><span class="cu-top-name">Chưa có ai</span></li></ul>'
-      ].join('');
-
-      content.appendChild(niemPanel);
-      content.appendChild(infoCard);
-
-      // --- PANEL TỤNG KINH ---
-      var tungPanel = document.createElement('div');
-      tungPanel.className = 'cu-sutra-panel';
-      tungPanel.id = 'cu-panel-tung';
-      tungPanel.style.display = 'none';
-
-      tungPanel.innerHTML = [
-        '<div class="cu-sutra-ctrls">',
-        '  <div class="cu-sutra-ctrl-group">',
-        '    <button type="button" class="cu-ctrl-btn cu-active" id="cu-btn-sutra-play">▶ Bắt đầu tụng</button>',
-        '    <button type="button" class="cu-ctrl-btn" id="cu-btn-sutra-reset">↺ Từ đầu</button>',
-        '  </div>',
-        '  <div class="cu-sutra-ctrl-group">',
-        '    <span style="font-size:0.75rem; color:#6b4226;">Nhịp mõ:</span>',
-        '    <button type="button" class="cu-ctrl-btn" data-spd="900" id="cu-spd-slow">Chậm</button>',
-        '    <button type="button" class="cu-ctrl-btn cu-active" data-spd="700" id="cu-spd-med">Vừa</button>',
-        '    <button type="button" class="cu-ctrl-btn" data-spd="500" id="cu-spd-fast">Nhanh</button>',
-        '  </div>',
-        '</div>',
-        '<div class="cu-sutra-scroll" id="cu-sutra-scroll"></div>'
-      ].join('');
-
-      // Build Sutra Paragraphs DOM
-      var sutraScroll = tungPanel.querySelector('#cu-sutra-scroll');
-      var wordIndexCounter = 0;
-      SUTRA_TEXT.forEach(function (para) {
-        var p = document.createElement('div');
-        p.className = 'cu-sutra-para';
-        para.words.forEach(function (w) {
-          var span = document.createElement('span');
-          span.className = 'cu-sutra-word';
-          span.id = 'cu-w-' + wordIndexCounter++;
-          span.textContent = w + ' ';
-          p.appendChild(span);
-        });
-        sutraScroll.appendChild(p);
-      });
-
-      // Dedication footer (hidden initially)
-      var dedication = document.createElement('div');
-      dedication.className = 'cu-dedication';
-      dedication.id = 'cu-dedication';
-      dedication.style.display = 'none';
-      dedication.textContent = 'Nguyện đem công đức này, hướng về khắp tất cả, đệ tử và chúng sanh, đều trọn thành Phật đạo. (A Di Đà Phật 🙏)';
-      sutraScroll.appendChild(dedication);
-
-      content.appendChild(tungPanel);
       wrap.appendChild(card);
-      host.appendChild(wrap);
 
-      // --- HELPER FUNCTIONS ---
-      function switchTab(tab) {
-        currentTab = tab;
-        card.querySelector('#cu-tab-niem').classList.toggle('cu-active', tab === 'niem');
-        card.querySelector('#cu-tab-tung').classList.toggle('cu-active', tab === 'tung');
-        niemPanel.style.display = (tab === 'niem') ? 'flex' : 'none';
-        infoCard.style.display = (tab === 'niem') ? 'flex' : 'none';
-        tungPanel.style.display = (tab === 'tung') ? 'flex' : 'none';
-
-        if (tab === 'niem' && sutraPlaying) {
-          pauseSutra();
-        }
+      // Only trusted, static markup is inserted as HTML. All external text uses textContent.
+      card.innerHTML = '<div class="cu-header"><div class="cu-tabs" role="tablist" aria-label="Thực hành trong chùa"></div><button type="button" class="cu-leave-btn">Đứng dậy (Esc)</button></div>' +
+        '<div class="cu-content"></div><div class="cu-footer"><div class="cu-stat-room"></div><details><summary>Top 5 hôm nay</summary><ol class="cu-top-list"></ol></details>' +
+        '<div class="cu-message" role="status" aria-live="polite"></div><div class="cu-remote-line"></div></div>';
+      var content = card.querySelector('.cu-content');
+      var tabs = {}, panels = {};
+      function el(tag, cls, text, parent) {
+        var node = document.createElement(tag);
+        if (cls) node.className = cls;
+        if (text !== undefined) node.textContent = text;
+        if (parent) parent.appendChild(node);
+        return node;
       }
-
-      function floatChantText(text) {
-        var el = document.createElement('div');
-        el.className = 'cu-float-text';
-        el.textContent = text || 'Nam mô A Di Đà Phật';
-        malaWrap.appendChild(el);
-        setTimeout(function () {
-          if (el.parentNode) el.parentNode.removeChild(el);
-        }, 1200);
+      function listen(node, type, fn, options) {
+        node.addEventListener(type, fn, options);
+        listeners.push(function () { node.removeEventListener(type, fn, options); });
       }
-
-      function updateMalaBeads(beadIndex) {
-        var svg = document.getElementById('cu-mala-svg');
-        if (!svg) return;
-
-        // Remove active class from previous bead
-        var prev = svg.querySelector('.cu-bead-active');
-        if (prev) prev.classList.remove('cu-bead-active');
-
-        // Add active to current bead
-        var cur = document.getElementById('cu-bead-' + beadIndex);
-        if (cur) cur.classList.add('cu-bead-active');
-
-        // Rotate mala by 1 step (360 / 108 = 3.333 deg)
-        currentRotation -= (360 / 108);
-        svg.style.transform = 'rotate(' + currentRotation + 'deg)';
+      function later(fn, ms) {
+        var id = setTimeout(function () { timers.delete(id); if (alive) fn(); }, ms);
+        timers.add(id);
+        return id;
       }
-
-      function doManualChant() {
-        var now = performance.now();
-        // Rate limit: max ~6 chants/second (~160ms throttle)
-        if (now - lastManualChant < 160) return;
-        lastManualChant = now;
-
-        sound('mo');
-        onChant('niem');
-
-        mineCount++;
-        todayCount++;
-
-        // Update mala rotation & active bead
-        activeBeadIndex = (mineCount % 108);
-        updateMalaBeads(activeBeadIndex);
-
-        // Float text
-        floatChantText('Nam mô A Di Đà Phật');
-
-        // 108 Completion check
-        if (mineCount > 0 && mineCount % 108 === 0) {
-          sound('chuong');
-          floatChantText('✨ Viên mãn 1 tràng · +3 công đức ✨');
-        }
-
-        renderStats();
+      function cancel(id) { clearTimeout(id); timers.delete(id); }
+      function call(name, a, b) {
+        if (alive && typeof opts[name] === 'function') return opts[name](a, b);
       }
+      function toast(text) { if (alive) message.textContent = String(text || ''); }
+      function button(parent, text, fn, cls) {
+        var b = el('button', cls || 'cu-ctrl-btn', text, parent);
+        b.type = 'button';
+        listen(b, 'click', fn);
+        return b;
+      }
+      function switchTab(id) {
+        currentTab = id;
+        Object.keys(tabs).forEach(function (key) {
+          var selected = key === id;
+          tabs[key].classList.toggle('cu-active', selected);
+          tabs[key].setAttribute('aria-selected', String(selected));
+          panels[key].hidden = !selected;
+        });
+      }
+      [['niem', '📿 Niệm Phật'], ['tung', '📜 Tụng kinh'], ['thien', 'Thiền'], ['le', 'Dâng lễ'], ['nguyen', 'Đèn nguyện']].forEach(function (row) {
+        var b = button(card.querySelector('.cu-tabs'), row[1], function () { switchTab(row[0]); }, 'cu-tab-btn');
+        b.setAttribute('role', 'tab');
+        tabs[row[0]] = b;
+        panels[row[0]] = el('div', 'cu-panel', undefined, content);
+        panels[row[0]].setAttribute('role', 'tabpanel');
+        panels[row[0]].setAttribute('aria-label', row[1]);
+      });
+      var message = card.querySelector('.cu-message');
+      var roomStat = card.querySelector('.cu-stat-room');
+      var topList = card.querySelector('.cu-top-list');
+      var remoteLine = card.querySelector('.cu-remote-line');
+      function leave() { stopAuto(); finishMeditation(false); call('onLeave'); }
+      listen(card.querySelector('.cu-leave-btn'), 'click', leave);
+
+      var niem = el('div', 'cu-main-col', undefined, panels.niem);
+      var mala = el('div', 'cu-mala-wrap', undefined, niem);
+      mala.innerHTML = buildMalaSVG();
+      var svg = mala.querySelector('svg');
+      var chantButton = button(mala, 'Nam mô A Di Đà Phật', function () {
+        if (autoMode === 'niem') stopAuto(); else chant(true);
+      }, 'cu-chant-btn');
+      var stats = el('div', 'cu-stats-col', undefined, niem);
+      var myStat = el('div', 'cu-stat-row', '', stats);
+      var progress = el('div', 'cu-progress-box', undefined, stats);
+      var progressBar = el('div', 'cu-progress-bar', undefined, progress);
+      var malaLabel = el('div', 'cu-stat-row', '', stats);
+      var niemControls = el('div', 'cu-controls', undefined, stats);
+      function toggle(parent, text, fn) {
+        var label = el('label', 'cu-controls', undefined, parent);
+        var input = el('input', '', undefined, label);
+        input.type = 'checkbox';
+        label.appendChild(document.createTextNode(text));
+        listen(input, 'change', fn);
+        return input;
+      }
+      var niemAuto = toggle(niemControls, 'Tự niệm', function () { if (niemAuto.checked) startAuto('niem'); else stopAuto(); });
+      function speedSelect(parent, values, mode) {
+        var label = el('label', 'cu-controls', 'Nhịp ', parent);
+        var select = el('select', 'cu-ctrl-btn', undefined, label);
+        ['Chậm', 'Vừa', 'Nhanh'].forEach(function (text, i) {
+          var option = el('option', '', text, select);
+          option.value = values[i];
+          option.selected = i === 1;
+        });
+        listen(select, 'change', function () { if (autoMode === mode) scheduleAuto(); });
+        return select;
+      }
+      var niemSpeed = speedSelect(niemControls, [1600, 1100, 750], 'niem');
+      el('p', 'cu-note', 'Tự tay niệm mới được nhiều công đức', stats);
 
       function renderStats() {
-        var tràng = Math.floor(todayCount / 108);
-        var inMala = mineCount % 108;
-        var percent = Math.round((inMala / 108) * 100);
-
-        var statMe = document.getElementById('cu-stat-me');
-        if (statMe) {
-          statMe.innerHTML = 'Lượt này: <b>' + mineCount + '</b> câu · Hôm nay: <b>' + todayCount + '</b> câu (' + tràng + ' tràng)';
-        }
-
-        var prog = document.getElementById('cu-prog-bar');
-        if (prog) prog.style.width = percent + '%';
-
-        var lbl = document.getElementById('cu-mala-label');
-        if (lbl) lbl.textContent = 'Tràng hạt: ' + inMala + ' / 108 câu (' + percent + '%)';
-
-        var statRoom = document.getElementById('cu-stat-room');
-        if (statRoom) {
-          statRoom.innerHTML = 'Cả chùa hôm nay: <b>' + roomCount.toLocaleString('vi-VN') + '</b> câu · <b>' + chantersCount + '</b> người đang niệm';
-        }
-
-        var badge = document.getElementById('cu-chanters-badge');
-        if (badge) badge.textContent = chantersCount + ' người';
+        myStat.textContent = 'Lượt này: ' + mine + ' câu · Hôm nay: ' + today + ' câu';
+        var round = Math.floor(malaCount / 108) + 1;
+        var ordinals = ['nhất', 'hai', 'ba', 'tư', 'năm', 'sáu', 'bảy', 'tám', 'chín', 'mười'];
+        malaLabel.textContent = (malaCount % 108) + ' / 108 · Vòng thứ ' + (ordinals[round - 1] || round);
+        progressBar.style.width = ((malaCount % 108) / 108 * 100) + '%';
+        roomStat.textContent = 'Hôm nay cả chùa: ' + room.toLocaleString('vi-VN') + ' câu · ' + chanters + ' người đang niệm';
       }
-
-      function renderTopList() {
-        var list = document.getElementById('cu-top-list');
-        if (!list) return;
-        if (!topChanters || !topChanters.length) {
-          list.innerHTML = '<li class="cu-top-item"><span class="cu-top-name" style="color:#8a6245;">Chưa có ai</span></li>';
-          return;
-        }
-        var html = '';
-        topChanters.slice(0, 5).forEach(function (p, idx) {
-          var name = String(p.name || 'Vong hồn').slice(0, 16);
-          var count = (p.c || 0).toLocaleString('vi-VN');
-          html += '<li class="cu-top-item">' +
-            '<span class="cu-top-name">' + (idx + 1) + '. ' + name + '</span>' +
-            '<span class="cu-top-val">' + count + '</span>' +
-            '</li>';
-        });
-        list.innerHTML = html;
+      function updateMala() {
+        var old = svg.querySelector('.cu-bead-active');
+        if (old) old.classList.remove('cu-bead-active');
+        svg.querySelector('#cu-bead-' + (malaCount % 108)).classList.add('cu-bead-active');
+        svg.style.transform = 'rotate(' + (-malaCount * 360 / 108) + 'deg)';
       }
-
-      // --- SUTRA RECITATION LOGIC ---
-      function playSutra() {
-        if (sutraPlaying) return;
-        sutraPlaying = true;
-        var btnPlay = document.getElementById('cu-btn-sutra-play');
-        if (btnPlay) {
-          btnPlay.textContent = '⏸ Tạm dừng';
-          btnPlay.classList.add('cu-active');
-        }
-        var ded = document.getElementById('cu-dedication');
-        if (ded) ded.style.display = 'none';
-
-        reciteNextWord();
-      }
-
-      function pauseSutra() {
-        sutraPlaying = false;
-        if (sutraTimer) {
-          clearTimeout(sutraTimer);
-          sutraTimer = null;
-        }
-        var btnPlay = document.getElementById('cu-btn-sutra-play');
-        if (btnPlay) {
-          btnPlay.textContent = '▶ Tiếp tục';
-          btnPlay.classList.remove('cu-active');
+      function chant(manual) {
+        if (!alive) return;
+        var now = Date.now();
+        if (manual && now - lastManual < 167) return;
+        if (manual) lastManual = now;
+        malaCount++; mine++; today++;
+        updateMala(); renderStats();
+        sound('mo'); call('onChant', 'niem', manual);
+        var float = el('div', 'cu-float-text', 'Nam mô A Di Đà Phật', mala);
+        later(function () { float.remove(); }, 1200);
+        if (malaCount % 108 === 0) {
+          sound('chuong'); mala.classList.add('cu-halo');
+          later(function () { mala.classList.remove('cu-halo'); }, 1400);
         }
       }
+      var pointerStart = null, swipeUsed = false;
+      listen(mala, 'pointerdown', function (event) {
+        if (event.target.closest('button')) return;
+        pointerStart = { x: event.clientX, y: event.clientY, id: event.pointerId };
+        swipeUsed = false;
+        mala.setPointerCapture(event.pointerId);
+      });
+      listen(mala, 'pointermove', function (event) {
+        if (!pointerStart || event.pointerId !== pointerStart.id || swipeUsed) return;
+        if (event.clientY - pointerStart.y >= 24 && Math.abs(event.clientX - pointerStart.x) < 65) {
+          swipeUsed = true;
+          if (autoMode === 'niem') stopAuto(); else chant(true);
+        }
+      });
+      listen(mala, 'pointerup', function (event) {
+        if (!pointerStart || event.pointerId !== pointerStart.id) return;
+        if (!swipeUsed && Math.abs(event.clientY - pointerStart.y) < 24 && Math.abs(event.clientX - pointerStart.x) < 24) {
+          if (autoMode === 'niem') stopAuto(); else chant(true);
+        }
+        pointerStart = null;
+      });
+      listen(mala, 'pointercancel', function () { pointerStart = null; });
 
+      // Sutra callbacks retain provenance across mixed manual / automatic passages.
+      var tung = panels.tung;
+      tung.classList.add('cu-sutra-panel');
+      el('div', 'cu-info-title', 'Bát Nhã Ba La Mật Đa Tâm Kinh', tung);
+      var sutraControls = el('div', 'cu-sutra-ctrls', undefined, tung);
+      button(sutraControls, 'Gõ mõ', function () { if (autoMode === 'tung') stopAuto(); stepSutra(true); });
+      var tungAuto = toggle(sutraControls, 'Mõ tự động', function () { if (tungAuto.checked) startAuto('tung'); else stopAuto(); });
+      var tungSpeed = speedSelect(sutraControls, [900, 700, 500], 'tung');
+      button(sutraControls, 'Tạm dừng', function () { stopAuto(); cancelSpeech(); });
+      button(sutraControls, '↺ Từ đầu', resetSutra);
+      var voiceLabel = el('label', 'cu-controls', undefined, sutraControls);
+      var voiceToggle = toggle(voiceLabel, 'Giọng đọc', function () { if (!voiceToggle.checked) cancelSpeech(); });
+      voiceLabel.hidden = true;
+      el('p', 'cu-note', 'Tự tay gõ mới có công đức từng tiếng', tung);
+      var scroll = el('div', 'cu-sutra-scroll', undefined, tung);
+      var spans = [];
+      SUTRA_TEXT.forEach(function (paragraph) {
+        var p = el('div', 'cu-sutra-para', undefined, scroll);
+        paragraph.words.forEach(function (word) { spans.push(el('span', 'cu-sutra-word', word + ' ', p)); });
+      });
+      var dedication = el('div', 'cu-dedication', 'Nguyện đem công đức này, hướng về khắp tất cả, đệ tử và chúng sanh, đều trọn thành Phật đạo.', scroll);
+      dedication.hidden = true;
+      function cancelSpeech() { if (speech) speech.cancel(); }
+      function findVoice() {
+        voice = speech.getVoices().filter(function (v) { return /^vi/i.test(v.lang); })[0] || null;
+        voiceLabel.hidden = !voice;
+        if (!voice) { voiceToggle.checked = false; cancelSpeech(); }
+      }
+      if (speech) { findVoice(); listen(speech, 'voiceschanged', findVoice); }
+      function speakSentence() {
+        if (!voice || !voiceToggle.checked || !root.SpeechSynthesisUtterance) return;
+        var end = wordIndex;
+        while (end < ALL_SUTRA_WORDS.length - 1 && !ALL_SUTRA_WORDS[end].isSentenceEnd) end++;
+        var text = ALL_SUTRA_WORDS.slice(wordIndex, end + 1).map(function (w) { return w.text; }).join(' ');
+        cancelSpeech();
+        var utterance = new root.SpeechSynthesisUtterance(text);
+        utterance.voice = voice; utterance.lang = voice.lang; utterance.rate = 0.9;
+        speech.speak(utterance);
+      }
       function resetSutra() {
-        pauseSutra();
-        sutraWordIndex = 0;
-        var allSpans = sutraScroll.querySelectorAll('.cu-sutra-word');
-        allSpans.forEach(function (s) {
-          s.classList.remove('cu-word-active', 'cu-word-done');
-        });
-        var btnPlay = document.getElementById('cu-btn-sutra-play');
-        if (btnPlay) btnPlay.textContent = '▶ Bắt đầu tụng';
-        var ded = document.getElementById('cu-dedication');
-        if (ded) ded.style.display = 'none';
-        sutraScroll.scrollTop = 0;
+        stopAuto(); cancelSpeech();
+        wordIndex = 0; sentenceManual = true; sutraManual = true;
+        spans.forEach(function (s) { s.classList.remove('cu-word-active', 'cu-word-done'); });
+        dedication.hidden = true; scroll.scrollTop = 0;
       }
-
-      function reciteNextWord() {
-        if (!sutraPlaying) return;
-        if (sutraWordIndex >= ALL_SUTRA_WORDS.length) {
-          // Finished entire Heart Sutra!
-          sound('chuong');
-          sutraPlaying = false;
-          var btn = document.getElementById('cu-btn-sutra-play');
-          if (btn) {
-            btn.textContent = '✓ Hoàn thành';
-            btn.classList.remove('cu-active');
-          }
-          var ded = document.getElementById('cu-dedication');
-          if (ded) {
-            ded.style.display = 'block';
-            ded.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-          }
-          return;
+      function stepSutra(manual) {
+        if (!alive || wordIndex >= spans.length) return;
+        if (wordIndex === 0 || ALL_SUTRA_WORDS[wordIndex - 1].isSentenceEnd) speakSentence();
+        if (wordIndex) { spans[wordIndex - 1].classList.remove('cu-word-active'); spans[wordIndex - 1].classList.add('cu-word-done'); }
+        spans[wordIndex].classList.add('cu-word-active');
+        if (currentTab === 'tung') {
+          var bounds = spans[wordIndex].getBoundingClientRect(), area = scroll.getBoundingClientRect();
+          if (bounds.bottom > area.bottom || bounds.top < area.top) scroll.scrollTop += bounds.top - area.top - 20;
         }
-
-        var wInfo = ALL_SUTRA_WORDS[sutraWordIndex];
+        sentenceManual = sentenceManual && manual;
+        sutraManual = sutraManual && manual;
+        var completed = ALL_SUTRA_WORDS[wordIndex].isSentenceEnd;
+        wordIndex++;
         sound('mo');
-
-        // Update DOM highlight
-        var prevSpan = document.getElementById('cu-w-' + (sutraWordIndex - 1));
-        if (prevSpan) {
-          prevSpan.classList.remove('cu-word-active');
-          prevSpan.classList.add('cu-word-done');
+        if (completed) {
+          mine++; today++; renderStats();
+          var manualSentence = sentenceManual;
+          sentenceManual = true;
+          call('onChant', 'tung', manualSentence);
         }
-
-        var curSpan = document.getElementById('cu-w-' + sutraWordIndex);
-        if (curSpan) {
-          curSpan.classList.add('cu-word-active');
-          // Auto scroll word into view
-          var parentTop = sutraScroll.getBoundingClientRect().top;
-          var elemTop = curSpan.getBoundingClientRect().top;
-          if (elemTop - parentTop > sutraScroll.clientHeight - 40 || elemTop - parentTop < 20) {
-            curSpan.scrollIntoView({ behavior: 'smooth', block: 'center' });
-          }
-        }
-
-        // Check if sentence/phrase ends
-        if (wInfo.isSentenceEnd) {
-          onChant('tung');
-          mineCount++;
-          todayCount++;
-          renderStats();
-        }
-
-        sutraWordIndex++;
-        sutraTimer = setTimeout(reciteNextWord, sutraSpeed);
-      }
-
-      // --- REMOTE NOTIFICATION LOGIC ---
-      function triggerRemoteToast() {
-        if (!remoteBatch.length) return;
-        var text = '';
-        if (remoteBatch.length === 1) {
-          text = remoteBatch[0] + ' đang niệm 🙏';
-        } else if (remoteBatch.length === 2) {
-          text = remoteBatch[0] + ' và ' + remoteBatch[1] + ' đang niệm 🙏';
-        } else {
-          text = remoteBatch[0] + ' và ' + (remoteBatch.length - 1) + ' người khác đang niệm 🙏';
-        }
-        remoteBatch = [];
-
-        var toast = document.getElementById('cu-toast');
-        if (toast) {
-          toast.textContent = text;
-          toast.classList.add('cu-show');
-          setTimeout(function () {
-            if (toast) toast.classList.remove('cu-show');
-          }, 2400);
+        if (wordIndex === spans.length) {
+          stopAuto(); sound('chuong'); dedication.hidden = false;
+          if (currentTab === 'tung') scroll.scrollTop = scroll.scrollHeight;
+          call('onSutraDone', sutraManual);
         }
       }
+      function stopAuto() {
+        cancelSpeech();
+        cancel(autoTimer); autoTimer = null; autoMode = '';
+        niemAuto.checked = false; tungAuto.checked = false;
+        chantButton.textContent = 'Nam mô A Di Đà Phật';
+        chantButton.classList.remove('cu-auto');
+      }
+      function scheduleAuto() {
+        cancel(autoTimer);
+        if (!alive || !autoMode) return;
+        autoTimer = later(function () {
+          if (autoMode === 'niem') chant(false); else if (autoMode === 'tung') stepSutra(false);
+          if (autoMode) scheduleAuto();
+        }, Number(autoMode === 'niem' ? niemSpeed.value : tungSpeed.value));
+      }
+      function startAuto(mode) {
+        stopAuto();
+        if (mode === 'tung' && wordIndex >= spans.length) resetSutra();
+        autoMode = mode;
+        niemAuto.checked = mode === 'niem'; tungAuto.checked = mode === 'tung';
+        if (mode === 'niem') {
+          chantButton.textContent = 'Đang tự niệm… (bấm để dừng)';
+          chantButton.classList.add('cu-auto');
+          chant(false);
+        } else stepSutra(false);
+        scheduleAuto();
+      }
 
-      // --- EVENT LISTENERS ---
-      var btnChant = card.querySelector('#cu-btn-chant');
-      btnChant.addEventListener('click', doManualChant);
-
-      card.querySelector('#cu-btn-leave').addEventListener('click', onLeave);
-      card.querySelector('#cu-tab-niem').addEventListener('click', function () { switchTab('niem'); });
-      card.querySelector('#cu-tab-tung').addEventListener('click', function () { switchTab('tung'); });
-
-      // Sutra controls
-      card.querySelector('#cu-btn-sutra-play').addEventListener('click', function () {
-        if (sutraPlaying) pauseSutra();
-        else playSutra();
+      // Meditation reports exactly once when released, timed out or leaving the cushion.
+      var meditation = el('div', 'cu-meditation', undefined, panels.thien);
+      var breath = el('div', 'cu-breath', 'Theo dõi hơi thở', meditation);
+      var meditationControls = el('div', '', undefined, meditation);
+      var durationLabel = el('label', 'cu-controls', 'Thời gian ', meditationControls);
+      var duration = el('select', 'cu-ctrl-btn', undefined, durationLabel);
+      [5, 10, 20, 30, 0].forEach(function (minutes) {
+        var option = el('option', '', minutes ? minutes + ' phút' : 'Tự do', duration);
+        option.value = minutes * 60;
       });
-      card.querySelector('#cu-btn-sutra-reset').addEventListener('click', resetSutra);
-
-      // Speed buttons
-      [
-        { id: '#cu-spd-slow', speed: 900 },
-        { id: '#cu-spd-med', speed: 700 },
-        { id: '#cu-spd-fast', speed: 500 }
-      ].forEach(function (item) {
-        var b = card.querySelector(item.id);
-        if (b) {
-          b.addEventListener('click', function () {
-            sutraSpeed = item.speed;
-            card.querySelectorAll('[data-spd]').forEach(function (x) { x.classList.remove('cu-active'); });
-            b.classList.add('cu-active');
-          });
+      var clock = el('div', 'cu-clock', '00:00', meditationControls);
+      var meditationButton = button(meditationControls, 'Bắt đầu', function () {
+        if (meditationStart !== null) finishMeditation(false);
+        else {
+          meditationStart = Date.now(); meditationLimit = Number(duration.value);
+          duration.disabled = true; meditationButton.textContent = 'Xả thiền';
+          breath.classList.add('cu-breathing'); sound('khanh'); tickMeditation();
         }
       });
-
-      // Keyboard handler (Space, Enter, Escape)
-      function onKeyDown(e) {
-        if (e.target && /input|textarea/i.test(e.target.tagName)) return;
-
-        if (e.code === 'Escape') {
-          e.preventDefault();
-          e.stopPropagation();
-          onLeave();
-          return;
-        }
-
-        if (e.code === 'Space' || e.code === 'Enter') {
-          if (currentTab === 'niem') {
-            e.preventDefault();
-            e.stopPropagation();
-            doManualChant();
-          }
-        }
+      meditationButton.hidden = typeof opts.onMeditate !== 'function';
+      el('p', 'cu-note', 'Ngồi thẳng lưng, thả lỏng vai, theo dõi hơi thở.', panels.thien);
+      function finishMeditation(expired) {
+        if (meditationStart === null) return;
+        var seconds = Math.floor((Date.now() - meditationStart) / 1000);
+        if (meditationLimit) seconds = Math.min(seconds, meditationLimit);
+        meditationStart = null; duration.disabled = false;
+        meditationButton.textContent = 'Bắt đầu'; breath.classList.remove('cu-breathing');
+        breath.textContent = 'Theo dõi hơi thở';
+        if (expired) sound('chuong');
+        sound('khanh'); call('onMeditate', seconds);
       }
-      window.addEventListener('keydown', onKeyDown);
+      function tickMeditation() {
+        if (meditationStart === null) return;
+        var seconds = Math.floor((Date.now() - meditationStart) / 1000);
+        clock.textContent = String(Math.floor(seconds / 60)).padStart(2, '0') + ':' + String(seconds % 60).padStart(2, '0');
+        breath.textContent = (Date.now() - meditationStart) % 10000 < 4000 ? 'Hít vào…' : 'Thở ra…';
+        if (meditationLimit && seconds >= meditationLimit) finishMeditation(true);
+      }
 
-      // Initial stats render
-      renderStats();
+      var offers = el('div', 'cu-offers', undefined, panels.le);
+      [['huong', '🪔 Thắp hương'], ['nen', '🕯 Thắp nến'], ['hoa', '🌸 Dâng hoa'], ['dendang', '🏮 Thả đèn hoa đăng'], ['chuong', '🔔 Thỉnh chuông'], ['bow', '🙏 Lạy Phật (3 lạy)']].forEach(function (row) {
+        var callback = row[0] === 'bow' ? 'onBow' : 'onOffer';
+        if (typeof opts[callback] !== 'function') return;
+        var b = button(offers, row[1], function () {
+          var result = call(callback, row[0] === 'bow' ? undefined : row[0]);
+          if (!alive) return;
+          if (result && result.ok === false) {
+            var wait = Math.max(0, Number(result.wait) || 0);
+            if (wait) { b.disabled = true; cooldowns.push({ button: b, label: row[1], until: Date.now() + wait * 1000 }); tickCooldowns(); }
+          } else if (row[0] === 'chuong' || row[0] === 'huong') sound(row[0]);
+        }, 'cu-ctrl-btn cu-offer');
+      });
+      function tickCooldowns() {
+        cooldowns = cooldowns.filter(function (entry) {
+          var wait = Math.max(0, Math.ceil((entry.until - Date.now()) / 1000));
+          entry.button.textContent = entry.label + (wait ? ' · ' + wait + 's' : '');
+          entry.button.disabled = wait > 0;
+          return wait > 0;
+        });
+      }
 
-      // Return public API object
+      var wishInput = el('textarea', 'cu-wish-input', undefined, panels.nguyen);
+      wishInput.maxLength = 80; wishInput.placeholder = 'Viết lời nguyện an lành…';
+      wishInput.setAttribute('aria-label', 'Lời nguyện (tối đa 80 ký tự)');
+      var wishControls = el('div', 'cu-controls', undefined, panels.nguyen);
+      var wishCounter = el('span', 'cu-note', '0 / 80', wishControls);
+      listen(wishInput, 'input', function () { wishCounter.textContent = wishInput.value.length + ' / 80'; });
+      var wishButton = button(wishControls, 'Thả đèn nguyện', function () {
+        var text = wishInput.value.trim().slice(0, 80);
+        if (!text) { toast('Xin viết lời nguyện trước khi thả đèn.'); return; }
+        var result = call('onWish', text);
+        if (result && result.ok === false) toast(result.msg || 'Chưa thể thả đèn.');
+        else { wishInput.value = ''; wishCounter.textContent = '0 / 80'; toast('Đã gửi lời nguyện an lành.'); }
+      });
+      wishInput.hidden = wishButton.hidden = wishCounter.hidden = typeof opts.onWish !== 'function';
+      var wishList = el('ul', 'cu-wish-list', undefined, panels.nguyen);
+      var wishes = [];
+      function renderWishes() {
+        wishList.textContent = '';
+        wishes.forEach(function (wish) {
+          var item = el('li', 'cu-wish-item', undefined, wishList);
+          el('strong', '', '🏮 ' + String(wish.name || 'Vong hồn'), item);
+          el('div', '', String(wish.text || ''), item);
+          var minutes = Math.max(0, Math.floor((Date.now() - (Number(wish.at) || Date.now())) / 60000));
+          el('time', '', minutes ? minutes + ' phút trước' : 'Vừa xong', item);
+        });
+      }
+      listen(root, 'keydown', function (event) {
+        if (event.code === 'Escape' || event.key === 'Escape') {
+          event.preventDefault(); event.stopPropagation(); leave(); return;
+        }
+        var target = event.target;
+        if (target && (target.closest('input,textarea,select,button') || target.isContentEditable)) return;
+        if (currentTab === 'niem' && (event.code === 'Space' || event.code === 'Enter')) {
+          event.preventDefault(); event.stopPropagation();
+          if (autoMode === 'niem') stopAuto(); else chant(true);
+        }
+      });
+      var ticker = setInterval(function () { tickMeditation(); tickCooldowns(); }, 250);
+      var wishTicker = setInterval(renderWishes, 30000);
+      switchTab('niem'); renderStats(); updateMala();
+      host.appendChild(wrap);
+
       return {
-        setStats: function (stats) {
-          stats = stats || {};
-          if (stats.mine !== undefined) {
-            mineCount = stats.mine;
-            activeBeadIndex = (mineCount % 108);
-            updateMalaBeads(activeBeadIndex);
-          }
-          if (stats.today !== undefined) todayCount = stats.today;
-          if (stats.room !== undefined) roomCount = stats.room;
-          if (stats.chanters !== undefined) chantersCount = stats.chanters;
+        setStats: function (data) {
+          if (!alive) return;
+          data = data || {};
+          function number(value) { return Math.max(0, Math.floor(Number(value) || 0)); }
+          // Session stats include sutra phrases; mala progress counts only invocations.
+          if (data.mine !== undefined) mine = number(data.mine);
+          if (data.today !== undefined) today = number(data.today);
+          if (data.room !== undefined) room = number(data.room);
+          if (data.chanters !== undefined) chanters = number(data.chanters);
           renderStats();
         },
-        setTop: function (top) {
-          topChanters = Array.isArray(top) ? top : [];
-          renderTopList();
+        setTop: function (rows) {
+          if (!alive) return;
+          topList.textContent = '';
+          (Array.isArray(rows) ? rows : []).slice(0, 5).forEach(function (row, i) {
+            var li = el('li', 'cu-top-item', undefined, topList);
+            el('span', 'cu-top-name', (i + 1) + '. ' + String(row.name || 'Vong hồn'), li);
+            el('span', 'cu-top-val', String(row.c || 0), li);
+          });
+          if (!topList.children.length) el('li', 'cu-top-item', 'Chưa có ai', topList);
         },
+        setWishes: function (rows) {
+          if (!alive) return;
+          wishes = (Array.isArray(rows) ? rows : []).filter(Boolean).slice().sort(function (a, b) { return (Number(b.at) || 0) - (Number(a.at) || 0); }).slice(0, 30);
+          renderWishes();
+        },
+        toast: toast,
         remote: function (name) {
-          if (!name) return;
-          remoteBatch.push(name);
-          if (!remoteTimer) {
-            remoteTimer = setTimeout(function () {
-              triggerRemoteToast();
-              remoteTimer = null;
-            }, 600);
-          }
+          if (!alive || !name) return;
+          remoteNames.add(String(name));
+          if (remoteTimer !== null) return;
+          remoteTimer = later(function () {
+            var names = Array.from(remoteNames); remoteNames.clear(); remoteTimer = null;
+            remoteLine.textContent = names[0] + (names.length > 1 ? ' và ' + (names.length - 1) + ' người khác' : '') + ' đang niệm';
+            later(function () { remoteLine.textContent = ''; }, 2400);
+          }, 600);
         },
         unmount: function () {
-          window.removeEventListener('keydown', onKeyDown);
-          if (sutraTimer) {
-            clearTimeout(sutraTimer);
-            sutraTimer = null;
-          }
-          if (remoteTimer) {
-            clearTimeout(remoteTimer);
-            remoteTimer = null;
-          }
-          if (wrap.parentNode) {
-            wrap.parentNode.removeChild(wrap);
+          if (!alive) return;
+          stopAuto(); finishMeditation(false); cancelSpeech();
+          alive = false;
+          clearInterval(ticker); clearInterval(wishTicker);
+          timers.forEach(function (id) { clearTimeout(id); }); timers.clear();
+          listeners.forEach(function (off) { off(); }); listeners = [];
+          remoteNames.clear(); cooldowns = [];
+          wrap.remove();
+          if (!document.querySelector('.cu-wrap')) {
+            var sharedStyle = document.getElementById('cu-styles');
+            if (sharedStyle) sharedStyle.remove();
           }
         }
       };
     }
   };
-
 })(typeof window !== 'undefined' ? window : globalThis);

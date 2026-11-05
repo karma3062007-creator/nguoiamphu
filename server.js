@@ -200,7 +200,7 @@ function onMessage(c, text) {
     c.p = p; broadcast({ t: "p", id: c.id, p }, c);
   } else if (typeof m.t === "string" && m.t.startsWith("g.")) {
     rooms.onMessage(c.id, m);
-  } else if (typeof m.t === "string" && (m.t.startsWith("k.") || m.t.startsWith("np."))) {
+  } else if (typeof m.t === "string" && (m.t.startsWith("k.") || m.t.startsWith("c.") || m.t.startsWith("np."))) {
     halls.onMessage(c, m);
   } else if (m.t === "m" && c.key) {
     const old = merits[c.key] || { m: 0, n: "Vong hồn" };

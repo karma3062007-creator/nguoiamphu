@@ -354,3 +354,97 @@ return {
 ### 3. `window.__roomsSelfTest(THREE)`
 
 Tạo cả hai phòng, đếm mesh/tam giác/PointLight, kiểm số hữu hạn, mọi seat là con của group, seat nằm trong ranh x ∈ [-12, 12], z ∈ [-10, 10], lỗ cửa (|x| < 1.5, z từ 9 đến 11) không bị `solids`/`blocked` chặn, gọi `update` 2 giây, gọi `knock()`. Trả `{ ok, rows: [{ name, meshes, tris, lights, seats }] }`.
+
+
+## Việc 27: Bảng điều khiển trong Chùa Niệm Phật (học theo niemphat.online)
+
+Học theo niemphat.online (có Tràng hạt, Tụng kinh + Mõ tự động, Thiền, Dâng lễ, Lạy Phật, Đèn nguyện). Khi người chơi ngồi lên bồ đoàn trong **Chùa Niệm Phật** (`rooms.js`, việc 24), game mở **bảng chùa** của bạn ở nửa dưới màn hình (phía trên vẫn thấy chùa 3D và các vong hồn khác). Claude lo máy chủ, công đức, hiệu ứng 3D (lạy Phật, đèn bay, khói hương) và ghép vào game. Bạn làm phần giao diện HTML/CSS/JS này.
+
+Antigravity đã làm xong bản đầu (việc 25): **`src/online/chant-ui.js`** và **`src/online/chant-demo.html`** (tràng hạt 108 hạt, tụng Tâm Kinh theo mõ, nhịp chậm/vừa/nhanh, bộ đếm, top 5). Việc của bạn là **mở rộng tiếp đúng hai file đó** (giữ phong cách, màu, cách tổ chức code và những gì đang chạy tốt của Antigravity; sửa chỗ nào cần để khớp hợp đồng dưới đây). Không sửa file khác. JavaScript thuần, không `import`/`export`, không thư viện, không ảnh/font/âm thanh tải ngoài. Mọi class CSS bắt đầu bằng `cu-`.
+
+API vẫn là `window.ChantUI` (game đang gọi `ChantUI.mount`), chỉ **thêm** tuỳ chọn mới; tham số mới thiếu thì giao diện vẫn chạy (ẩn nút tương ứng).
+
+### API (game gọi đúng như sau)
+
+```js
+window.ChantUI = {
+  mount(host, opts) {
+    // host: <div> phủ toàn màn hình, pointer-events: none (phần giao diện của bạn tự bật pointer-events: auto)
+    // opts = {
+    //   name,                                  // tên người chơi
+    //   sound(kind),                           // game phát tiếng: "mo" | "chuong" | "khanh" | "huong"
+    //   onChant(kind, manual),                 // MỖI câu niệm (kind "niem") / mỗi câu kinh tụng xong (kind "tung"); manual = true nếu tự tay bấm, false nếu do chế độ tự chạy
+    //   onSutraDone(manual),                   // tụng trọn bài kinh
+    //   onOffer(kind) -> { ok, wait },         // dâng lễ: "huong" | "nen" | "hoa" | "dendang" | "chuong"; ok=false thì wait = số giây còn phải chờ
+    //   onBow() -> { ok, wait },               // lạy Phật (game cho nhân vật lạy 3 lạy)
+    //   onMeditate(seconds),                   // xả thiền: số giây đã thiền
+    //   onWish(text) -> { ok, msg },           // thả đèn nguyện: lời nguyện ≤ 80 ký tự
+    //   onLeave()                              // "Đứng dậy" hoặc Esc
+    // }
+    return {
+      setStats({ mine, today, room, chanters }),  // mine: số câu lượt này; today: số câu hôm nay; room: tổng cả chùa hôm nay; chanters: số người đang niệm
+      setTop([{ name, c }]),                       // top 5 hôm nay
+      setWishes([{ name, text, at }]),             // đèn nguyện gần đây (mới nhất trước, tối đa 30; at = ms)
+      toast(text),                                  // game nhắn một dòng ngắn (ví dụ "+3 công đức · viên mãn 1 tràng")
+      remote(name),                                 // người khác vừa niệm: dòng nhẹ "… đang niệm" (gộp, không spam)
+      unmount()                                     // gỡ sạch DOM, listener, setInterval, speechSynthesis
+    };
+  }
+};
+```
+
+### Các thẻ (tab), học theo niemphat.online
+
+1. **Niệm Phật / Tràng hạt** (thẻ mặc định)
+   - Tràng hạt **108 hạt** (SVG/canvas), hạt mẫu to hơn ở đầu. Bấm nút lớn tròn "Nam mô A Di Đà Phật", **chạm hoặc vuốt xuống** trên tràng hạt, hoặc phím **Space**/**Enter** để lần một hạt: `sound("mo")`, `onChant("niem", true)`, hạt hiện tại sáng lên, tràng xoay một nấc, chữ "Nam mô A Di Đà Phật" bay lên mờ dần. Tối đa ~6 câu/giây.
+   - Đếm "12 / 108 · Vòng thứ nhất / thứ hai …"; hết 108 câu: `sound("chuong")`, hào quang nhẹ, sang vòng mới.
+   - **Chế độ tự niệm** (công tắc rõ ràng, bấm là chạy ngay): tự lần hạt đều theo **nhịp** chọn được: Chậm (1,6 giây) / Vừa (1,1 giây) / Nhanh (0,75 giây), mỗi nhịp `sound("mo")` và gọi `onChant("niem", false)`. Đang tự niệm thì nút lớn đổi thành "Đang tự niệm… (bấm để dừng)", có hiệu ứng nhịp thở nhẹ. Ghi chú nhỏ dưới công tắc: "Tự tay niệm mới được nhiều công đức".
+2. **Tụng kinh**
+   - **Bát Nhã Ba La Mật Đa Tâm Kinh** bản phiên âm **Hán-Việt** cổ (văn bản cổ, từ "Quán Tự Tại Bồ Tát hành thâm Bát Nhã Ba La Mật Đa thời…" đến "…Yết đế yết đế, ba la yết đế, ba la tăng yết đế, Bồ đề tát bà ha"). Tách theo câu (dấu phẩy/chấm), tô sáng **từng chữ** như karaoke, tự cuộn.
+   - Hai cách: tự tay gõ nút **mõ** (mỗi lần gõ: `sound("mo")`, sáng thêm một chữ) hoặc bật **Mõ tự động** với **Nhịp** chậm/vừa/nhanh (0,9 / 0,7 / 0,5 giây). Hết mỗi câu gọi `onChant("tung", manual)`. Trọn bài: `sound("chuong")`, `onSutraDone(manual)`, hiện lời hồi hướng ngắn "Nguyện đem công đức này, hướng về khắp tất cả…". Có nút tạm dừng và tụng lại từ đầu.
+   - **Giọng đọc**: nếu trình duyệt có giọng tiếng Việt (`speechSynthesis.getVoices()` có `lang` bắt đầu "vi"), hiện công tắc "Giọng đọc"; bật thì đọc mỗi câu khi bắt đầu câu (rate ~0.9). Không có giọng Việt thì ẩn công tắc. Unmount thì `speechSynthesis.cancel()`.
+   - Ghi chú nhỏ: "Tự tay gõ mới có công đức từng tiếng".
+3. **Thiền**
+   - Chọn 5 / 10 / 20 / 30 phút / Tự do, nút "Bắt đầu". Vòng tròn nở ra – co lại theo nhịp thở (hít vào 4 giây, thở ra 6 giây) với chữ "Hít vào…" / "Thở ra…", đồng hồ 00:00. Hết giờ: `sound("chuong")`. Nút **Xả thiền** (và khi hết giờ) gọi `onMeditate(giây)`. Dòng hướng dẫn: "Ngồi thẳng lưng, thả lỏng vai, theo dõi hơi thở." Bắt đầu/kết thúc: `sound("khanh")`.
+4. **Dâng lễ**
+   - Các nút lớn có biểu tượng (CSS/SVG/emoji): **Thắp hương**, **Thắp nến**, **Dâng hoa**, **Thả đèn hoa đăng**, **Thỉnh chuông**, và **Lạy Phật (3 lạy)**. Bấm gọi `onOffer(kind)` / `onBow()`; nếu `ok=false` thì nút hiện đếm ngược `wait` giây (mờ, không bấm được).
+5. **Đèn nguyện**
+   - Ô viết lời nguyện (≤ 80 ký tự, đếm ký tự) + nút "Thả đèn nguyện" → `onWish(text)`; `ok=false` thì hiện `msg`. Danh sách đèn nguyện gần đây từ `setWishes` (đèn lồng nhỏ, tên, lời nguyện, "x phút trước"). Chữ phải hiện bằng `textContent` (không `innerHTML`) vì là chữ người khác viết.
+
+### Chung
+
+- Luôn hiện: khung nhỏ **Cả chùa** "Hôm nay cả chùa: 12.345 câu · 4 người đang niệm" + top 5 (thu gọn được), dòng `toast`, nút **Đứng dậy** (Esc).
+- Chế độ tự chạy (tự niệm, mõ tự động) **vẫn chạy khi đổi thẻ**, chỉ dừng khi bấm tắt hoặc unmount. Không cho tự niệm và mõ tự động chạy cùng lúc (bật cái này tắt cái kia).
+- Phong cách: trang nghiêm, ấm: nền kem/giấy dó, viền vàng đồng #e8b765, chữ nâu son, nút chính vàng nghệ như áo cà sa, bo tròn 16px.
+- **Điện thoại 375×812**: cao tối đa **45%** màn hình, không tràn ngang, hàng thẻ cuộn ngang được; màn ngang thấp (≤ 500px) thì đặt sang bên phải, rộng ≤ 46%. Nút chính ≥ 88px. Tôn trọng `prefers-reduced-motion`.
+- Không để phím Space/Enter lần hạt khi đang gõ trong ô lời nguyện (chặn khi focus ở input/textarea).
+
+### Trang thử `chant-demo.html`
+
+Nền tối giả lập game, nạp `chant-ui.js`, gọi `mount` với `sound` phát tiếng bằng WebAudio đơn giản, `onOffer`/`onBow` giả lập chờ 20 giây, `onWish` thêm vào danh sách, giả lập `setStats`/`setTop`/`remote` tăng dần, nút unmount/mount lại để kiểm tra gỡ sạch.
+
+
+## Việc 29: Rạp phim Âm Phủ (thêm vào `rooms.js`)
+
+Học theo rạp xem chung **wetube ciné**: một rạp phim, cả hội cùng xem một màn hình, mọi người gửi video và bình chọn. Claude lo máy chủ, video YouTube, đồng bộ, bình chọn, camera. Bạn **thêm** hàm mới vào `src/online/rooms.js` (giữ nguyên hai phòng đã có, không đổi API cũ). **Chỉ sửa đúng file này.**
+
+```js
+window.makeCinemaRoom = function (THREE) {
+  return {
+    group, roof, name: "Rạp phim Âm Phủ",
+    seats: [Object3D],     // 28–36 ghế rạp (ghế nệm đỏ có tay vịn, kiểu ghế rạp), nhìn về -Z (màn hình)
+    screen: THREE.Mesh,    // màn chiếu lớn 16:9 (PlaneGeometry, rộng ~13 m) ở tường -Z, mặt nhìn +Z, MeshBasicMaterial; game thay material.map
+    solids, blocked,
+    update(dt, time, { playing, level })   // playing: đang chiếu → đèn trần tối dần, đèn lối đi sáng nhẹ, viền màn hơi sáng; không chiếu → đèn sáng bình thường
+  };
+};
+```
+
+Theo đúng **quy ước chung** của Việc 24: gốc ở sàn (y = 0), trong lòng phòng x ∈ [-12, 12], z ∈ [-10, 10]; cửa 3 m ở giữa tường +Z; `roof` chứa mái + trần (game ẩn khi ở trong); tường trong không cao quá 4.2 m che camera (phần cao hơn đưa vào `roof`); seat: gốc = bàn chân, +Z ghế = hướng nhìn; `solids`/`blocked`.
+
+- Sàn **phẳng** (game chưa đi được trên bậc thang), nhưng các hàng ghế phía sau có thể đặt trên bục thấp riêng từng hàng (bục ≤ 0.45 m, gốc seat nâng theo) để nhìn rõ màn hơn; bục và ghế nằm trong `blocked`, chừa **lối đi giữa** (|x| < 1.3) và **hai lối bên** để đến từng hàng ghế (người chơi đứng cạnh ghế trong ~1.8 m mới bấm E được).
+- Màn chiếu đặt cao: đáy màn ~1.4 m, khung viền đen, rèm nhung đỏ hai bên, loa. Khoảng giữa màn và hàng ghế đầu ≥ 3 m.
+- Bên trong: thảm đỏ, tường tối có đèn tường vàng, poster phim vui "MA LÀNG CHIẾU BÓNG", "DIÊM VƯƠNG ĐẠI CHIẾN" (CanvasTexture), quầy bắp rang + nước ngọt nhỏ gần cửa.
+- Ngoại thất: tòa rạp có **bảng hiệu marquee "RẠP PHIM ÂM PHỦ"** với hàng bóng đèn chạy viền (mặt +Z), poster hai bên cửa, mái nhỏ trên cửa.
+- Nhẹ: ≤ 220 mesh, ≤ 3 `PointLight`, dùng chung geometry/material; `update` không tạo object mới mỗi khung hình.
+- Cập nhật `__roomsSelfTest` thêm dòng rạp phim (cùng các kiểm tra như hai phòng kia).
