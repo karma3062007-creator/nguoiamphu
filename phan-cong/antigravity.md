@@ -68,3 +68,51 @@ Dán đoạn này vào Antigravity:
 > Đọc `phan-cong/tro-choi-hop-dong.md` (nhất là phần 2). Viết 3 file giao diện `src/games/ui-chess.js`, `src/games/ui-oanquan.js`, `src/games/ui-masoi.js` đăng ký vào `window.GAME_UI` đúng API `mount(el, api)` → `{update(view, actions), destroy()}`, đúng hình dạng `view` trong hợp đồng. Thêm `src/games/ui-demo.html` để tự thử với `view` giả. Phong cách giống trang chủ Địa Ngục Online (thẻ màu kem, viền vàng, chữ nâu đỏ, font Baloo 2, hoạt hình dễ thương). Chạy được trên điện thoại dọc 360px. Chỉ tạo/sửa các file `src/games/ui-*.js`, `src/games/ui-demo.html` và cập nhật `BANG-PHAN-CONG.md` (việc 13 sang Xong, ghi nhật ký).
 
 Máy chủ và luật do Claude và Codex làm song song, bạn không cần đợi: cứ làm theo hợp đồng.
+
+---
+
+## Việc 25: Giao diện niệm Phật và tụng kinh (Chùa Niệm Phật)
+
+Công viên Âm Phủ có thêm **Chùa Niệm Phật** (học theo niemphat.online). Người chơi vào chùa, ngồi lên bồ đoàn, lúc đó game mở **giao diện niệm Phật** của bạn ở nửa dưới màn hình (phía trên vẫn thấy chùa 3D và các vong hồn khác đang niệm). Codex làm hình chùa 3D, Claude làm máy chủ và ghép vào game. Bạn chỉ làm phần giao diện HTML/CSS/JS này.
+
+File của bạn: **`src/online/chant-ui.js`** (mới) và **`src/online/chant-demo.html`** (trang thử, mở thẳng bằng trình duyệt). Không sửa file khác. JavaScript thuần, không `import`/`export`, không thư viện, không ảnh/font/âm thanh tải ngoài (vẽ bằng CSS/SVG/canvas). CSS tự chèn bằng JS, mọi class bắt đầu bằng `cu-` để không đụng CSS của game.
+
+### API (game gọi đúng như sau)
+
+```js
+window.ChantUI = {
+  mount(host, opts) {
+    // host: một <div> game đưa (phủ toàn màn hình, pointer-events: none; phần giao diện của bạn tự bật pointer-events: auto)
+    // opts = {
+    //   name: "Kẻ gõ A",                  // tên người chơi
+    //   onChant(kind),                     // gọi MỖI câu: kind "niem" (bấm niệm 1 câu) | "tung" (tụng xong 1 câu kinh)
+    //   onLeave(),                         // người chơi bấm "Đứng dậy" hoặc Esc
+    //   sound(kind)                        // game phát tiếng: "mo" (mõ), "chuong" (chuông), "khanh" (khánh nhỏ)
+    // }
+    return {
+      setStats({ mine, today, room, chanters }), // mine: số câu lượt này; today: số câu hôm nay của mình; room: tổng cả chùa hôm nay; chanters: số người đang niệm
+      setTop([{ name, c }]),                     // top người niệm nhiều nhất hôm nay (tối đa 5)
+      remote(name),                              // một người khác vừa niệm: hiện dòng nhẹ "… đang niệm" (gộp, không spam)
+      unmount()                                  // gỡ sạch DOM + listener
+    };
+  }
+};
+```
+
+### Giao diện
+
+- **Nút niệm lớn tròn** "Nam mô A Di Đà Phật": bấm/chạm, hoặc phím **Space**/**Enter**, mỗi lần là 1 câu: gọi `opts.sound("mo")` và `opts.onChant("niem")`, chữ "Nam mô A Di Đà Phật" bay lên mờ dần. Giới hạn tối đa ~6 câu/giây (bấm nhanh hơn thì bỏ qua).
+- **Tràng hạt 108 hạt** (SVG hoặc canvas): vòng hạt gỗ, hạt hiện tại sáng lên và tràng hạt xoay một nấc mỗi câu, hạt "mẫu" to hơn ở đầu tràng. Đủ 108 câu: `sound("chuong")`, hiệu ứng hào quang nhẹ, dòng "Viên mãn 1 tràng · +3 công đức" (game tự cộng công đức, bạn chỉ hiện chữ).
+- Bộ đếm: "Lượt này: 37 câu · Hôm nay: 324 câu (3 tràng)".
+- Khung nhỏ **Cả chùa**: "Hôm nay cả chùa: 12.345 câu · 4 người đang niệm" + top 5 từ `setTop`.
+- Hai thẻ: **Niệm Phật** | **Tụng kinh**.
+  - **Tụng kinh**: hiện **Bát Nhã Ba La Mật Đa Tâm Kinh** bản phiên âm **Hán-Việt** cổ (văn bản cổ, ví dụ mở đầu "Quán Tự Tại Bồ Tát, hành thâm Bát Nhã Ba La Mật Đa thời…", kết "…Yết đế yết đế, ba la yết đế, ba la tăng yết đế, Bồ đề tát bà ha"). Bấm "Bắt đầu tụng": mõ tự gõ đều (~1 tiếng mỗi 0,7 giây, có nút chậm/vừa/nhanh), mỗi tiếng mõ tô sáng **một chữ** (kiểu karaoke), tự cuộn; hết một câu (dấu phẩy/chấm) gọi `onChant("tung")`. Có nút tạm dừng. Tụng xong cả bài: `sound("chuong")` và lời hồi hướng ngắn.
+- Nút **"Đứng dậy"** (và Esc) → `onLeave()`.
+- Phong cách: trang nghiêm, ấm: nền kem/giấy dó, viền vàng đồng, chữ nâu son, nút niệm màu vàng nghệ như áo cà sa. Hợp với các thẻ kem `.card` của game (bo tròn 16px, viền vàng #e8b765).
+- **Điện thoại**: tối đa **42% chiều cao** màn 375×812, không tràn ngang; màn ngang (thấp ≤ 500px) thì đặt sang bên phải, rộng ≤ 46%. Nút niệm ≥ 88px. Tôn trọng `prefers-reduced-motion`.
+
+### Trang thử `chant-demo.html`
+
+Mở thẳng bằng trình duyệt (file://): nền tối giả lập game, nạp `chant-ui.js`, gọi `mount` với `sound` tự phát tiếng bằng WebAudio đơn giản, giả lập `setStats`/`setTop`/`remote` tăng dần mỗi vài giây, có nút unmount/mount lại để kiểm tra gỡ sạch.
+
+Xong thì ghi một dòng vào cuối `phan-cong/BANG-PHAN-CONG.md` (phần nhật ký) và đổi trạng thái việc 25 sang Xong.

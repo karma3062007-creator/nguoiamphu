@@ -298,3 +298,59 @@ window.__boothSelfTest = function (THREE) { /* trả { ok, meshes, tris, targets
 - `update`/`aim`/`hit` không tạo object mới mỗi khung hình (tái sử dụng vector).
 - Bia ngã thì vẫn ở trong `obj` (game kiểm `isUp(i)` trước khi tính trúng).
 - `__boothSelfTest`: đếm mesh/tam giác, kiểm số hữu hạn, gọi `hit(0)`, `update` 2 giây, kiểm `isUp(0)` false rồi true lại, `targets.length >= 12`.
+
+## Việc 24: Hai tòa nhà mới: Phòng Karaoke Âm Phủ và Chùa Niệm Phật
+
+Công viên Âm Phủ có thêm hai tòa nhà **đi vào được** (học theo rạp xem chung wetube ciné và chùa 3D niemphat.online): bên đông là **Phòng Karaoke Âm Phủ** (cùng xem/hát một video YouTube, chấm điểm người hát), bên tây là **Chùa Niệm Phật** (ngồi bồ đoàn niệm Phật, tụng kinh cùng nhau). Claude lo máy chủ, video, đồng bộ, ngồi ghế, camera. Bạn lo **hình 3D** của hai tòa nhà, cả ngoài lẫn trong.
+
+Tạo file mới `src/online/rooms.js` (JavaScript thuần, three.js **r128**, không `import`/`export`, không ảnh ngoài; `CanvasTexture` vẽ chữ bằng code được; không `CapsuleGeometry`). **Chỉ tạo/sửa đúng file này.** Theo phong cách và cách tổ chức code của `src/online/rides.js` và `src/online/booth.js`.
+
+### Quy ước chung cho cả hai phòng
+
+- `group` gốc ở **sàn trong phòng (y = 0)**, tâm phòng ở x = z = 0. Trong lòng phòng (chỗ đi được) là **x ∈ [-12, 12], z ∈ [-10, 10]**; tường dày ~0.3 nằm ngay ngoài ranh này.
+- **Cửa ra vào** ở giữa tường **+Z**, lỗ cửa rộng **3 m** (|x| < 1.5), cao ≥ 3 m. Phía trong là chỗ quay mặt về **-Z** (sân khấu / tượng Phật ở phía -Z).
+- `roof`: một Object3D chứa **mái + trần** (game ẩn nó khi người chơi ở trong để camera nhìn từ trên xuống thấy được). Không được để tường cao quá **4.2 m** che camera: tường trong thấp hơn mái, hoặc phần tường cao trên 4.2 m đưa vào `roof`.
+- `seats`: các Object3D ghế, **quy ước giống rides.js**: gốc = bàn chân nhân vật khi ngồi (nhân vật cao 1.6, đứng thẳng, không có tư thế ngồi, nên đặt gốc thấp cho thân trông như đang ngồi, chân lún vào ghế được), **+Z của ghế = hướng mặt nhìn**, +Y lên trên.
+- `solids: [{x, z, r}]` vật cản tròn (cột, chậu cây…) và `blocked: [{x0, x1, z0, z1}]` các ô chữ nhật **không đi được** (sân khấu, bệ thờ, hàng ghế sofa nếu cần). Ghế phải ngồi được: game đứng cạnh ghế bấm E, nên chừa lối đi giữa các hàng ghế.
+- `update(dt, time, info)`: không tạo object mới mỗi khung hình.
+- Ngoại thất nhìn từ công viên phải đẹp và nhận ra ngay; lỗ cửa thông suốt.
+- Nhẹ cho điện thoại: **mỗi phòng ≤ 220 mesh**, ≤ 3 `PointLight`; dùng chung geometry/material.
+
+### 1. `window.makeKaraokeRoom(THREE)`
+
+```js
+return {
+  group, roof, name: "Phòng Karaoke Âm Phủ",
+  seats: [Object3D],     // 16–24 chỗ khán giả (sofa nhung đỏ / ghế bành), nhìn về -Z
+  stage: Object3D,       // chỗ người hát đứng cạnh micro trên sân khấu, +Z nhìn xuống khán giả (gốc = bàn chân, trên mặt sân khấu)
+  screen: THREE.Mesh,    // màn hình lớn 16:9 (PlaneGeometry, rộng ~8 m) sau sân khấu, mặt nhìn +Z, MeshBasicMaterial; game sẽ thay material.map
+  solids, blocked,
+  update(dt, time, { playing, level })   // playing: đang có bài; level 0..1 độ sôi động (số người / điểm) → đèn sân khấu quét, quả cầu disco quay, viền neon nhấp nháy theo nhịp
+};
+```
+
+- Sân khấu cao ~0.7 m ở đầu -Z, có micro đứng, loa hai bên, quả cầu disco, đèn quét. Màn hình đặt cao sao cho khán giả ngồi nhìn thấy trọn (đáy màn ~1.6 m trên sàn sân khấu).
+- Phong cách: quán karaoke âm phủ vui nhộn: tường tím than, viền neon hồng-tím-vàng, thảm đỏ, đèn lồng giấy, poster "Song ca cùng Diêm Vương" cho vui (CanvasTexture).
+- Ngoại thất: khối nhà vuông, biển neon lớn **"KARAOKE ÂM PHỦ"** phía trên cửa (mặt +Z), dải đèn chạy viền cửa.
+
+### 2. `window.makeTempleHall(THREE)`
+
+```js
+return {
+  group, roof, name: "Chùa Niệm Phật",
+  seats: [Object3D],     // 20 bồ đoàn (4 hàng × 5), nhìn về -Z (tượng Phật)
+  solids, blocked,
+  knock(),               // mõ lớn trên bàn thờ nhún + dùi gõ một cái (game gọi khi có người niệm)
+  update(dt, time, { chanting })   // chanting: số người đang niệm → hào quang tượng sáng hơn, khói hương bay, đèn hoa sen lung linh
+};
+```
+
+- Tượng **Phật A Di Đà** ngồi tòa sen trên bệ (tổng cao ~4.5 m), hào quang tròn sau lưng phát sáng nhẹ (MeshBasicMaterial). Hiền hoà, trang nghiêm, đơn giản khối, không cần chi tiết mặt nhiều.
+- Bàn thờ: lư hương có khói (vài sprite/plane mờ bay lên), bình hoa sen, đèn dầu, **mõ lớn** một bên và **chuông gia trì** một bên. Hoành phi chữ **"A DI ĐÀ PHẬT"** và đôi câu đối (CanvasTexture).
+- Cột gỗ son, sàn gỗ, bồ đoàn vàng nghệ, ánh sáng ấm vàng, vài phướn treo.
+- Ngoại thất: chùa mái cong ngói, đầu đao uốn, cổng tam quan nhỏ hoặc biển **"CHÙA NIỆM PHẬT"** trên cửa (mặt +Z), hai đèn lồng.
+- Không ghê rợn, không hài hước (đây là chốn trang nghiêm).
+
+### 3. `window.__roomsSelfTest(THREE)`
+
+Tạo cả hai phòng, đếm mesh/tam giác/PointLight, kiểm số hữu hạn, mọi seat là con của group, seat nằm trong ranh x ∈ [-12, 12], z ∈ [-10, 10], lỗ cửa (|x| < 1.5, z từ 9 đến 11) không bị `solids`/`blocked` chặn, gọi `update` 2 giây, gọi `knock()`. Trả `{ ok, rows: [{ name, meshes, tris, lights, seats }] }`.

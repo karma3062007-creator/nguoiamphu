@@ -73,6 +73,13 @@ function sendBoard(c, top = topRows()) {
 const clients = new Map(); // id -> client
 
 /* ---------- phòng trò chơi bàn (game-rooms.js) ---------- */
+function addMeritTo(id, n) {
+    const c = clients.get(id); if (!c || !c.key) return;
+    const old = merits[c.key] || { m: 0, n: "Vong hồn" };
+    merits[c.key] = { m: old.m + n, n: old.n, at: Date.now() };
+    send(c, { t: "me", m: merits[c.key].m, gain: n });
+    saveMerits(); broadcastBoard();
+}
 const rooms = require("./game-rooms.js")({
   send: (id, obj) => { const c = clients.get(id); if (c) send(c, obj); },
   addMerit: (id, n) => {
@@ -83,6 +90,8 @@ const rooms = require("./game-rooms.js")({
     saveMerits(); broadcastBoard();
   }
 });
+// Phòng Karaoke + Chùa Niệm Phật (halls.js)
+const halls = require("./halls.js")({ clients, send: (c, obj) => send(c, obj), addMerit: addMeritTo });
 let nextId = 1;
 
 server.on("upgrade", (req, socket) => {
@@ -145,7 +154,7 @@ function drop(c) {
   clients.delete(c.id);
   try { c.socket.destroy(); } catch (e) {}
   if (c.p) broadcast({ t: "leave", id: c.id });
-  rooms.drop(c.id);
+  rooms.drop(c.id); halls.drop(c.id);
 }
 
 /* ---------- xử lý tin ---------- */
@@ -191,6 +200,8 @@ function onMessage(c, text) {
     c.p = p; broadcast({ t: "p", id: c.id, p }, c);
   } else if (typeof m.t === "string" && m.t.startsWith("g.")) {
     rooms.onMessage(c.id, m);
+  } else if (typeof m.t === "string" && (m.t.startsWith("k.") || m.t.startsWith("np."))) {
+    halls.onMessage(c, m);
   } else if (m.t === "m" && c.key) {
     const old = merits[c.key] || { m: 0, n: "Vong hồn" };
     let v = Math.max(0, Math.floor(+m.m || 0));
