@@ -71,7 +71,10 @@ button { font-family: var(--body); }
 .sv .dot { display: inline-block; width: 7px; height: 7px; border-radius: 50%; background: var(--cinnabar); box-shadow: 0 0 6px var(--cinnabar); margin-right: 4px; }
 .mrow { display: flex; justify-content: space-between; align-items: baseline; margin-top: 6px; font-size: .8rem; color: var(--muted); }
 .mrow b { color: var(--gold-hi); font-size: 1.05rem; font-variant-numeric: tabular-nums; }
-.mrow .fl { font-family: var(--display); color: var(--cinnabar); font-size: 1.2rem; }
+.mrow .fl { font-family: var(--display); color: var(--cinnabar); font-size: 1.2rem; background: none; border: 0; padding: 0; cursor: default; }
+.mrow .fl:not(:disabled) { cursor: pointer; text-decoration: underline; animation: flPulse 1.4s ease-in-out infinite; }
+@keyframes flPulse { 50% { opacity: .55; } }
+@media (prefers-reduced-motion: reduce) { .mrow .fl:not(:disabled) { animation: none; } }
 .bar { height: 6px; background: #120505; border: 1px solid var(--ash); margin-top: 6px; }
 .bar i { display: block; height: 100%; width: 0; background: linear-gradient(90deg, var(--cinnabar), var(--gold-hi)); transition: width .3s; }
 .chat { left: max(10px, env(safe-area-inset-left, 0px)); bottom: calc(10px + env(safe-area-inset-bottom, 0px)); width: min(360px, calc(100% - 20px)); display: flex; flex-direction: column; gap: 6px; }
@@ -316,7 +319,7 @@ h2 { font-size: 1.8rem; color: var(--gold); }
   <!-- HUD -->
   <div class="hud tl card" id="hud" hidden>
     <div class="sv"><b id="h-sv">Cõi Vô Gián</b><span><i class="dot"></i><span id="h-on">1 vong hồn</span></span></div>
-    <div class="mrow"><span>Công đức <b id="h-m">0</b></span><span>Án <span class="fl" id="h-f">B18</span></span></div>
+    <div class="mrow"><span>Công đức <b id="h-m">0</b></span><span>Án <button type="button" class="fl" id="h-f" disabled>B18</button></span></div>
     <div class="bar"><i id="h-bar"></i></div>
   </div>
   <div class="hud tr" id="hud2" hidden>
@@ -4450,7 +4453,7 @@ let toastT = 0;
 function toast(t) { const el = $("#toast"); el.textContent = t; el.hidden = false; clearTimeout(toastT); toastT = setTimeout(() => el.hidden = true, 2600); }
 function renderMerit() {
   const f = floorOf(merit);
-  $("#h-m").textContent = merit.toLocaleString("vi-VN"); $("#h-f").textContent = f ? "B" + f : "Đầu thai";
+  $("#h-m").textContent = merit.toLocaleString("vi-VN"); $("#h-f").textContent = f ? "B" + f : "Đầu thai"; $("#h-f").disabled = !!f; $("#h-f").title = f ? "" : "Bấm để đầu thai";
   $("#h-bar").style.width = (f ? (merit % STEP) / STEP * 100 : 100) + "%";
   store.set("apo-merit", merit); if (myAv) myAv.setTag(me.name, merit);
 }
@@ -4462,7 +4465,7 @@ function floatText(text, x, y, z, color) {
 function gain(n) {
   const before = floorOf(merit); merit += n; renderMerit(); saveSoon();
   const after = floorOf(merit);
-  if (after < before) { sfx("up"); toast(after ? `Được giảm án! Bạn lên tầng B${after}` : "Đủ công đức! Đến gặp Mạnh Bà bên kia cầu để đầu thai"); addLog(after ? `Bạn được giảm án lên <b>B${after}</b>.` : "Bạn đã đủ công đức để <b>đầu thai</b>.", true); }
+  if (after < before) { sfx("up"); toast(after ? `Được giảm án! Bạn lên tầng B${after}` : "Đủ công đức! Bấm chữ Đầu thai trên bảng (hoặc gặp Mạnh Bà) để đầu thai"); addLog(after ? `Bạn được giảm án lên <b>B${after}</b>.` : "Bạn đã đủ công đức để <b>đầu thai</b>.", true); }
 }
 
 /* ---------- multiplayer (room presence) ---------- */
@@ -4699,6 +4702,8 @@ function endIntro() {
   }, 700);
 }
 $("#in-go-btn").addEventListener("click", endIntro);
+// đủ công đức: bấm chữ "Đầu thai" trên bảng là đầu thai luôn, khỏi phải đi gặp Mạnh Bà
+$("#h-f").addEventListener("click", () => { if (playing && floorOf(merit) === 0) reborn(); });
 $("#in-skip").addEventListener("click", endIntro);
 $("#b-intro").addEventListener("click", () => { if (playing) startIntro(true); });
 
